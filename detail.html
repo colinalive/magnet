@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BitSearch Clone - Torrent Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent absolute-top w-100" style="position: absolute; z-index: 10;">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">
+                <i class="fa-solid fa-share-nodes me-2"></i> BITSEARCH
+            </a>
+            <a href="index.html" class="btn btn-sm btn-outline-light rounded-pill px-3">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back
+            </a>
+        </div>
+    </nav>
+
+    <div class="detail-header text-center position-relative">
+        <div class="container pt-5">
+            <div class="d-inline-flex bg-white bg-opacity-20 p-4 rounded-circle mb-4 backdrop-blur shadow">
+                <i class="fa-solid fa-file-video fa-3x text-white"></i>
+            </div>
+            
+            <h2 class="fw-bold mb-3 px-md-5" id="fileName">Loading...</h2>
+            
+            <div class="d-flex justify-content-center flex-wrap gap-4 text-white-50 mb-5 fs-5">
+                <span><i class="fa-solid fa-database me-2"></i><span id="fileSize">--</span></span>
+                <span class="text-white"><i class="fa-solid fa-check-circle me-2 text-success"></i>Verified</span>
+                <span><i class="fa-solid fa-calendar me-2"></i><span id="fileDate">--</span></span>
+            </div>
+            
+            <div class="d-flex justify-content-center gap-3 pb-5">
+                <a id="magnetBtn" href="#" class="btn btn-magnet btn-lg px-5 rounded-pill fw-bold shadow-lg hover-scale">
+                    <i class="fa-solid fa-magnet me-2"></i> <span data-i18n="btn_magnet">Magnet Download</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container pb-5" style="margin-top: 5rem;">
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h6 class="fw-bold text-muted mb-3 text-uppercase small ls-1">Info Hash</h6>
+                        <div class="bg-light p-3 rounded font-monospace small text-break user-select-all text-secondary" id="infoHash">
+                            Computing...
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-bottom border-light pt-4 pb-3">
+                        <h5 class="fw-bold mb-0" data-i18n="sec_files">Files</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush" id="fileList">
+                            <li class="list-group-item text-muted text-center py-4">File list not available via basic API</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom border-light pt-4 pb-3">
+                        <h5 class="fw-bold mb-0" data-i18n="sec_trackers">Trackers</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush small">
+                            <div class="list-group-item text-truncate text-muted py-3"><i class="fa-solid fa-server me-3 text-success"></i> udp://tracker.opentrackr.org:1337</div>
+                            <div class="list-group-item text-truncate text-muted py-3"><i class="fa-solid fa-server me-3 text-success"></i> udp://9.rarbg.to:2710</div>
+                            <div class="list-group-item text-truncate text-muted py-3"><i class="fa-solid fa-server me-3 text-success"></i> udp://tracker.coppersurfer.tk:6969</div>
+                            <div class="list-group-item text-truncate text-muted py-3"><i class="fa-solid fa-server me-3 text-success"></i> udp://tracker.leechers-paradise.org:6969</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="main.js"></script>
+    
+    <script>
+        // Populate Data from URL Params (Simplified for Demo)
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const name = params.get('name') || 'Unknown File';
+            const size = params.get('size') || '--';
+            const magnet = params.get('magnet') || '#';
+
+            // Set Title & Header
+            document.title = `${name} - Download`;
+            document.getElementById('fileName').innerText = name;
+            document.getElementById('fileSize').innerText = size;
+            document.getElementById('fileDate').innerText = new Date().toISOString().split('T')[0];
+            
+            // Set Magnet Button
+            document.getElementById('magnetBtn').href = magnet;
+
+            // Extract Hash from Magnet
+            const match = magnet.match(/xt=urn:btih:([a-zA-Z0-9]+)/);
+            if(match) {
+                document.getElementById('infoHash').innerText = match[1];
+            }
+        });
+    </script>
+</body>
+</html>
