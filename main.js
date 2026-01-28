@@ -1,9 +1,7 @@
 /**
- * main.js - v8.0 Stable (Query Params)
- * 核心功能：
- * 1. 路由模式：search.html?q=xxx, detail.html?q=hash
- * 2. 磁力清洗：只保留 Hash，去除所有杂质参数
- * 3. 品牌重塑：磁力先锋 (Magnet Pioneer)
+ * main.js - v9.0 Stable & Robust
+ * 修复：解决 Cloudflare 去除 .html 后缀导致 JS 不执行的问题
+ * 核心：使用元素检测代替路径检测
  */
 
 // ==========================================
@@ -55,7 +53,8 @@ const dictionary = {
     'msg_copied': { 'zh-CN': '链接已复制', 'en': 'Link Copied' },
     'loading':    { 'zh-CN': '加载中...', 'en': 'Loading...' },
     'error_api':  { 'zh-CN': '数据加载失败', 'en': 'Data Load Failed' },
-    'error_invalid': { 'zh-CN': '无效的链接', 'en': 'Invalid Link' }
+    'error_invalid': { 'zh-CN': '无效的链接', 'en': 'Invalid Link' },
+    'no_results': { 'zh-CN': '未找到相关结果', 'en': 'No results found' }
 };
 
 const CONFIG = {
@@ -75,7 +74,7 @@ const CONFIG = {
 // 2. 核心工具：清洗与提取
 // ==========================================
 
-// 提取 40位 Hash (核心逻辑)
+// 提取 40位 Hash
 function extractHash(magnet) {
     if (!magnet) return null;
     const match = magnet.match(/xt=urn:btih:([a-zA-Z0-9]{40})/);
@@ -110,7 +109,7 @@ function updatePageText() {
         else el.innerText = t(key);
     });
 
-    // 2. 更新品牌名称 (Class: brand-text)
+    // 2. 更新品牌名称
     document.querySelectorAll('.brand-text').forEach(el => {
         el.innerText = t('brand_name');
     });
@@ -153,7 +152,7 @@ window.doSearch = function() {
     const input = document.getElementById('searchInput');
     const query = input.value.trim();
     if (query) {
-        // 回归 Query Param 模式
+        // 使用相对路径跳转，兼容性最好
         window.location.href = `search.html?q=${encodeURIComponent(query)}`;
     }
 };
@@ -170,19 +169,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // URL 参数解析
     const params = new URLSearchParams(window.location.search);
-    const q = params.get('q'); // search页是keyword，detail页是hash
+    const q = params.get('q'); 
 
-    const pathname = window.location.pathname;
+    // 🔥 核心修复：通过检测页面元素 ID 来判断当前在哪个页面
+    // 这样无论 Cloudflare 把 URL 变成了 /search 还是 /search.html，代码都能跑
+    const isSearchPage = document.getElementById('resultsList') !== null;
+    const isDetailPage = document.getElementById('detailContainer') !== null;
 
     // A. 搜索页逻辑
-    if (pathname.includes('search.html') && q) {
-        if(input) input.value = q;
-        loadSearchResults(q);
+    if (isSearchPage) {
+        if (q) {
+            if(input) input.value = q;
+            loadSearchResults(q);
+        } else {
+            // 如果没有关键词，隐藏转圈圈
+            document.getElementById('loading').classList.add('d-none');
+        }
     }
 
     // B. 详情页逻辑
-    if (pathname.includes('detail.html') && q) {
-        loadDetail(q);
+    if (isDetailPage) {
+        if (q) {
+            loadDetail(q);
+        } else {
+            document.getElementById('detailContainer').innerHTML = 
+                `<div class="alert alert-danger text-center">${t('error_invalid')}</div>`;
+        }
     }
 });
 
@@ -191,6 +203,10 @@ async function loadSearchResults(keyword) {
     const list = document.getElementById('resultsList');
     const loading = document.getElementById('loading');
     
+    // 确保转圈圈是显示的
+    loading.classList.remove('d-none');
+    list.innerHTML = '';
+    
     try {
         const res = await fetch(`${API_BASE}/?q=${encodeURIComponent(keyword)}`);
         const data = await res.json();
@@ -198,13 +214,13 @@ async function loadSearchResults(keyword) {
         loading.classList.add('d-none');
 
         if (data.error || data.length === 0) {
-            list.innerHTML = `<div class="text-center py-5 text-muted">No results found</div>`;
+            list.innerHTML = `<div class="text-center py-5 text-muted">${t('no_results')}</div>`;
             return;
         }
 
         list.innerHTML = data.map(item => {
             const hash = extractHash(item.magnet);
-            // 详情页链接：detail.html?q=HASH
+            // 详情页链接
             const detailUrl = hash ? `detail.html?q=${hash}` : '#';
             
             let icon = 'fa-file';
@@ -241,11 +257,12 @@ async function loadSearchResults(keyword) {
         }).join('');
 
     } catch (e) {
-        loading.innerHTML = `<div class="alert alert-danger text-center">${t('error_api')}</div>`;
+        loading.classList.add('d-none'); // 确保隐藏
+        list.innerHTML = `<div class="alert alert-danger text-center">${t('error_api')}</div>`;
     }
 }
 
-// 加载详情 (通过 Hash 反查)
+// 加载详情
 async function loadDetail(hash) {
     const container = document.getElementById('detailContainer');
     
@@ -253,24 +270,20 @@ async function loadDetail(hash) {
     const cleanMagnet = makeCleanMagnet(hash);
 
     try {
-        // 使用 Hash 去 API 搜索详情
         const res = await fetch(`${API_BASE}/?q=${hash}`);
         const data = await res.json();
         
-        // 假设第一个结果就是
         const item = data && data.length > 0 ? data[0] : null;
 
         if (!item) {
-            container.innerHTML = `<div class="alert alert-warning text-center">${t('error_invalid')}</div>`;
+            container.innerHTML = `<div class="alert alert-warning text-center">${t('no_results')}</div>`;
             return;
         }
 
-        // 更新页面标题
         document.title = `${item.name} - ${t('brand_name')}`;
         document.getElementById('fileName').innerText = item.name;
         document.getElementById('infoHash').innerText = hash;
 
-        // 渲染数据
         container.innerHTML = `
             <div class="row g-3 text-center mb-5">
                 <div class="col-6 col-md-3">
@@ -316,7 +329,6 @@ async function loadDetail(hash) {
             </div>
         `;
         
-        // 重新应用翻译
         updatePageText();
 
     } catch (e) {
