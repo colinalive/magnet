@@ -1,60 +1,29 @@
 /**
- * main.js - v9.0 Stable & Robust
- * 修复：解决 Cloudflare 去除 .html 后缀导致 JS 不执行的问题
- * 核心：使用元素检测代替路径检测
+ * main.js - v10.0 Debug Edition
+ * 增加详细日志，修复参数获取逻辑，优化加载状态
  */
 
 // ==========================================
-// 1. 字典配置 (品牌、SEO、界面)
+// 1. 配置
 // ==========================================
-const dictionary = {
-    // 品牌名称
-    'brand_name': {
-        'zh-CN': '磁力先锋',
-        'en': 'Magnet Pioneer',
-        'ko': '마그넷 파이오니어',
-        'ja': 'マグネットパイオニア',
-        'es': 'Pionero Magnético',
-        'fr': 'Pionnier Magnétique'
-    },
-    
-    // SEO Meta
-    'meta_title': { 
-        'zh-CN': '磁力先锋 - 极速纯净的磁力搜索引擎', 
-        'en': 'Magnet Pioneer - Fast & Clean Magnet Search' 
-    },
-    'meta_keywords': { 
-        'zh-CN': '磁力链接, 种子搜索, 磁力先锋, BT下载', 
-        'en': 'magnet links, torrent search, magnet pioneer, p2p' 
-    },
-    'meta_desc': { 
-        'zh-CN': '磁力先锋提供极速的磁力链接索引服务，纯净无广告，支持多语言搜索。', 
-        'en': 'Magnet Pioneer provides fast indexing of millions of magnet links. Clean, ad-free, and multilingual.' 
-    },
+const API_BASE = 'https://api.cili.xyz'; // 确保没有尾部斜杠
 
-    // 界面文本
-    'nav_home': { 'zh-CN': '首页', 'en': 'Home' },
-    'hero_title': { 'zh-CN': '探索无限资源', 'en': 'Discover Anything' },
-    'search_placeholder': { 'zh-CN': '搜索电影、剧集、软件...', 'en': 'Search movies, software...' },
+const dictionary = {
+    'brand_name': { 'zh-CN': '磁力先锋', 'en': 'Magnet Pioneer' },
+    'meta_title': { 'zh-CN': '磁力先锋 - 极速纯净', 'en': 'Magnet Pioneer - Fast Search' },
+    'search_placeholder': { 'zh-CN': '搜索电影、剧集、软件...', 'en': 'Search...' },
     'search_btn': { 'zh-CN': '搜索', 'en': 'Search' },
     'res_found': { 'zh-CN': '搜索结果', 'en': 'Results' },
+    'loading': { 'zh-CN': '加载中...', 'en': 'Loading...' },
+    'error_api': { 'zh-CN': '连接服务器失败', 'en': 'Connection Failed' },
+    'no_results': { 'zh-CN': '未找到相关资源', 'en': 'No Results Found' },
     
     // 详情页
-    'label_size': { 'zh-CN': '文件大小', 'en': 'File Size' },
-    'label_date': { 'zh-CN': '收录日期', 'en': 'Date Indexed' },
-    'label_hash': { 'zh-CN': '信息哈希', 'en': 'Info Hash' },
-    'label_files': { 'zh-CN': '文件概览', 'en': 'File Preview' },
-    'stat_seed':  { 'zh-CN': '做种', 'en': 'Seeders' },
-    'stat_leech': { 'zh-CN': '下载中', 'en': 'Leechers' },
-    'stat_down':  { 'zh-CN': '完成数', 'en': 'Downloads' },
-
-    'btn_magnet': { 'zh-CN': '磁力下载', 'en': 'Magnet Download' },
-    'btn_copy':   { 'zh-CN': '复制链接', 'en': 'Copy Link' },
-    'msg_copied': { 'zh-CN': '链接已复制', 'en': 'Link Copied' },
-    'loading':    { 'zh-CN': '加载中...', 'en': 'Loading...' },
-    'error_api':  { 'zh-CN': '数据加载失败', 'en': 'Data Load Failed' },
-    'error_invalid': { 'zh-CN': '无效的链接', 'en': 'Invalid Link' },
-    'no_results': { 'zh-CN': '未找到相关结果', 'en': 'No results found' }
+    'label_size': { 'zh-CN': '大小', 'en': 'Size' },
+    'label_date': { 'zh-CN': '日期', 'en': 'Date' },
+    'btn_magnet': { 'zh-CN': '磁力下载', 'en': 'Download' },
+    'btn_copy': { 'zh-CN': '复制链接', 'en': 'Copy Link' },
+    'msg_copied': { 'zh-CN': '已复制', 'en': 'Copied' }
 };
 
 const CONFIG = {
@@ -64,36 +33,33 @@ const CONFIG = {
         { code: 'zh-CN', flag: 'cn', name: '简体中文' },
         { code: 'en',    flag: 'us', name: 'English' },
         { code: 'ko',    flag: 'kr', name: '한국어' },
-        { code: 'ja',    flag: 'jp', name: '日本語' },
-        { code: 'es',    flag: 'es', name: 'Español' },
-        { code: 'fr',    flag: 'fr', name: 'Français' }
+        { code: 'ja',    flag: 'jp', name: '日本語' }
     ]
 };
 
 // ==========================================
-// 2. 核心工具：清洗与提取
+// 2. 工具函数
 // ==========================================
 
-// 提取 40位 Hash
 function extractHash(magnet) {
     if (!magnet) return null;
     const match = magnet.match(/xt=urn:btih:([a-zA-Z0-9]{40})/);
     return match ? match[1].toLowerCase() : null;
 }
 
-// 构造纯净磁力链 (无任何杂质参数)
 function makeCleanMagnet(hash) {
-    if (!hash) return '';
-    return `magnet:?xt=urn:btih:${hash}`;
+    return hash ? `magnet:?xt=urn:btih:${hash}` : '';
 }
 
 function formatDate(dateStr) {
     if (!dateStr) return 'N/A';
-    return new Date(dateStr).toLocaleDateString();
+    try {
+        return new Date(dateStr).toLocaleDateString();
+    } catch (e) { return dateStr; }
 }
 
 // ==========================================
-// 3. 语言与 SEO 逻辑
+// 3. I18n
 // ==========================================
 let currentLang = localStorage.getItem(CONFIG.storageKey) || CONFIG.defaultLang;
 
@@ -102,36 +68,19 @@ function t(key) {
 }
 
 function updatePageText() {
-    // 1. 更新 data-i18n 元素
+    document.title = t('meta_title');
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         if (el.placeholder) el.placeholder = t(key);
         else el.innerText = t(key);
     });
-
-    // 2. 更新品牌名称
-    document.querySelectorAll('.brand-text').forEach(el => {
-        el.innerText = t('brand_name');
-    });
-
-    // 3. 更新 SEO Meta
-    document.title = t('meta_title');
-    let metaDesc = document.querySelector('meta[name="description"]');
-    if (!metaDesc) {
-        metaDesc = document.createElement('meta');
-        metaDesc.name = 'description';
-        document.head.appendChild(metaDesc);
-    }
-    metaDesc.content = t('meta_desc');
-
-    // 4. 渲染国旗
-    const container = document.getElementById('flagContainer');
-    if (container) {
-        container.innerHTML = CONFIG.langs.map(lang => `
-            <button class="btn border-0 p-1 opacity-${lang.code === currentLang ? '100' : '50'}" 
-                onclick="window.setLanguage('${lang.code}')" 
-                title="${lang.name}">
-                <span class="fi fi-${lang.flag} rounded shadow-sm" style="font-size: 1.2rem;"></span>
+    
+    const flagContainer = document.getElementById('flagContainer');
+    if(flagContainer) {
+        flagContainer.innerHTML = CONFIG.langs.map(lang => `
+            <button class="btn border-0 p-1 ${lang.code === currentLang ? 'opacity-100' : 'opacity-50'}" 
+                onclick="setLanguage('${lang.code}')">
+                <span class="fi fi-${lang.flag} rounded shadow-sm fs-5"></span>
             </button>
         `).join('');
     }
@@ -144,22 +93,24 @@ window.setLanguage = function(lang) {
 };
 
 // ==========================================
-// 4. 路由与业务逻辑
+// 4. 业务逻辑 (带日志)
 // ==========================================
-const API_BASE = 'https://api.cili.xyz'; 
 
+// 执行搜索跳转
 window.doSearch = function() {
     const input = document.getElementById('searchInput');
     const query = input.value.trim();
+    console.log('[Search] User input:', query);
     if (query) {
-        // 使用相对路径跳转，兼容性最好
         window.location.href = `search.html?q=${encodeURIComponent(query)}`;
     }
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('[Init] DOM Loaded');
     updatePageText();
 
+    // 绑定回车
     const input = document.getElementById('searchInput');
     if (input) {
         input.addEventListener('keydown', (e) => {
@@ -167,65 +118,76 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // URL 参数解析
+    // 获取参数
     const params = new URLSearchParams(window.location.search);
-    const q = params.get('q'); 
+    const q = params.get('q');
+    console.log('[Init] URL Params q=', q);
 
-    // 🔥 核心修复：通过检测页面元素 ID 来判断当前在哪个页面
-    // 这样无论 Cloudflare 把 URL 变成了 /search 还是 /search.html，代码都能跑
-    const isSearchPage = document.getElementById('resultsList') !== null;
-    const isDetailPage = document.getElementById('detailContainer') !== null;
+    // 判断页面
+    const isSearchPage = document.getElementById('resultsList');
+    const isDetailPage = document.getElementById('detailContainer');
 
-    // A. 搜索页逻辑
     if (isSearchPage) {
         if (q) {
             if(input) input.value = q;
             loadSearchResults(q);
         } else {
-            // 如果没有关键词，隐藏转圈圈
-            document.getElementById('loading').classList.add('d-none');
+            console.log('[Search] No query param, staying idle.');
         }
     }
 
-    // B. 详情页逻辑
     if (isDetailPage) {
         if (q) {
             loadDetail(q);
         } else {
             document.getElementById('detailContainer').innerHTML = 
-                `<div class="alert alert-danger text-center">${t('error_invalid')}</div>`;
+                `<div class="alert alert-danger text-center">Hash Missing</div>`;
         }
     }
 });
 
-// 加载搜索结果
-async function loadSearchResults(keyword) {
+async function loadSearchResults(query) {
+    console.log('[API] Fetching results for:', query);
+    
     const list = document.getElementById('resultsList');
     const loading = document.getElementById('loading');
     
-    // 确保转圈圈是显示的
+    // 显示 Loading
     loading.classList.remove('d-none');
     list.innerHTML = '';
-    
+
     try {
-        const res = await fetch(`${API_BASE}/?q=${encodeURIComponent(keyword)}`);
-        const data = await res.json();
+        // 构建 URL
+        const apiUrl = `${API_BASE}?q=${encodeURIComponent(query)}`; // 注意：去掉了 /
+        console.log('[API] Request URL:', apiUrl);
+
+        const res = await fetch(apiUrl);
+        console.log('[API] Response Status:', res.status);
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         
+        const data = await res.json();
+        console.log('[API] Data received, length:', data.length);
+
+        // 隐藏 Loading
         loading.classList.add('d-none');
 
-        if (data.error || data.length === 0) {
+        if (data.error || !Array.isArray(data) || data.length === 0) {
             list.innerHTML = `<div class="text-center py-5 text-muted">${t('no_results')}</div>`;
             return;
         }
 
+        // 渲染列表
         list.innerHTML = data.map(item => {
             const hash = extractHash(item.magnet);
-            // 详情页链接
             const detailUrl = hash ? `detail.html?q=${hash}` : '#';
             
+            // 图标判断
             let icon = 'fa-file';
-            if(item.category.includes('Video')) icon = 'fa-film';
-            if(item.category.includes('App')) icon = 'fa-cube';
+            const cat = item.category || '';
+            if(cat.includes('Video') || cat.includes('Movie')) icon = 'fa-film';
+            if(cat.includes('App') || cat.includes('Software')) icon = 'fa-compact-disc';
+            if(cat.includes('Music') || cat.includes('Audio')) icon = 'fa-music';
 
             return `
             <div class="card mb-3 shadow-sm border-0">
@@ -241,7 +203,7 @@ async function loadSearchResults(keyword) {
                                 </a>
                             </h5>
                             <div class="text-muted small d-flex flex-wrap gap-3">
-                                <span class="badge bg-light text-secondary border">${item.category}</span>
+                                <span class="badge bg-light text-secondary border">${item.category || 'Other'}</span>
                                 <span><i class="fa-solid fa-server me-1"></i> ${item.size}</span>
                                 <span><i class="fa-regular fa-calendar me-1"></i> ${formatDate(item.date)}</span>
                                 <span class="d-md-none text-success ms-auto"><i class="fa-solid fa-arrow-up"></i> ${item.seeders}</span>
@@ -257,23 +219,21 @@ async function loadSearchResults(keyword) {
         }).join('');
 
     } catch (e) {
-        loading.classList.add('d-none'); // 确保隐藏
-        list.innerHTML = `<div class="alert alert-danger text-center">${t('error_api')}</div>`;
+        console.error('[API Error]', e);
+        loading.classList.add('d-none');
+        list.innerHTML = `<div class="alert alert-danger text-center">${t('error_api')}: ${e.message}</div>`;
     }
 }
 
-// 加载详情
 async function loadDetail(hash) {
+    console.log('[Detail] Loading hash:', hash);
     const container = document.getElementById('detailContainer');
-    
-    // 构造纯净磁力链
     const cleanMagnet = makeCleanMagnet(hash);
 
     try {
-        const res = await fetch(`${API_BASE}/?q=${hash}`);
+        const res = await fetch(`${API_BASE}?q=${hash}`);
         const data = await res.json();
-        
-        const item = data && data.length > 0 ? data[0] : null;
+        const item = (data && data.length > 0) ? data[0] : null;
 
         if (!item) {
             container.innerHTML = `<div class="alert alert-warning text-center">${t('no_results')}</div>`;
@@ -286,58 +246,24 @@ async function loadDetail(hash) {
 
         container.innerHTML = `
             <div class="row g-3 text-center mb-5">
-                <div class="col-6 col-md-3">
-                    <div class="p-3 bg-light rounded border h-100">
-                        <div class="text-muted small mb-1" data-i18n="label_size">Size</div>
-                        <div class="fw-bold">${item.size}</div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="p-3 bg-light rounded border h-100">
-                        <div class="text-muted small mb-1" data-i18n="label_date">Date</div>
-                        <div class="fw-bold">${formatDate(item.date)}</div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="p-3 bg-light rounded border h-100">
-                        <div class="text-muted small mb-1" data-i18n="stat_seed">Seeders</div>
-                        <div class="fw-bold text-success">${item.seeders}</div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="p-3 bg-light rounded border h-100">
-                        <div class="text-muted small mb-1" data-i18n="stat_leech">Leechers</div>
-                        <div class="fw-bold text-danger">${item.leechers}</div>
-                    </div>
-                </div>
+                <div class="col-6 col-md-3"><div class="p-3 bg-light rounded border h-100"><div class="text-muted small mb-1" data-i18n="label_size">Size</div><div class="fw-bold">${item.size}</div></div></div>
+                <div class="col-6 col-md-3"><div class="p-3 bg-light rounded border h-100"><div class="text-muted small mb-1" data-i18n="label_date">Date</div><div class="fw-bold">${formatDate(item.date)}</div></div></div>
+                <div class="col-6 col-md-3"><div class="p-3 bg-light rounded border h-100"><div class="text-muted small mb-1" data-i18n="stat_seed">Seeders</div><div class="fw-bold text-success">${item.seeders}</div></div></div>
+                <div class="col-6 col-md-3"><div class="p-3 bg-light rounded border h-100"><div class="text-muted small mb-1" data-i18n="stat_leech">Leechers</div><div class="fw-bold text-danger">${item.leechers}</div></div></div>
             </div>
-
             <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                <a href="${cleanMagnet}" class="btn btn-primary btn-lg px-5 rounded-pill shadow-sm">
-                    <i class="fa-solid fa-magnet me-2"></i> <span data-i18n="btn_magnet">Magnet Download</span>
-                </a>
-                <button onclick="copyToClipboard('${cleanMagnet}')" class="btn btn-outline-secondary btn-lg px-5 rounded-pill">
-                    <i class="fa-regular fa-copy me-2"></i> <span data-i18n="btn_copy">Copy Link</span>
-                </button>
+                <a href="${cleanMagnet}" class="btn btn-primary btn-lg px-5 rounded-pill shadow-sm"><i class="fa-solid fa-magnet me-2"></i> <span data-i18n="btn_magnet">Magnet Download</span></a>
+                <button onclick="copyToClipboard('${cleanMagnet}')" class="btn btn-outline-secondary btn-lg px-5 rounded-pill"><i class="fa-regular fa-copy me-2"></i> <span data-i18n="btn_copy">Copy Link</span></button>
             </div>
-            
-            <div class="mt-5 text-start">
-                 <h5 class="border-bottom pb-2 mb-3" data-i18n="label_files">Files</h5>
-                 <div class="bg-light p-3 rounded text-muted small">
-                    <i class="fa-regular fa-file me-2"></i> ${item.name}
-                 </div>
-            </div>
+            <div class="mt-5 text-start"><h5 class="border-bottom pb-2 mb-3">Files</h5><div class="bg-light p-3 rounded text-muted small"><i class="fa-regular fa-file me-2"></i> ${item.name}</div></div>
         `;
-        
         updatePageText();
-
     } catch (e) {
+        console.error('[Detail Error]', e);
         container.innerHTML = `<div class="alert alert-danger text-center">${t('error_api')}</div>`;
     }
 }
 
 window.copyToClipboard = function(text) {
-    navigator.clipboard.writeText(text).then(() => {
-        alert(t('msg_copied'));
-    });
+    navigator.clipboard.writeText(text).then(() => alert(t('msg_copied')));
 };
