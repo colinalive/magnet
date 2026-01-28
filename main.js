@@ -1,14 +1,13 @@
 /**
- * main.js - v15.0 API-First Detail Page
- * 1. 详情页完全独立：只依赖 Hash，数据全走 API
- * 2. 修复了依赖 URL 参数导致详情页空白的问题
- * 3. 保持多语言、SEO 和 Footer 统一
+ * main.js - v17.0 Parameter-First (Reliable)
+ * 1. 详情页优先读取 URL 参数渲染，不再依赖 API 反查
+ * 2. 只有当 URL 缺参数时（如直接访问 Hash 链接），才尝试 API 补救
+ * 3. 保持磁力链接纯净 + 多语言 + SEO
  */
 
 const API_BASE = 'https://api.cili.xyz'; 
 
 const dictionary = {
-    // 品牌
     'brand_name': { 'zh-CN': '磁力先锋', 'zh-TW': '磁力先鋒', 'en': 'Magnet Pioneer', 'ko': '마그넷 파이오니어', 'ja': 'マグネットパイオニア' },
     'home_title': { 'zh-CN': '极速纯净的磁力搜索引擎', 'zh-TW': '極速純淨的磁力搜尋引擎', 'en': 'Fast & Clean Magnet Search', 'ko': '빠르고 깨끗한 마그넷 검색', 'ja': '高速でクリーンな磁気検索' },
     
@@ -18,8 +17,7 @@ const dictionary = {
 
     // 界面
     'nav_home': { 'zh-CN': '首页', 'zh-TW': '首頁', 'en': 'Home', 'ko': '홈', 'ja': 'ホーム' },
-    'hero_title': { 'zh-CN': '探索无限资源', 'zh-TW': '探索無限資源', 'en': 'Discover Anything', 'ko': '무한한 자원 탐색', 'ja': 'あらゆるものを検索' },
-    'search_placeholder': { 'zh-CN': '搜索电影、剧集、软件...', 'zh-TW': '搜尋電影、劇集、軟體...', 'en': 'Search...', 'ko': '검색...', 'ja': '検索...' },
+    'search_placeholder': { 'zh-CN': '搜索资源...', 'zh-TW': '搜尋資源...', 'en': 'Search...', 'ko': '검색...', 'ja': '検索...' },
     'search_btn': { 'zh-CN': '搜索', 'zh-TW': '搜尋', 'en': 'Search', 'ko': '검색', 'ja': '検索' },
     'res_found': { 'zh-CN': '搜索结果', 'zh-TW': '搜尋結果', 'en': 'Results', 'ko': '검색 결과', 'ja': '検索結果' },
     
@@ -29,11 +27,12 @@ const dictionary = {
     'label_files':{ 'zh-CN': '文件概览', 'zh-TW': '檔案預覽', 'en': 'File Preview', 'ko': '파일 미리보기', 'ja': 'ファイル' },
     'stat_seed':  { 'zh-CN': '做种', 'zh-TW': '做種', 'en': 'Seeders', 'ko': '시더', 'ja': 'シード' },
     'stat_leech': { 'zh-CN': '下载中', 'zh-TW': '下載中', 'en': 'Leechers', 'ko': '리처', 'ja': 'リーチ' },
+    
     'btn_magnet': { 'zh-CN': '磁力下载', 'zh-TW': '磁力下載', 'en': 'Magnet Download', 'ko': '마그넷 다운로드', 'ja': 'マグネットDL' },
     'btn_copy':   { 'zh-CN': '复制链接', 'zh-TW': '複製連結', 'en': 'Copy Link', 'ko': '링크 복사', 'ja': 'リンクをコピー' },
     'msg_copied': { 'zh-CN': '链接已复制', 'zh-TW': '連結已複製', 'en': 'Link Copied', 'ko': '복사됨', 'ja': 'コピーしました' },
     
-    'loading':    { 'zh-CN': '正在加载数据...', 'zh-TW': '正在加載數據...', 'en': 'Fetching Data...', 'ko': '데이터 로드 중...', 'ja': 'データ読み込み中...' },
+    'loading':    { 'zh-CN': '正在加载...', 'zh-TW': '正在加載...', 'en': 'Loading...', 'ko': '로딩 중...', 'ja': '読み込み中...' },
     'no_results': { 'zh-CN': '未找到相关资源', 'zh-TW': '未找到相關資源', 'en': 'No Results Found', 'ko': '결과 없음', 'ja': '結果なし' },
     'error_api':  { 'zh-CN': '连接服务器失败', 'zh-TW': '連接服務器失敗', 'en': 'Connection Failed', 'ko': '연결 실패', 'ja': '接続失敗' },
     
@@ -52,25 +51,22 @@ const CONFIG = {
     ]
 };
 
-// ==========================================
-// 2. 核心工具
-// ==========================================
 let currentLang = localStorage.getItem(CONFIG.storageKey) || CONFIG.defaultLang;
-window.pageTitlePrefix = null; // 用于动态标题
+window.pageTitlePrefix = null;
 
+// ==========================================
+// 核心工具
+// ==========================================
 function t(key) {
     return dictionary[key]?.[currentLang] || dictionary[key]?.['en'] || key;
 }
 
 function updatePageText() {
-    // 更新 data-i18n
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         if (el.placeholder) el.placeholder = t(key);
         else el.innerText = t(key);
     });
-
-    // 更新品牌
     document.querySelectorAll('.brand-text').forEach(el => el.innerText = t('brand_name'));
 
     // 更新 Title
@@ -126,7 +122,7 @@ window.copyToClipboard = function(text) {
 };
 
 // ==========================================
-// 3. 业务逻辑入口
+// 业务逻辑
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     updatePageText();
@@ -135,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (input) input.addEventListener('keydown', (e) => { if (e.key === 'Enter') window.doSearch(); });
 
     const params = new URLSearchParams(window.location.search);
-    const q = params.get('q'); 
+    const q = params.get('q'); // 可能是 keyword 也可能是 hash
 
     // A. 搜索页逻辑
     if (document.getElementById('resultsList') && q) {
@@ -147,20 +143,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // B. 详情页逻辑
     if (document.getElementById('detailContainer')) {
-        // 如果有 q 参数 (Hash)，则请求 API
-        if (q && q.length === 40) {
+        // 优先读取 URL 携带的参数 (Reliable)
+        const name = params.get('name');
+        
+        if (name && q) {
+            // 如果 URL 里有数据，直接渲染，无需 API
+            const size = params.get('size');
+            const date = params.get('date');
+            const seeds = params.get('seeds');
+            const leechs = params.get('leechs');
+            
+            // 这里 q 就是 hash
+            window.pageTitlePrefix = name;
+            updatePageText();
+            renderDetailView(name, size, date, seeds, leechs, q);
+        } 
+        else if (q && q.length === 40) {
+            // 只有 Hash，尝试 API 补救 (Fallback)
             loadDetailFromApi(q);
-        } else {
+        } 
+        else {
             showDetailError(t('no_results'));
         }
     }
 });
 
-// 加载搜索列表
+// 加载搜索结果
 async function loadSearchResults(query) {
     const list = document.getElementById('resultsList');
     const loading = document.getElementById('loading');
-    
     loading.classList.remove('d-none');
     list.innerHTML = '';
 
@@ -176,8 +187,11 @@ async function loadSearchResults(query) {
 
         list.innerHTML = data.map(item => {
             const hash = extractHash(item.magnet);
-            // 🔥 Clean URL: 只有 ?q=HASH
-            const detailUrl = hash ? `detail.html?q=${hash}` : '#';
+            // 🔥 URL 传参模式：带上所有数据，保证详情页可用
+            // 详情页链接：detail.html?q=HASH&name=...&size=...
+            const detailUrl = hash 
+                ? `detail.html?q=${hash}&name=${encodeURIComponent(item.name)}&size=${item.size}&date=${item.date}&seeds=${item.seeders}&leechs=${item.leechers}` 
+                : '#';
             
             let icon = 'fa-file';
             if(item.category.includes('Video')) icon = 'fa-film';
@@ -218,83 +232,71 @@ async function loadSearchResults(query) {
     }
 }
 
-// 详情页：完全依赖 API 获取数据
+// 详情页：API 补救模式 (仅当 URL 缺参数时触发)
 async function loadDetailFromApi(hash) {
     const container = document.getElementById('detailContainer');
-    // 显示 Loading 状态
-    container.innerHTML = `
-        <div class="text-center py-5">
-            <div class="spinner-border text-primary" role="status"></div>
-            <p class="text-muted mt-3" data-i18n="loading">Fetching...</p>
-        </div>
-    `;
-    updatePageText(); // 翻译 "Fetching..."
-
+    container.innerHTML = `<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>`;
+    
     try {
-        // 使用 Hash 查询 API
         const res = await fetch(`${API_BASE}/?q=${hash}`);
         const data = await res.json();
-        
-        // 假设 API 返回数组，取第一个匹配项
         const item = (data && data.length > 0) ? data[0] : null;
 
-        if (!item) {
-            showDetailError(t('no_results'));
-            return;
+        if (item) {
+            window.pageTitlePrefix = item.name;
+            updatePageText();
+            renderDetailView(item.name, item.size, item.date, item.seeders, item.leechers, hash);
+        } else {
+            // 真的找不到了，显示未知，但允许下载
+            renderDetailView('Unknown Resource', '--', null, '-', '-', hash);
         }
-
-        // 设置动态标题
-        window.pageTitlePrefix = item.name;
-        updatePageText();
-
-        // 渲染详情
-        renderDetailView(item, hash);
-
     } catch (e) {
-        showDetailError(`${t('error_api')}: ${e.message}`);
+        renderDetailView('Unknown Resource', '--', null, '-', '-', hash);
     }
 }
 
-function renderDetailView(item, hash) {
+// 渲染详情视图
+function renderDetailView(name, size, date, seeds, leechs, hash) {
     const container = document.getElementById('detailContainer');
+    // 🔥 清洗：按钮只用纯净 Hash
     const magnet = `magnet:?xt=urn:btih:${hash}`;
-    
+    const displayName = decodeURIComponent(name); // 确保解码
+
     container.innerHTML = `
         <div class="card-header bg-white text-center py-5 border-bottom">
             <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-circle mb-3" style="width: 80px; height: 80px;">
                 <i class="fa-solid fa-file-lines fa-3x"></i>
             </div>
-            <h1 class="h3 fw-bold px-3 text-break">${item.name}</h1>
+            <h1 class="h3 fw-bold px-3 text-break">${displayName}</h1>
             <div class="mt-3">
-                <span class="badge bg-light text-secondary border font-monospace">${hash}</span>
+                <span class="badge bg-light text-secondary border font-monospace user-select-all">${hash}</span>
             </div>
         </div>
 
         <div class="card-body p-4 p-md-5">
             <div class="row g-3 text-center mb-5">
-                <div class="col-6 col-md-3"><div class="p-3 bg-light rounded border h-100"><div class="text-muted small mb-1" data-i18n="label_size">Size</div><div class="fw-bold">${item.size}</div></div></div>
-                <div class="col-6 col-md-3"><div class="p-3 bg-light rounded border h-100"><div class="text-muted small mb-1" data-i18n="label_date">Date</div><div class="fw-bold">${formatDate(item.date)}</div></div></div>
-                <div class="col-6 col-md-3"><div class="p-3 bg-light rounded border h-100"><div class="text-muted small mb-1" data-i18n="stat_seed">Seeders</div><div class="fw-bold text-success">${item.seeders}</div></div></div>
-                <div class="col-6 col-md-3"><div class="p-3 bg-light rounded border h-100"><div class="text-muted small mb-1" data-i18n="stat_leech">Leechers</div><div class="fw-bold text-danger">${item.leechers}</div></div></div>
+                <div class="col-6 col-md-3"><div class="p-3 bg-light rounded border h-100"><div class="text-muted small mb-1" data-i18n="label_size">Size</div><div class="fw-bold">${size}</div></div></div>
+                <div class="col-6 col-md-3"><div class="p-3 bg-light rounded border h-100"><div class="text-muted small mb-1" data-i18n="label_date">Date</div><div class="fw-bold">${formatDate(date)}</div></div></div>
+                <div class="col-6 col-md-3"><div class="p-3 bg-light rounded border h-100"><div class="text-muted small mb-1" data-i18n="stat_seed">Seeders</div><div class="fw-bold text-success">${seeds}</div></div></div>
+                <div class="col-6 col-md-3"><div class="p-3 bg-light rounded border h-100"><div class="text-muted small mb-1" data-i18n="stat_leech">Leechers</div><div class="fw-bold text-danger">${leechs}</div></div></div>
             </div>
 
             <div class="d-grid gap-2 d-md-flex justify-content-md-center">
                 <a href="${magnet}" class="btn btn-primary btn-lg px-5 rounded-pill shadow-sm"><i class="fa-solid fa-magnet me-2"></i> <span data-i18n="btn_magnet">Download</span></a>
-                <button onclick="window.copyToClipboard('${magnet}')" class="btn btn-outline-secondary btn-lg px-5 rounded-pill"><i class="fa-regular fa-copy me-2"></i> <span data-i18n="btn_copy">Copy</span></button>
+                <button onclick="window.copyToClipboard('${magnet}')" class="btn btn-outline-secondary btn-lg px-5 rounded-pill"><i class="fa-regular fa-copy me-2"></i> <span data-i18n="btn_copy">Copy Link</span></button>
             </div>
             
             <div class="mt-5 text-start">
                  <h5 class="border-bottom pb-2 mb-3" data-i18n="label_files">Files</h5>
                  <div class="bg-light p-3 rounded text-muted small text-break">
-                    <i class="fa-regular fa-file me-2"></i> ${item.name}
+                    <i class="fa-regular fa-file me-2"></i> ${displayName}
                  </div>
             </div>
         </div>
     `;
-    updatePageText(); // 确保新渲染的 HTML (Size/Date标签) 被翻译
+    updatePageText();
 }
 
 function showDetailError(msg) {
-    document.getElementById('detailContainer').innerHTML = 
-        `<div class="alert alert-danger text-center my-5">${msg}</div>`;
+    document.getElementById('detailContainer').innerHTML = `<div class="alert alert-danger text-center my-5">${msg}</div>`;
 }
