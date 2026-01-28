@@ -3,52 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Results - Magnet Pioneer</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@6.6.6/css/flag-icons.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>.hover-shadow:hover { box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important; transition: .2s; }</style>
+    <title>磁力搜索 - Pro</title>
+    <style>
+        :root { --primary: #007bff; --bg: #f8f9fa; --card-bg: #fff; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        
+        .search-box { display: flex; gap: 10px; margin-bottom: 30px; }
+        input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
+        button { padding: 12px 24px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; }
+        button:hover { opacity: 0.9; }
+
+        .result-card { background: var(--card-bg); padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: transform 0.1s; }
+        .result-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        
+        .title { font-size: 16px; color: #333; margin-bottom: 8px; font-weight: 500; line-height: 1.4; display: block; text-decoration: none; }
+        .title:hover { color: var(--primary); }
+        
+        .meta { display: flex; flex-wrap: wrap; gap: 15px; font-size: 13px; color: #666; align-items: center; }
+        .tag { padding: 2px 6px; border-radius: 4px; background: #eee; }
+        .seeders { color: #28a745; font-weight: bold; }
+        .leechers { color: #dc3545; }
+        .verified { color: #28a745; display: flex; align-items: center; gap: 4px; font-weight: bold; }
+        
+        /* 绿勾图标 */
+        .verified-icon::before { content: "✓"; display: inline-block; width: 14px; height: 14px; background: #28a745; color: white; border-radius: 50%; text-align: center; line-height: 14px; font-size: 10px; margin-right: 4px; }
+
+        .loading { text-align: center; color: #666; display: none; margin-top: 20px; }
+    </style>
 </head>
-<body class="d-flex flex-column min-vh-100 bg-light">
+<body>
 
-    <nav class="navbar navbar-expand bg-white border-bottom shadow-sm sticky-top">
-        <div class="container">
-            <a class="navbar-brand fw-bold text-primary d-none d-md-block brand-text" href="index.html">Magnet Pioneer</a>
-            
-            <div class="flex-grow-1 mx-2 mx-md-4">
-                <div class="input-group rounded-pill overflow-hidden border bg-light">
-                    <input type="text" id="searchInput" class="form-control border-0 bg-light shadow-none" placeholder="...">
-                    <button class="btn btn-link text-decoration-none text-primary" onclick="window.doSearch()">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="d-flex align-items-center overflow-auto" id="flagContainer"></div>
-        </div>
-    </nav>
-
-    <div class="container py-4 flex-grow-1">
-        <div class="row justify-content-center">
-            <div class="col-12 col-lg-8">
-                <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
-                    <h5 class="fw-bold m-0" data-i18n="res_found">Results</h5>
-                </div>
-                
-                <div id="loading" class="text-center py-5 d-none">
-                    <div class="spinner-border text-primary" role="status"></div>
-                </div>
-
-                <div id="resultsList"></div>
-            </div>
-        </div>
+<div class="container">
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="搜索资源 (例如: 哪吒, Ubuntu)..." onkeypress="handleEnter(event)">
+        <button onclick="doSearch()">搜索</button>
     </div>
+    <div id="loading" class="loading">正在通过加密隧道加载...</div>
+    <div id="results"></div>
+</div>
 
-    <footer class="py-4 text-center text-muted small bg-white border-top mt-auto">
-        <div class="container">
-            <span data-i18n="copyright">© 2026 Magnet Pioneer.</span>
-        </div>
-    </footer>
+<script>
+    // 🔥 你的 Cloudflare Worker 地址
+    const API_BASE = 'https://api.cili.xyz'; 
 
-    <script src="main.js"></script>
+    function handleEnter(e) { if(e.key === 'Enter') doSearch(); }
+
+    async function doSearch() {
+        const q = document.getElementById('searchInput').value.trim();
+        if (!q) return;
+
+        const loading = document.getElementById('loading');
+        const container = document.getElementById('results');
+        
+        loading.style.display = 'block';
+        container.innerHTML = '';
+
+        try {
+            const res = await fetch(`${API_BASE}/?q=${encodeURIComponent(q)}`);
+            const data = await res.json();
+            
+            loading.style.display = 'none';
+
+            if (data.error) {
+                container.innerHTML = `<p style="color:red;text-align:center">Error: ${data.error}</p>`;
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p style="text-align:center">未找到相关资源</p>';
+                return;
+            }
+
+            // 渲染列表
+            container.innerHTML = data.map(item => {
+                // 构造详情页链接 (暂时还是传参数模式，等有了详情API再改 ID 模式)
+                const detailUrl = `detail.html?name=${encodeURIComponent(item.name)}&magnet=${encodeURIComponent(item.magnet)}&size=${encodeURIComponent(item.size)}&date=${encodeURIComponent(item.date)}`;
+                
+                // 处理认证标识
+                const verifiedTag = item.verified ? `<span class="verified"><span class="verified-icon"></span>官方认证</span>` : '';
+
+                return `
+                <div class="result-card">
+                    <a href="${detailUrl}" class="title" target="_blank">${item.name}</a>
+                    <div class="meta">
+                        <span class="tag">${item.size}</span>
+                        <span>📅 ${item.date}</span>
+                        <span class="seeders">⬆ ${item.seeders}</span>
+                        <span class="leechers">⬇ ${item.leechers}</span>
+                        <span>🔥 ${item.downloads} 次下载</span>
+                        ${verifiedTag}
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+        } catch (e) {
+            loading.style.display = 'none';
+            container.innerHTML = `<p style="color:red;text-align:center">请求失败: ${e.message}</p>`;
+        }
+    }
+</script>
+
 </body>
 </html>

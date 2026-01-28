@@ -3,46 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Magnet Pioneer</title>
-    <meta name="description" content="Free Magnet Search Engine">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@6.6.6/css/flag-icons.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>ePark Search - 专业的磁力搜索引擎</title>
+    <meta name="description" content="快速、纯净、经过验证的磁力搜索引擎。搜索最新的电影、软件、动漫资源，支持多语言和实时热度显示。">
+    <meta name="keywords" content="磁力搜索, 哪吒, 资源下载, 种子搜索, 磁力链接, verified torrents">
+    <meta property="og:title" content="ePark Search">
+    <meta property="og:description" content="专业磁力搜索，提供官方认证资源下载">
+    <meta property="og:type" content="website">
+    
+    <style>
+        :root { --primary: #0070f3; --bg: #fafafa; --card-bg: #fff; --text: #333; --success: #10b981; --danger: #ef4444; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; }
+        
+        /* 顶部导航 */
+        header { padding: 20px; background: var(--card-bg); box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 24px; font-weight: 800; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+        .logo span { color: var(--primary); }
+        .lang-switch { display: flex; gap: 10px; }
+        .lang-btn { background: none; border: 1px solid #ddd; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .lang-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* 搜索区域 */
+        main { flex: 1; max-width: 900px; margin: 40px auto; width: 95%; padding: 0 10px; }
+        .search-wrapper { display: flex; gap: 10px; margin-bottom: 30px; }
+        input { flex: 1; padding: 14px 20px; border: 2px solid #eaeaea; border-radius: 12px; font-size: 16px; outline: none; transition: border 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        input:focus { border-color: var(--primary); }
+        button.search-btn { padding: 0 30px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
+        button.search-btn:hover { opacity: 0.9; }
+
+        /* 结果列表 */
+        .results { display: flex; flex-direction: column; gap: 16px; }
+        .card { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid #eaeaea; transition: transform 0.2s, box-shadow 0.2s; text-decoration: none; color: inherit; display: block; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-color: var(--primary); }
+        
+        .card-header { display: flex; justify-content: space-between; align-items: start; gap: 15px; margin-bottom: 10px; }
+        .card-title { font-size: 17px; font-weight: 600; line-height: 1.5; color: #000; overflow-wrap: break-word; }
+        .card-badges { display: flex; gap: 8px; flex-shrink: 0; }
+        
+        .badge { font-size: 12px; padding: 4px 8px; border-radius: 6px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+        .badge-verified { background: #d1fae5; color: #065f46; }
+        .badge-hot { background: #fef3c7; color: #92400e; }
+        .badge-size { background: #f3f4f6; color: #4b5563; }
+
+        .card-meta { display: flex; gap: 20px; font-size: 13px; color: #666; align-items: center; margin-top: 12px; }
+        .meta-seeders { color: var(--success); font-weight: 700; }
+        .meta-leechers { color: var(--danger); }
+
+        .loading, .error { text-align: center; padding: 40px; color: #888; }
+        .footer { text-align: center; padding: 20px; font-size: 12px; color: #999; border-top: 1px solid #eaeaea; margin-top: 40px; }
+    </style>
 </head>
-<body class="d-flex flex-column min-vh-100 bg-light">
+<body>
 
-    <nav class="navbar navbar-expand bg-white border-bottom shadow-sm sticky-top">
-        <div class="container">
-            <a class="navbar-brand fw-bold text-primary brand-text" href="index.html">Magnet Pioneer</a>
-            <div class="d-flex align-items-center overflow-auto ms-auto" id="flagContainer"></div>
-        </div>
-    </nav>
-
-    <div class="flex-grow-1 d-flex align-items-center">
-        <div class="container text-center">
-            <div class="row justify-content-center">
-                <div class="col-12 col-md-8 col-lg-6">
-                    <div class="mb-5">
-                        <i class="fa-solid fa-bolt display-1 text-primary mb-3"></i>
-                        <h1 class="fw-bold mb-3 brand-text">Magnet Pioneer</h1>
-                        <p class="text-secondary lead" data-i18n="hero_title">Discover Anything</p>
-                    </div>
-
-                    <div class="input-group input-group-lg shadow-sm rounded-pill overflow-hidden border bg-white">
-                        <input type="text" id="searchInput" class="form-control border-0 ps-4 shadow-none" data-i18n="search_placeholder" placeholder="...">
-                        <button class="btn btn-primary px-4 fw-bold" onclick="window.doSearch()" data-i18n="search_btn">Search</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+<header>
+    <a href="/" class="logo">⚡ <span>ePark</span></a>
+    <div class="lang-switch">
+        <button class="lang-btn active" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" onclick="setLang('zh')">中文</button>
+        <button class="lang-btn" onclick="setLang('ko')">한국어</button>
     </div>
+</header>
 
-    <footer class="py-4 text-center text-muted small bg-white border-top mt-auto">
-        <div class="container">
-            <span data-i18n="copyright">© 2026 Magnet Pioneer.</span>
+<main>
+    <div class="search-wrapper">
+        <input type="text" id="searchInput" placeholder="Search..." onkeypress="handleEnter(event)">
+        <button class="search-btn" onclick="doSearch()" id="btnSearch">Search</button>
+    </div>
+    
+    <div id="status" style="display:none"></div>
+    <div class="results" id="results">
         </div>
-    </footer>
+</main>
 
-    <script src="main.js"></script>
+<footer class="footer">
+    &copy; 2026 ePark. Data provided by BitSearch API.
+</footer>
+
+<script src="main.js"></script>
+
 </body>
 </html>
