@@ -3,66 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ePark Search</title>
-    <meta name="description" content="Professional Magnet Search Engine">
-    <style>
-        :root { --primary: #0070f3; --bg: #fff; --text: #333; }
-        body { margin: 0; padding: 0; font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; }
-        
-        /* 顶部语言栏 */
-        .top-nav { position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; }
-        .lang-btn { border: none; background: none; color: #666; cursor: pointer; font-size: 13px; }
-        .lang-btn.active { color: var(--primary); font-weight: bold; }
-
-        /* 居中容器 */
-        .center-container { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; margin-top: -50px; }
-        
-        .logo { font-size: 48px; font-weight: 800; margin-bottom: 30px; color: #000; letter-spacing: -1px; }
-        .logo span { color: var(--primary); }
-        
-        .search-box { width: 100%; max-width: 580px; position: relative; }
-        input { width: 100%; padding: 16px 20px; padding-right: 100px; border: 1px solid #dfe1e5; border-radius: 24px; font-size: 16px; outline: none; box-sizing: border-box; transition: box-shadow 0.2s; }
-        input:hover, input:focus { box-shadow: 0 1px 6px rgba(32,33,36,0.28); border-color: rgba(223,225,229,0); }
-        
-        button { position: absolute; right: 6px; top: 6px; height: 36px; padding: 0 20px; background: var(--primary); color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: 500; font-size: 14px; }
-        button:hover { background: #0060df; }
-
-        .footer { text-align: center; font-size: 12px; color: #999; padding-bottom: 20px; }
-    </style>
+    <title>磁力先锋 - cili.xyz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="description" content="磁力先锋 (Magnet Pioneer) - 快速、纯净的磁力搜索引擎。">
+    <meta name="keywords" content="磁力, 种子, 下载, 哪吒, BitSearch">
 </head>
-<body>
+<body class="bg-light d-flex flex-column min-vh-100">
 
-<div class="top-nav">
-    <button class="lang-btn" data-lang="en" onclick="setLang('en')">English</button>
-    <button class="lang-btn" data-lang="zh" onclick="setLang('zh')">中文</button>
-    <button class="lang-btn" data-lang="ko" onclick="setLang('ko')">한국어</button>
-</div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <span class="navbar-brand mb-0 h1 fw-bold">🧲 磁力先锋</span>
+            <div class="ms-auto">
+                <button class="btn btn-sm btn-link text-decoration-none lang-select" data-lang="en" onclick="setLang('en')">English</button>
+                <button class="btn btn-sm btn-link text-decoration-none lang-select" data-lang="zh" onclick="setLang('zh')">中文</button>
+                <button class="btn btn-sm btn-link text-decoration-none lang-select" data-lang="ko" onclick="setLang('ko')">한국어</button>
+            </div>
+        </div>
+    </nav>
 
-<div class="center-container">
-    <div class="logo">⚡ <span>ePark</span></div>
-    <div class="search-box">
-        <input type="text" id="searchInput" autofocus onkeypress="handleEnter(event)">
-        <button id="btnSearch" onclick="goSearch()">Search</button>
+    <div class="container flex-grow-1 d-flex align-items-center justify-content-center">
+        <div class="text-center w-100" style="max-width: 600px;">
+            <h1 class="display-4 fw-bold mb-4">⚡ cili.xyz</h1>
+            <div class="input-group input-group-lg shadow-sm">
+                <input type="text" id="searchInput" class="form-control" autofocus onkeypress="handleEnter(event)">
+                <button class="btn btn-primary px-4" id="btnSearch" onclick="goSearch()">Search</button>
+            </div>
+            <p class="text-muted mt-3 small">Index millions of torrents instantly.</p>
+        </div>
     </div>
-</div>
 
-<div class="footer">&copy; 2026 ePark Search</div>
+    <footer class="text-center py-3 text-muted border-top bg-white">
+        &copy; 2026 磁力先锋 (Magnet Pioneer)
+    </footer>
 
-<script src="main.js"></script>
-<script>
-    // 初始化语言
-    const t = initI18n();
-
-    function handleEnter(e) { if(e.key === 'Enter') goSearch(); }
-
-    function goSearch() {
-        const q = document.getElementById('searchInput').value.trim();
-        if(!q) return;
-        // 🔥 核心跳转逻辑：带上语言参数
-        const lang = getLang();
-        window.location.href = `search.html?q=${encodeURIComponent(q)}&lang=${lang}`;
-    }
-</script>
-
+    <script src="js/main.js"></script>
+    <script>
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initPage();
+        });
+    </script>
 </body>
 </html>

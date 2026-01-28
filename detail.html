@@ -3,117 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail - ePark</title>
-    <style>
-        :root { --primary: #0070f3; --bg: #f8f9fa; --card: #fff; --text: #333; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 40px 20px; }
-        .container { max-width: 700px; margin: 0 auto; }
-
-        .back-btn { display: inline-block; margin-bottom: 20px; text-decoration: none; color: #666; font-size: 14px; }
-        .back-btn:hover { color: var(--primary); }
-
-        .detail-card { background: var(--card); padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        
-        h1 { margin-top: 0; font-size: 20px; line-height: 1.4; word-break: break-all; }
-        
-        .meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin: 25px 0; border-bottom: 1px solid #eee; padding-bottom: 25px; }
-        .meta-item label { display: block; font-size: 12px; color: #888; margin-bottom: 4px; }
-        .meta-item span { font-size: 16px; font-weight: 600; }
-        .val-green { color: #10b981; }
-        .val-red { color: #ef4444; }
-
-        .action-area { display: flex; flex-direction: column; gap: 15px; }
-        .btn-magnet { display: block; background: var(--primary); color: white; text-align: center; padding: 14px; text-decoration: none; border-radius: 8px; font-weight: 600; transition: opacity 0.2s; }
-        .btn-magnet:hover { opacity: 0.9; }
-        
-        .raw-magnet { background: #f1f3f4; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 12px; word-break: break-all; color: #555; cursor: pointer; border: 1px solid transparent; }
-        .raw-magnet:hover { border-color: #ccc; background: #e8eaed; }
-
-        #loading { text-align: center; color: #888; }
-    </style>
+    <title>详情 - 磁力先锋</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-light">
 
-<div class="container">
-    <a href="javascript:history.back()" class="back-link back-btn">← Back</a>
-    
-    <div id="loading">Loading...</div>
-
-    <div class="detail-card" id="content" style="display:none">
-        <h1 id="d-title"></h1>
+    <div class="container py-5" style="max-width: 800px;">
+        <button class="btn btn-outline-secondary mb-3" onclick="history.back()" id="btnBack">← Back</button>
         
-        <div class="meta-grid">
-            <div class="meta-item"><label id="l-size">Size</label><span id="d-size">-</span></div>
-            <div class="meta-item"><label id="l-date">Date</label><span id="d-date">-</span></div>
-            <div class="meta-item"><label id="l-seeders">Seeders</label><span id="d-seeders" class="val-green">-</span></div>
-            <div class="meta-item"><label id="l-leechers">Leechers</label><span id="d-leechers" class="val-red">-</span></div>
-        </div>
+        <div id="loading" class="text-center py-5 text-muted">Loading...</div>
 
-        <div class="action-area">
-            <a href="#" id="btn-magnet" class="btn-magnet">Magnet Download</a>
-            <div id="raw-magnet" class="raw-magnet" onclick="copyMagnet()" title="Click to copy"></div>
+        <div class="card shadow-sm" id="detailCard" style="display:none">
+            <div class="card-header bg-white py-3">
+                 <h4 class="card-title text-break mb-0 text-primary" id="d-title"></h4>
+            </div>
+            <div class="card-body">
+                <div class="row text-center mb-4">
+                    <div class="col-3">
+                        <div class="text-muted small" id="l-seeders">Seeders</div>
+                        <div class="fs-4 fw-bold text-success" id="d-seeders">-</div>
+                    </div>
+                    <div class="col-3">
+                        <div class="text-muted small" id="l-leechers">Leechers</div>
+                        <div class="fs-4 fw-bold text-danger" id="d-leechers">-</div>
+                    </div>
+                    <div class="col-3">
+                        <div class="text-muted small" id="l-size">Size</div>
+                        <div class="fs-5 fw-bold" id="d-size">-</div>
+                    </div>
+                    <div class="col-3">
+                        <div class="text-muted small" id="l-downloads">Downloads</div>
+                        <div class="fs-5 fw-bold" id="d-downloads">-</div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 mb-4">
+                    <a href="#" id="magnetLink" class="btn btn-success btn-lg">
+                        🧲 <span id="btn-text">Magnet Download</span>
+                    </a>
+                </div>
+
+                <table class="table table-bordered table-sm small">
+                    <tbody>
+                        <tr>
+                            <th class="bg-light w-25" id="l-date">Date</th>
+                            <td id="d-date">-</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light" id="l-hash">Info Hash</th>
+                            <td class="font-monospace text-break" id="d-hash">-</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">Magnet Raw</th>
+                            <td>
+                                <div class="font-monospace text-break text-muted bg-light p-2 rounded" style="cursor:pointer" onclick="copyMagnet()" id="rawMagnet"></div>
+                                <div id="copyToast" class="text-success small mt-1" style="opacity:0">Copied!</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
 
-<script src="main.js"></script>
-<script>
-    const t = initI18n();
-    
-    // 初始化界面文字
-    document.querySelector('.back-link').textContent = "← " + t.back;
-    document.getElementById('loading').textContent = t.loading;
-    document.getElementById('l-size').textContent = t.size;
-    document.getElementById('l-date').textContent = t.date;
-    document.getElementById('l-seeders').textContent = t.seeders;
-    document.getElementById('l-leechers').textContent = t.leechers;
-    document.getElementById('btn-magnet').textContent = t.magnet_open;
-
-    const hash = new URLSearchParams(window.location.search).get('hash');
-    
-    if(hash) {
-        loadDetail(hash);
-    } else {
-        document.getElementById('loading').textContent = "Error: Invalid Hash";
-    }
-
-    async function loadDetail(infoHash) {
-        try {
-            // 利用 Hash 唯一性进行搜索
-            const res = await fetch(`${API_BASE}/?q=${infoHash}`);
-            const data = await res.json();
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const t = initPage(); // 初始化语言
             
-            if(!data || data.length === 0 || data.error) throw new Error("Not Found");
-            
-            // 取第一个结果
-            render(data[0]);
-        } catch(e) {
-            document.getElementById('loading').textContent = "Error loading details.";
-        }
-    }
+            // UI 文本初始化
+            document.getElementById('btnBack').textContent = `← ${t.back}`;
+            document.getElementById('loading').textContent = t.loading;
+            document.getElementById('l-seeders').textContent = t.seeders;
+            document.getElementById('l-leechers').textContent = t.leechers;
+            document.getElementById('l-size').textContent = t.size;
+            document.getElementById('l-downloads').textContent = t.downloads;
+            document.getElementById('l-date').textContent = t.date;
+            document.getElementById('l-hash').textContent = t.infohash;
+            document.getElementById('btn-text').textContent = t.magnet_open;
 
-    function render(item) {
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('content').style.display = 'block';
-        
-        document.title = item.name;
-        document.getElementById('d-title').textContent = item.name;
-        document.getElementById('d-size').textContent = item.size;
-        document.getElementById('d-date').textContent = item.date;
-        document.getElementById('d-seeders').textContent = item.seeders;
-        document.getElementById('d-leechers').textContent = item.leechers;
-        
-        document.getElementById('btn-magnet').href = item.magnet;
-        document.getElementById('raw-magnet').textContent = item.magnet;
-    }
+            const hash = new URLSearchParams(window.location.search).get('hash');
+            if(!hash) {
+                document.getElementById('loading').textContent = "Error: Invalid Hash";
+                return;
+            }
 
-    function copyMagnet() {
-        const text = document.getElementById('raw-magnet').textContent;
-        navigator.clipboard.writeText(text).then(() => {
-            alert(t.copy_success);
+            try {
+                // 用 Hash 搜索详情
+                const res = await fetch(`${API_BASE}/?q=${hash}`);
+                const data = await res.json();
+
+                if(!data || data.length === 0 || data.error) throw new Error("Not Found");
+
+                const item = data[0]; // 取第一个匹配项
+
+                // 渲染数据
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('detailCard').style.display = 'block';
+
+                document.title = item.name;
+                document.getElementById('d-title').textContent = item.name;
+                document.getElementById('d-seeders').textContent = item.seeders;
+                document.getElementById('d-leechers').textContent = item.leechers;
+                document.getElementById('d-size').textContent = item.size;
+                document.getElementById('d-downloads').textContent = item.downloads || 0;
+                document.getElementById('d-date').textContent = item.date;
+                document.getElementById('d-hash').textContent = item.infohash;
+                
+                document.getElementById('magnetLink').href = item.magnet;
+                document.getElementById('rawMagnet').textContent = item.magnet;
+
+            } catch(e) {
+                document.getElementById('loading').className = "text-center py-5 text-danger";
+                document.getElementById('loading').textContent = `Error: ${e.message}`;
+            }
         });
-    }
-</script>
 
+        function copyMagnet() {
+            const text = document.getElementById('rawMagnet').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.getElementById('copyToast');
+                toast.style.opacity = 1;
+                setTimeout(() => toast.style.opacity = 0, 2000);
+            });
+        }
+    </script>
 </body>
 </html>
