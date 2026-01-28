@@ -3,112 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>磁力先锋 - cili.xyz</title>
+    <title>磁力先锋 - 搜索结果</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" />
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif; background-color: #f5f5f7; }
-        .apple-nav { background: rgba(255, 255, 255, 0.75); backdrop-filter: saturate(180%) blur(20px); border-bottom: 0.5px solid rgba(0,0,0,0.1); }
-        .apple-card { border-radius: 20px; border: none; transition: transform 0.3s cubic-bezier(0,0,0.5,1); }
-        .apple-card:hover { transform: scale(1.02); box-shadow: 0 20px 40px rgba(0,0,0,0.06); }
+        body { font-family: -apple-system, sans-serif; background: #f5f5f7; }
+        .apple-nav { background: rgba(255, 255, 255, 0.75); backdrop-filter: saturate(180%) blur(20px); }
+        .card-apple { border-radius: 18px; transition: transform 0.3s cubic-bezier(0,0,0.5,1); }
+        .card-apple:hover { transform: scale(1.02); box-shadow: 0 20px 40px rgba(0,0,0,0.06); }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="flex flex-col min-h-screen">
 
-<nav class="apple-nav fixed w-full z-50 top-0">
-    <div class="max-w-4xl flex items-center justify-between mx-auto p-3">
-        <a href="index.html" class="text-xl font-bold text-black tracking-tight">⚡ cili.xyz</a>
-        <div class="flex items-center">
-            <button id="langDrop" data-dropdown-toggle="langList" class="text-lg px-2 py-1 bg-white/50 border rounded-full">🇺🇸</button>
-            <div id="langList" class="z-10 hidden bg-white rounded-2xl shadow-xl w-36 border">
-                <ul class="py-2 text-sm">
-                    <li><button onclick="App.changeLang('en')" class="block w-full px-4 py-2 hover:bg-gray-100">🇺🇸 English</button></li>
-                    <li><button onclick="App.changeLang('zh-CN')" class="block w-full px-4 py-2 hover:bg-gray-100">🇨🇳 简体中文</button></li>
-                    <li><button onclick="App.changeLang('zh-TW')" class="block w-full px-4 py-2 hover:bg-gray-100">🇭🇰 繁體中文</button></li>
-                    <li><button onclick="App.changeLang('ja')" class="block w-full px-4 py-2 hover:bg-gray-100">🇯🇵 日本語</button></li>
-                    <li><button onclick="App.changeLang('ko')" class="block w-full px-4 py-2 hover:bg-gray-100">🇰🇷 한국어</button></li>
-                </ul>
-            </div>
+<nav class="apple-nav fixed w-full z-50 top-0 border-b border-gray-100 p-3">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+        <a href="index.html" class="text-xl font-bold">⚡ cili.xyz</a>
+        <div class="flex-grow max-w-md mx-4 relative">
+            <input type="text" id="searchInput" class="w-full bg-gray-100 border-none rounded-xl p-2 px-4 focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all" onkeypress="if(event.key === 'Enter') startS()">
         </div>
+        <button id="langDrop" data-dropdown-toggle="langList" class="text-lg">🇺🇸</button>
     </div>
 </nav>
 
-<main class="mt-28 px-4 max-w-4xl mx-auto flex-grow w-full">
-    <div class="relative mb-12">
-        <input type="text" id="searchInput" class="w-full p-5 bg-white border-0 rounded-3xl shadow-sm focus:ring-4 focus:ring-blue-100 transition-all text-xl" placeholder="Search...">
-        <button onclick="doSearch()" class="absolute right-3 top-3 bg-blue-600 text-white rounded-2xl px-8 py-2.5 font-bold">Search</button>
-    </div>
-
-    <div id="status" class="text-center py-10 hidden"></div>
-    <div id="results" class="space-y-5"></div>
+<main class="mt-24 px-4 max-w-4xl mx-auto flex-grow w-full">
+    <div id="status" class="text-center py-20 text-gray-400">Searching...</div>
+    <div id="results" class="space-y-4"></div>
 </main>
 
-<footer class="mt-20 py-10 border-t bg-white">
-    <div class="max-w-4xl mx-auto px-4 text-center text-sm text-gray-400">
-        <p class="mb-2">© 2026 磁力先锋 (cili.xyz). All search data is powered by BitSearch Network.</p>
-        <div class="space-x-4">
-            <a href="#" class="hover:text-black">DMCA</a>
-            <a href="#" class="hover:text-black">API</a>
-            <a href="#" class="hover:text-black">Privacy</a>
-        </div>
-    </div>
+<footer class="py-10 border-t bg-white text-center text-sm text-gray-400">
+    © 2026 磁力先锋 (cili.xyz). Powered by BitSearch.
 </footer>
 
-<script src="js/app.js"></script>
+<div id="langList" class="hidden bg-white rounded-xl shadow-lg w-32 border overflow-hidden">
+    <ul class="py-2 text-sm text-gray-700">
+        <li><button onclick="setL('en')" class="w-full px-4 py-2 hover:bg-gray-100">🇺🇸 EN</button></li>
+        <li><button onclick="setL('zh-CN')" class="w-full px-4 py-2 hover:bg-gray-100">🇨🇳 中文</button></li>
+    </ul>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
 <script>
+    const API_BASE = 'https://api.cili.xyz'; 
+    function setL(l){ localStorage.setItem('cili_lang', l); location.reload(); }
+
     document.addEventListener('DOMContentLoaded', () => {
-        const t = App.t;
-        document.getElementById('searchInput').placeholder = t.placeholder;
         const q = new URLSearchParams(window.location.search).get('q');
-        if(q) {
-            document.getElementById('searchInput').value = q;
-            doSearch(q);
-        }
+        if(q) { document.getElementById('searchInput').value = q; startS(q); }
     });
 
-    async function doSearch(val) {
-        const q = val || document.getElementById('searchInput').value;
-        if(!q) return;
-        
+    async function startS(v) {
+        const q = v || document.getElementById('searchInput').value;
         const resList = document.getElementById('results');
         const status = document.getElementById('status');
+        status.style.display = 'block'; resList.innerHTML = '';
         
-        status.innerHTML = App.t.loading;
-        status.classList.remove('hidden');
-        resList.innerHTML = '';
-
         try {
-            const res = await fetch(`${CONFIG.API_BASE}/?q=${encodeURIComponent(q)}`);
+            const res = await fetch(`${API_BASE}/?q=${encodeURIComponent(q)}`);
             const data = await res.json();
-            status.classList.add('hidden');
-
-            if(!data.length) {
-                status.classList.remove('hidden');
-                status.innerHTML = App.t.empty;
-                return;
-            }
+            status.style.display = 'none';
+            if(!data.length) { status.textContent = "No Results Found"; return; }
 
             resList.innerHTML = data.map(item => `
-                <div class="apple-card bg-white p-6 shadow-sm cursor-pointer" onclick="viewDetail('${item.infohash}', '${btoa(encodeURIComponent(JSON.stringify(item)))}')">
-                    <h3 class="text-blue-600 text-xl font-bold hover:underline mb-3">${item.name}</h3>
-                    <div class="flex flex-wrap gap-5 text-sm font-medium text-gray-500">
-                        <span class="bg-gray-100 px-3 py-1 rounded-full">${item.size}</span>
+                <div class="card-apple bg-white p-6 shadow-sm cursor-pointer" onclick="view('${item.infohash}', '${btoa(encodeURIComponent(JSON.stringify(item)))}')">
+                    <h3 class="text-blue-600 text-lg font-bold mb-2 hover:underline">${item.name}</h3>
+                    <div class="flex gap-4 text-xs font-medium text-gray-500">
+                        <span class="bg-gray-100 px-2 py-1 rounded">💾 ${item.size}</span>
                         <span class="text-green-600">⬆ ${item.seeders}</span>
                         <span>📅 ${item.date}</span>
-                        ${item.verified ? `<span class="text-blue-500 font-bold">Verified ✅</span>` : ''}
+                        ${item.verified ? '<span class="text-blue-500">Verified ✅</span>' : ''}
                     </div>
                 </div>
             `).join('');
-        } catch(e) {
-            status.innerHTML = `<span class="text-red-500">${App.t.error}</span>`;
-        }
+        } catch(e) { status.textContent = "API Connection Error"; }
     }
 
-    function viewDetail(hash, raw) {
-        // 详情页传参优化：先存入 sessionStorage，解决 404 隐患
-        sessionStorage.setItem('cili_info_' + hash, raw);
-        window.location.href = `detail.html?hash=${hash}`;
+    function view(hash, raw) {
+        sessionStorage.setItem('cili_res_' + hash, raw);
+        location.href = `detail.html?hash=${hash}`;
     }
 </script>
 </body>
