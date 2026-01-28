@@ -187,15 +187,15 @@
             const leechers = item.leechers || 0;
             const date = item.date ? app.formatDate(item.date) : 'Unknown';
             const category = app.escapeHtml(item.category || 'Other');
-            const id = item.id || item.infohash || '';
+            const detailId = String(item.id || item.infohash || '');
             const verified = item.verified;
             const imdb = item.imdb;
 
             // Cache the item data for detail page
-            app.cacheDetail(id, item);
+            if (detailId) app.cacheDetail(detailId, item);
 
             return `
-                <div class="result-card" onclick="viewDetail('${id}')">
+                <div class="result-card" onclick="viewDetail('${detailId}')">
                     <h3 class="result-title">${name}</h3>
                     <div class="result-meta">
                         <span class="result-tag">
@@ -301,6 +301,10 @@
         }
 
         function viewDetail(id) {
+            if (!id) {
+                console.error('viewDetail called with empty id');
+                return;
+            }
             window.location.href = `/detail.html?q=${id}`;
         }
 
