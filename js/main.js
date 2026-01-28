@@ -633,9 +633,9 @@ class CiliApp {
                     <div class="footer-brand">⚡ ${this.t.siteName}</div>
                     <p class="footer-tagline">${this.t.footerTagline}</p>
                     <div class="footer-links">
-                        <a href="/dmca" class="footer-link">${this.t.dmca}</a>
-                        <a href="/privacy" class="footer-link">${this.t.privacy}</a>
-                        <a href="/support" class="footer-link">${this.t.support}</a>
+                        <a href="/dmca.html" class="footer-link">${this.t.dmca}</a>
+                        <a href="/privacy.html" class="footer-link">${this.t.privacy}</a>
+                        <a href="/support.html" class="footer-link">${this.t.support}</a>
                     </div>
                     <p class="footer-copyright">${this.t.copyright}</p>
                 </div>

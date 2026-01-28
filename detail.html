@@ -185,9 +185,9 @@
             document.getElementById('fileListTitle').textContent = t.fileList;
             document.getElementById('verifiedText').textContent = t.verified;
 
-            // Get ID from URL path: /detail/{id}
-            const pathParts = window.location.pathname.split('/');
-            const id = pathParts[2] || '';
+            // Get ID from URL: /detail.html?q={id}
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('q') || '';
 
             if (!id) {
                 showError(t.resourceNotFound);
@@ -234,7 +234,7 @@
             app.updateSEO({
                 title: `${title} - ${t.siteName}`,
                 description: `Download ${title} - ${item.size || 'Unknown size'}`,
-                canonical: `https://cili.xyz/detail/${item.id || item.infohash}`
+                canonical: `https://cili.xyz/detail.html?q=${item.id || item.infohash}`
             });
 
             // Verified badge

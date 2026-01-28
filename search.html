@@ -103,12 +103,9 @@
             document.getElementById('resultsForText').textContent = t.resultsFor;
             document.getElementById('statusText').textContent = t.searchingText;
 
-            // Get search query from URL path: /search/{query}
-            const pathParts = window.location.pathname.split('/');
-            currentQuery = pathParts[2] ? decodeURIComponent(pathParts[2]) : '';
-
-            // Get page from URL params
+            // Get search query and page from URL: /search.html?q={query}&page={page}
             const urlParams = new URLSearchParams(window.location.search);
+            currentQuery = urlParams.get('q') || '';
             currentPage = parseInt(urlParams.get('page')) || 1;
 
             if (!currentQuery) {
@@ -124,7 +121,7 @@
             app.updateSEO({
                 title: `"${currentQuery}" - ${t.searchTitle} - ${t.siteName}`,
                 description: t.searchMetaDescription.replace('{query}', currentQuery),
-                canonical: `https://cili.xyz/search/${encodeURIComponent(currentQuery)}`
+                canonical: `https://cili.xyz/search.html?q=${encodeURIComponent(currentQuery)}`
             });
 
             // Perform search
@@ -136,7 +133,7 @@
                 if (e.key === 'Enter') {
                     const newQuery = searchInput.value.trim();
                     if (newQuery && newQuery !== currentQuery) {
-                        window.location.href = `/search/${encodeURIComponent(newQuery)}`;
+                        window.location.href = `/search.html?q=${encodeURIComponent(newQuery)}`;
                     }
                 }
             });
@@ -304,7 +301,7 @@
         }
 
         function viewDetail(id) {
-            window.location.href = `/detail/${id}`;
+            window.location.href = `/detail.html?q=${id}`;
         }
 
         function showError(message) {
