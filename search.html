@@ -18,7 +18,7 @@
             </div>
 
             <div class="d-none d-md-block">
-                 <div class="btn-group btn-group-sm" role="group">
+                 <div class="btn-group btn-group-sm">
                     <button class="btn btn-outline-secondary lang-btn" data-lang="en" onclick="setLang('en')">🇺🇸</button>
                     <button class="btn btn-outline-secondary lang-btn" data-lang="zh-CN" onclick="setLang('zh-CN')">🇨🇳</button>
                     <button class="btn btn-outline-secondary lang-btn" data-lang="zh-TW" onclick="setLang('zh-TW')">🇭🇰</button>
@@ -30,7 +30,7 @@
     </nav>
 
     <div class="container d-md-none mt-3 text-center">
-         <div class="btn-group btn-group-sm" role="group">
+         <div class="btn-group btn-group-sm">
             <button class="btn btn-outline-secondary lang-btn" data-lang="en" onclick="setLang('en')">🇺🇸</button>
             <button class="btn btn-outline-secondary lang-btn" data-lang="zh-CN" onclick="setLang('zh-CN')">🇨🇳</button>
             <button class="btn btn-outline-secondary lang-btn" data-lang="zh-TW" onclick="setLang('zh-TW')">🇭🇰</button>
@@ -43,7 +43,6 @@
         <div id="statusAlert" class="alert alert-light text-center border" role="alert">
             Loading...
         </div>
-
         <div class="list-group shadow-sm" id="resultsList"></div>
     </div>
 
@@ -66,7 +65,6 @@
                 const res = await fetch(`${API_BASE}/?q=${encodeURIComponent(q)}`);
                 const data = await res.json();
 
-                // 错误处理
                 if(data.error) throw new Error(data.error);
                 if(!data || data.length === 0) {
                     statusEl.className = "alert alert-warning text-center";
@@ -76,10 +74,10 @@
 
                 statusEl.style.display = 'none';
 
-                // 渲染列表
+                // 渲染结果
                 listEl.innerHTML = data.map(item => {
                     const hash = item.infohash;
-                    // 生成详情页链接
+                    // 生成详情页链接 (传递 Hash 和 Lang)
                     const detailUrl = hash ? `detail.html?hash=${hash}&lang=${window.getLang()}` : '#';
                     
                     const verifiedBadge = item.verified ? `<span class="badge bg-success me-1">✓ ${t.verified}</span>` : '';
@@ -89,7 +87,7 @@
                     return `
                     <a href="${detailUrl}" class="list-group-item list-group-item-action p-3">
                         <div class="d-flex w-100 justify-content-between align-items-start mb-2">
-                            <h5 class="mb-1 text-primary text-break" style="font-size:1.1rem">${item.name}</h5>
+                            <h5 class="mb-1 text-primary text-break text-decoration-underline-hover">${item.name}</h5>
                             ${sizeBadge}
                         </div>
                         <div class="mb-2">

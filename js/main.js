@@ -1,15 +1,15 @@
 /**
- * js/main.js - 核心逻辑 (修复版)
+ * js/main.js - 核心逻辑 (Bootstrap 原生版 + 强健错误处理)
  */
 
-// 🔥 你的 API 地址 (Cloudflare Worker)
+// 🔥 你的 Cloudflare Worker 地址
 const API_BASE = 'https://api.cili.xyz'; 
 
-// 多语言字典 (完整版)
+// 多语言字典 (5种语言)
 const i18nData = {
     'en': { 
         title: "Magnet Pioneer",
-        placeholder: "Search for movies, serials, anime...", 
+        placeholder: "Search movies, anime, serials...", 
         btn: "Search", 
         empty: "No results found.", 
         error: "Network Error", 
@@ -26,14 +26,14 @@ const i18nData = {
         loading: "Loading...",
         infohash: "Info Hash",
         files: "Files",
-        category: "Category"
+        copy: "Copy"
     },
     'zh-CN': { 
         title: "磁力先锋",
         placeholder: "搜索电影、剧集、动漫、软件...", 
         btn: "搜索", 
         empty: "未找到相关资源", 
-        error: "网络连接失败 (请检查 API)", 
+        error: "网络连接失败", 
         hot: "热门", 
         verified: "官方认证",
         downloads: "次下载",
@@ -45,9 +45,9 @@ const i18nData = {
         magnet_open: "磁力链接",
         copy_success: "已复制",
         loading: "加载中...",
-        infohash: "哈希值 (Info Hash)",
+        infohash: "哈希值 (Hash)",
         files: "文件列表",
-        category: "分类"
+        copy: "复制"
     },
     'zh-TW': { 
         title: "磁力先鋒",
@@ -66,30 +66,30 @@ const i18nData = {
         magnet_open: "磁力連結",
         copy_success: "已複製",
         loading: "載入中...",
-        infohash: "哈希值 (Info Hash)",
+        infohash: "哈希值 (Hash)",
         files: "檔案列表",
-        category: "分類"
+        copy: "複製"
     },
     'ja': { 
         title: "マグネットパイオニア",
-        placeholder: "映画、アニメ、ソフトウェアを検索...", 
+        placeholder: "映画、アニメ、ドラマを検索...", 
         btn: "検索", 
         empty: "結果が見つかりません", 
         error: "ネットワークエラー", 
         hot: "人気", 
         verified: "認証済み",
-        downloads: "ダウンロード",
+        downloads: "DL数",
         size: "サイズ",
         date: "日付",
         seeders: "シード",
         leechers: "リーチ",
         back: "戻る",
-        magnet_open: "マグネットリンク",
-        copy_success: "コピーしました",
+        magnet_open: "マグネット",
+        copy_success: "コピー完了",
         loading: "読み込み中...",
-        infohash: "情報ハッシュ",
-        files: "ファイルリスト",
-        category: "カテゴリー"
+        infohash: "ハッシュ",
+        files: "ファイル",
+        copy: "コピー"
     },
     'ko': { 
         title: "마그넷 파이오니어",
@@ -108,15 +108,15 @@ const i18nData = {
         magnet_open: "마그넷 링크",
         copy_success: "복사됨",
         loading: "로딩 중...",
-        infohash: "인포 해시",
-        files: "파일 목록",
-        category: "분류"
+        infohash: "해시",
+        files: "파일",
+        copy: "복사"
     }
 };
 
-// --- 工具函数 (全部挂载到 window，防止 ReferenceError) ---
+// --- 全局工具函数 (挂载 window) ---
 
-// 1. 语言代码标准化 (关键修复：解决 zh-CN 匹配不到的问题)
+// 1. 语言标准化 (防止 undefined 报错)
 window.normalizeLang = function(lang) {
     if (!lang) return 'en';
     lang = lang.toLowerCase();
@@ -127,7 +127,7 @@ window.normalizeLang = function(lang) {
     return 'en';
 };
 
-// 2. 获取当前语言
+// 2. 获取语言
 window.getLang = function() {
     const params = new URLSearchParams(window.location.search);
     if(params.get('lang')) return window.normalizeLang(params.get('lang'));
@@ -142,7 +142,6 @@ window.getLang = function() {
 // 3. 设置语言
 window.setLang = function(lang) {
     localStorage.setItem('cili_lang', lang);
-    // 刷新页面并带上参数
     const url = new URL(window.location);
     url.searchParams.set('lang', lang);
     window.location.href = url.toString();
@@ -151,30 +150,29 @@ window.setLang = function(lang) {
 // 4. 初始化页面
 window.initPage = function() {
     const lang = window.getLang();
-    // 🔥 回退保护：如果字典里没有该语言，回退到 en
+    // 强制回退保护
     const t = i18nData[lang] || i18nData['en'];
 
-    // 设置网页标题
     document.title = `${t.title} - cili.xyz`;
 
-    // 设置 Logo
+    // 填充 Logo
     const logo = document.querySelector('.navbar-brand');
     if(logo) logo.innerHTML = `🧲 ${t.title}`;
 
-    // 设置搜索框
+    // 填充搜索框
     const input = document.querySelector('#searchInput');
     if(input) input.placeholder = t.placeholder;
 
-    // 设置按钮
+    // 填充按钮
     const btn = document.querySelector('#btnSearch');
     if(btn) btn.textContent = t.btn;
 
-    // 高亮当前语言标记
+    // 激活语言按钮状态
     document.querySelectorAll('.lang-btn').forEach(btn => {
         if(btn.dataset.lang === lang) {
-            btn.classList.add('active', 'bg-secondary', 'text-white'); 
+            btn.classList.add('active', 'bg-primary', 'text-white');
         } else {
-            btn.classList.remove('active', 'bg-secondary', 'text-white');
+            btn.classList.remove('active', 'bg-primary', 'text-white');
         }
     });
 

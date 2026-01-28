@@ -12,8 +12,8 @@
         <button class="btn btn-outline-secondary mb-3" onclick="history.back()" id="btnBack">← Back</button>
         
         <div id="loading" class="text-center py-5 text-muted">Loading...</div>
-
-        <div id="errorAlert" class="alert alert-danger text-center" style="display:none;"></div>
+        
+        <div id="errorAlert" class="alert alert-danger text-center shadow-sm" style="display:none"></div>
 
         <div class="card shadow-sm" id="detailCard" style="display:none">
             <div class="card-header bg-white py-3">
@@ -58,7 +58,8 @@
                         <tr>
                             <th class="bg-light ps-3 align-middle">Magnet Raw</th>
                             <td class="p-2">
-                                <div class="font-monospace text-break text-muted bg-light p-2 rounded border" style="cursor:pointer" onclick="copyMagnet()" id="rawMagnet"></div>
+                                <div class="font-monospace text-break text-muted bg-light p-2 rounded border" 
+                                     style="cursor:pointer" onclick="copyMagnet()" id="rawMagnet"></div>
                                 <div id="copyToast" class="text-success small mt-1 fw-bold" style="opacity:0; transition: opacity 0.5s">Copied!</div>
                             </td>
                         </tr>
@@ -73,7 +74,7 @@
         document.addEventListener('DOMContentLoaded', async () => {
             const t = window.initPage();
             
-            // 初始化界面文字
+            // 填充 UI 文本
             document.getElementById('btnBack').textContent = `← ${t.back}`;
             document.getElementById('loading').textContent = t.loading;
             document.getElementById('l-seeders').textContent = t.seeders;
@@ -86,51 +87,60 @@
 
             const hash = new URLSearchParams(window.location.search).get('hash');
             if(!hash) {
-                document.getElementById('loading').textContent = "Error: Invalid Link (No Hash)";
+                document.getElementById('loading').style.display = 'none';
+                showError("Invalid Link (No Hash provided)");
                 return;
             }
 
             try {
-                // 🔥 关键修改：直接传 Hash，不使用 encodeURIComponent，也不 Base64
-                // 因为 infohash 本身是安全的字符串，且 API 可能对精确匹配有要求
+                // 🔥 核心请求：直接使用 Hash 搜索
+                // 如果后端或 API 暂时未索引此 Hash，会抛出错误
                 const res = await fetch(`${API_BASE}/?q=${hash}`);
                 const data = await res.json();
 
                 if(!data || data.length === 0 || data.error) {
-                    throw new Error(t.empty);
+                    throw new Error(data.error || t.empty);
                 }
 
+                // 渲染第一个匹配项
                 const item = data[0];
-
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('detailCard').style.display = 'block';
-
-                document.title = `${item.name} - ${t.title}`;
-                document.getElementById('d-title').textContent = item.name;
-                document.getElementById('d-seeders').textContent = item.seeders;
-                document.getElementById('d-leechers').textContent = item.leechers;
-                document.getElementById('d-size').textContent = item.size;
-                document.getElementById('d-downloads').textContent = item.downloads || 0;
-                document.getElementById('d-date').textContent = item.date;
-                document.getElementById('d-hash').textContent = item.infohash;
-                
-                document.getElementById('magnetLink').href = item.magnet;
-                document.getElementById('rawMagnet').textContent = item.magnet;
+                renderDetail(item);
 
             } catch(e) {
                 document.getElementById('loading').style.display = 'none';
-                const errAlert = document.getElementById('errorAlert');
-                errAlert.style.display = 'block';
-                errAlert.textContent = `${t.error}: ${e.message}`;
+                showError(`${t.error}: ${e.message}`);
             }
         });
+
+        function renderDetail(item) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('detailCard').style.display = 'block';
+
+            document.title = `${item.name} - 磁力先锋`;
+            document.getElementById('d-title').textContent = item.name;
+            document.getElementById('d-seeders').textContent = item.seeders;
+            document.getElementById('d-leechers').textContent = item.leechers;
+            document.getElementById('d-size').textContent = item.size;
+            document.getElementById('d-downloads').textContent = item.downloads || 0;
+            document.getElementById('d-date').textContent = item.date;
+            document.getElementById('d-hash').textContent = item.infohash;
+            
+            document.getElementById('magnetLink').href = item.magnet;
+            document.getElementById('rawMagnet').textContent = item.magnet;
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('errorAlert');
+            el.style.display = 'block';
+            el.textContent = msg;
+        }
 
         function copyMagnet() {
             const text = document.getElementById('rawMagnet').textContent;
             navigator.clipboard.writeText(text).then(() => {
                 const toast = document.getElementById('copyToast');
                 toast.style.opacity = 1;
-                toast.textContent = window.initPage().copy_success; 
+                toast.textContent = window.initPage().copy_success;
                 setTimeout(() => toast.style.opacity = 0, 2000);
             });
         }
