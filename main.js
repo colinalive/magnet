@@ -1,15 +1,16 @@
 /**
- * main.js - v8.0 Final Stable
- * 1. 路由模式：Query Params (?q=xxx)
- * 2. 详情页逻辑：通过 Hash 反查 API
- * 3. 品牌：磁力先锋 (Magnet Pioneer)
+ * main.js - v8.0 Stable (Query Params)
+ * 核心功能：
+ * 1. 路由模式：search.html?q=xxx, detail.html?q=hash
+ * 2. 磁力清洗：只保留 Hash，去除所有杂质参数
+ * 3. 品牌重塑：磁力先锋 (Magnet Pioneer)
  */
 
 // ==========================================
-// 1. 字典配置 (品牌与SEO)
+// 1. 字典配置 (品牌、SEO、界面)
 // ==========================================
 const dictionary = {
-    // 品牌名称变量
+    // 品牌名称
     'brand_name': {
         'zh-CN': '磁力先锋',
         'en': 'Magnet Pioneer',
@@ -33,7 +34,7 @@ const dictionary = {
         'en': 'Magnet Pioneer provides fast indexing of millions of magnet links. Clean, ad-free, and multilingual.' 
     },
 
-    // UI Text
+    // 界面文本
     'nav_home': { 'zh-CN': '首页', 'en': 'Home' },
     'hero_title': { 'zh-CN': '探索无限资源', 'en': 'Discover Anything' },
     'search_placeholder': { 'zh-CN': '搜索电影、剧集、软件...', 'en': 'Search movies, software...' },
@@ -45,11 +46,16 @@ const dictionary = {
     'label_date': { 'zh-CN': '收录日期', 'en': 'Date Indexed' },
     'label_hash': { 'zh-CN': '信息哈希', 'en': 'Info Hash' },
     'label_files': { 'zh-CN': '文件概览', 'en': 'File Preview' },
+    'stat_seed':  { 'zh-CN': '做种', 'en': 'Seeders' },
+    'stat_leech': { 'zh-CN': '下载中', 'en': 'Leechers' },
+    'stat_down':  { 'zh-CN': '完成数', 'en': 'Downloads' },
+
     'btn_magnet': { 'zh-CN': '磁力下载', 'en': 'Magnet Download' },
     'btn_copy':   { 'zh-CN': '复制链接', 'en': 'Copy Link' },
     'msg_copied': { 'zh-CN': '链接已复制', 'en': 'Link Copied' },
     'loading':    { 'zh-CN': '加载中...', 'en': 'Loading...' },
-    'error_api':  { 'zh-CN': '数据加载失败', 'en': 'Data Load Failed' }
+    'error_api':  { 'zh-CN': '数据加载失败', 'en': 'Data Load Failed' },
+    'error_invalid': { 'zh-CN': '无效的链接', 'en': 'Invalid Link' }
 };
 
 const CONFIG = {
@@ -66,11 +72,12 @@ const CONFIG = {
 };
 
 // ==========================================
-// 2. 工具函数：清洗与提取
+// 2. 核心工具：清洗与提取
 // ==========================================
 
-// 提取 40位 Hash
+// 提取 40位 Hash (核心逻辑)
 function extractHash(magnet) {
+    if (!magnet) return null;
     const match = magnet.match(/xt=urn:btih:([a-zA-Z0-9]{40})/);
     return match ? match[1].toLowerCase() : null;
 }
@@ -87,7 +94,7 @@ function formatDate(dateStr) {
 }
 
 // ==========================================
-// 3. 语言与 SEO 核心
+// 3. 语言与 SEO 逻辑
 // ==========================================
 let currentLang = localStorage.getItem(CONFIG.storageKey) || CONFIG.defaultLang;
 
@@ -96,14 +103,14 @@ function t(key) {
 }
 
 function updatePageText() {
-    // 1. 更新所有 data-i18n 元素
+    // 1. 更新 data-i18n 元素
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         if (el.placeholder) el.placeholder = t(key);
         else el.innerText = t(key);
     });
 
-    // 2. 更新品牌名称 (cili.xyz / 磁力先锋)
+    // 2. 更新品牌名称 (Class: brand-text)
     document.querySelectorAll('.brand-text').forEach(el => {
         el.innerText = t('brand_name');
     });
@@ -135,7 +142,6 @@ window.setLanguage = function(lang) {
     currentLang = lang;
     localStorage.setItem(CONFIG.storageKey, lang);
     updatePageText();
-    // 如果在搜索或详情页，可能需要重新渲染数据以更新翻译(可选)
 };
 
 // ==========================================
@@ -147,7 +153,7 @@ window.doSearch = function() {
     const input = document.getElementById('searchInput');
     const query = input.value.trim();
     if (query) {
-        // 回归最原始的参数模式
+        // 回归 Query Param 模式
         window.location.href = `search.html?q=${encodeURIComponent(query)}`;
     }
 };
@@ -162,9 +168,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 获取 URL 参数
+    // URL 参数解析
     const params = new URLSearchParams(window.location.search);
-    const q = params.get('q'); // 这是一个通用参数，在 search页是keyword，在 detail页是hash
+    const q = params.get('q'); // search页是keyword，detail页是hash
 
     const pathname = window.location.pathname;
 
@@ -176,7 +182,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // B. 详情页逻辑
     if (pathname.includes('detail.html') && q) {
-        // 这里的 q 应该是 40位 hash
         loadDetail(q);
     }
 });
@@ -199,10 +204,9 @@ async function loadSearchResults(keyword) {
 
         list.innerHTML = data.map(item => {
             const hash = extractHash(item.magnet);
-            // 详情页链接：只带 Hash，不带其他杂质
+            // 详情页链接：detail.html?q=HASH
             const detailUrl = hash ? `detail.html?q=${hash}` : '#';
             
-            // 简单的图标分类
             let icon = 'fa-file';
             if(item.category.includes('Video')) icon = 'fa-film';
             if(item.category.includes('App')) icon = 'fa-cube';
@@ -253,11 +257,11 @@ async function loadDetail(hash) {
         const res = await fetch(`${API_BASE}/?q=${hash}`);
         const data = await res.json();
         
-        // 通常 Hash 搜索只返回一个结果
+        // 假设第一个结果就是
         const item = data && data.length > 0 ? data[0] : null;
 
         if (!item) {
-            container.innerHTML = `<div class="alert alert-warning text-center">Details not found for hash: ${hash}</div>`;
+            container.innerHTML = `<div class="alert alert-warning text-center">${t('error_invalid')}</div>`;
             return;
         }
 
@@ -308,13 +312,11 @@ async function loadDetail(hash) {
                  <h5 class="border-bottom pb-2 mb-3" data-i18n="label_files">Files</h5>
                  <div class="bg-light p-3 rounded text-muted small">
                     <i class="fa-regular fa-file me-2"></i> ${item.name}
-                    <br>
-                    <span class="opacity-50 fst-italic ms-4">(API does not provide tree view)</span>
                  </div>
             </div>
         `;
         
-        // 重新应用翻译（因为插入了新 HTML）
+        // 重新应用翻译
         updatePageText();
 
     } catch (e) {
