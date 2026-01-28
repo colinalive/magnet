@@ -3,82 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ePark Search - 专业的磁力搜索引擎</title>
-    <meta name="description" content="快速、纯净、经过验证的磁力搜索引擎。搜索最新的电影、软件、动漫资源，支持多语言和实时热度显示。">
-    <meta name="keywords" content="磁力搜索, 哪吒, 资源下载, 种子搜索, 磁力链接, verified torrents">
-    <meta property="og:title" content="ePark Search">
-    <meta property="og:description" content="专业磁力搜索，提供官方认证资源下载">
-    <meta property="og:type" content="website">
-    
+    <title>ePark Search</title>
+    <meta name="description" content="Professional Magnet Search Engine">
     <style>
-        :root { --primary: #0070f3; --bg: #fafafa; --card-bg: #fff; --text: #333; --success: #10b981; --danger: #ef4444; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; }
+        :root { --primary: #0070f3; --bg: #fff; --text: #333; }
+        body { margin: 0; padding: 0; font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; }
         
-        /* 顶部导航 */
-        header { padding: 20px; background: var(--card-bg); box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 24px; font-weight: 800; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+        /* 顶部语言栏 */
+        .top-nav { position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; }
+        .lang-btn { border: none; background: none; color: #666; cursor: pointer; font-size: 13px; }
+        .lang-btn.active { color: var(--primary); font-weight: bold; }
+
+        /* 居中容器 */
+        .center-container { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; margin-top: -50px; }
+        
+        .logo { font-size: 48px; font-weight: 800; margin-bottom: 30px; color: #000; letter-spacing: -1px; }
         .logo span { color: var(--primary); }
-        .lang-switch { display: flex; gap: 10px; }
-        .lang-btn { background: none; border: 1px solid #ddd; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
-        .lang-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-
-        /* 搜索区域 */
-        main { flex: 1; max-width: 900px; margin: 40px auto; width: 95%; padding: 0 10px; }
-        .search-wrapper { display: flex; gap: 10px; margin-bottom: 30px; }
-        input { flex: 1; padding: 14px 20px; border: 2px solid #eaeaea; border-radius: 12px; font-size: 16px; outline: none; transition: border 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-        input:focus { border-color: var(--primary); }
-        button.search-btn { padding: 0 30px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
-        button.search-btn:hover { opacity: 0.9; }
-
-        /* 结果列表 */
-        .results { display: flex; flex-direction: column; gap: 16px; }
-        .card { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid #eaeaea; transition: transform 0.2s, box-shadow 0.2s; text-decoration: none; color: inherit; display: block; }
-        .card:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-color: var(--primary); }
         
-        .card-header { display: flex; justify-content: space-between; align-items: start; gap: 15px; margin-bottom: 10px; }
-        .card-title { font-size: 17px; font-weight: 600; line-height: 1.5; color: #000; overflow-wrap: break-word; }
-        .card-badges { display: flex; gap: 8px; flex-shrink: 0; }
+        .search-box { width: 100%; max-width: 580px; position: relative; }
+        input { width: 100%; padding: 16px 20px; padding-right: 100px; border: 1px solid #dfe1e5; border-radius: 24px; font-size: 16px; outline: none; box-sizing: border-box; transition: box-shadow 0.2s; }
+        input:hover, input:focus { box-shadow: 0 1px 6px rgba(32,33,36,0.28); border-color: rgba(223,225,229,0); }
         
-        .badge { font-size: 12px; padding: 4px 8px; border-radius: 6px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
-        .badge-verified { background: #d1fae5; color: #065f46; }
-        .badge-hot { background: #fef3c7; color: #92400e; }
-        .badge-size { background: #f3f4f6; color: #4b5563; }
+        button { position: absolute; right: 6px; top: 6px; height: 36px; padding: 0 20px; background: var(--primary); color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: 500; font-size: 14px; }
+        button:hover { background: #0060df; }
 
-        .card-meta { display: flex; gap: 20px; font-size: 13px; color: #666; align-items: center; margin-top: 12px; }
-        .meta-seeders { color: var(--success); font-weight: 700; }
-        .meta-leechers { color: var(--danger); }
-
-        .loading, .error { text-align: center; padding: 40px; color: #888; }
-        .footer { text-align: center; padding: 20px; font-size: 12px; color: #999; border-top: 1px solid #eaeaea; margin-top: 40px; }
+        .footer { text-align: center; font-size: 12px; color: #999; padding-bottom: 20px; }
     </style>
 </head>
 <body>
 
-<header>
-    <a href="/" class="logo">⚡ <span>ePark</span></a>
-    <div class="lang-switch">
-        <button class="lang-btn active" onclick="setLang('en')">EN</button>
-        <button class="lang-btn" onclick="setLang('zh')">中文</button>
-        <button class="lang-btn" onclick="setLang('ko')">한국어</button>
-    </div>
-</header>
+<div class="top-nav">
+    <button class="lang-btn" data-lang="en" onclick="setLang('en')">English</button>
+    <button class="lang-btn" data-lang="zh" onclick="setLang('zh')">中文</button>
+    <button class="lang-btn" data-lang="ko" onclick="setLang('ko')">한국어</button>
+</div>
 
-<main>
-    <div class="search-wrapper">
-        <input type="text" id="searchInput" placeholder="Search..." onkeypress="handleEnter(event)">
-        <button class="search-btn" onclick="doSearch()" id="btnSearch">Search</button>
+<div class="center-container">
+    <div class="logo">⚡ <span>ePark</span></div>
+    <div class="search-box">
+        <input type="text" id="searchInput" autofocus onkeypress="handleEnter(event)">
+        <button id="btnSearch" onclick="goSearch()">Search</button>
     </div>
-    
-    <div id="status" style="display:none"></div>
-    <div class="results" id="results">
-        </div>
-</main>
+</div>
 
-<footer class="footer">
-    &copy; 2026 ePark. Data provided by BitSearch API.
-</footer>
+<div class="footer">&copy; 2026 ePark Search</div>
 
 <script src="main.js"></script>
+<script>
+    // 初始化语言
+    const t = initI18n();
+
+    function handleEnter(e) { if(e.key === 'Enter') goSearch(); }
+
+    function goSearch() {
+        const q = document.getElementById('searchInput').value.trim();
+        if(!q) return;
+        // 🔥 核心跳转逻辑：带上语言参数
+        const lang = getLang();
+        window.location.href = `search.html?q=${encodeURIComponent(q)}&lang=${lang}`;
+    }
+</script>
 
 </body>
 </html>

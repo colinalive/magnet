@@ -1,161 +1,122 @@
 /**
- * main.js - ePark Search Logic
- * 负责搜索请求、多语言切换、结果渲染
+ * main.js - 公共逻辑库
+ * 包含：API地址、多语言字典、公共工具函数
  */
 
-// 🔥 你的 Cloudflare Worker 地址
+// 🔥 请确保这是你最新的 Worker 地址
 const API_BASE = 'https://api.cili.xyz'; 
 
 // 多语言字典
-const i18n = {
+const i18nData = {
     en: { 
-        placeholder: "Search for movies, apps...", 
+        title: "ePark Search",
+        placeholder: "Search for movies, apps, anime...", 
         btn: "Search", 
         empty: "No results found.", 
         error: "Connection error", 
         hot: "Hot", 
         verified: "Verified",
-        downloads: "Downloads" 
+        downloads: "Downloads",
+        size: "Size",
+        date: "Date",
+        seeders: "Seeders",
+        leechers: "Leechers",
+        back: "Back to Search",
+        magnet_open: "Open Magnet",
+        copy_success: "Copied!",
+        loading: "Loading..."
     },
     zh: { 
-        placeholder: "搜索电影、软件、资源...", 
+        title: "ePark 搜索",
+        placeholder: "搜索电影、软件、动漫资源...", 
         btn: "搜索", 
         empty: "未找到相关资源", 
         error: "连接失败，请重试", 
         hot: "热门", 
         verified: "官方认证",
-        downloads: "次下载"
+        downloads: "次下载",
+        size: "大小",
+        date: "日期",
+        seeders: "做种",
+        leechers: "下载",
+        back: "返回搜索",
+        magnet_open: "打开磁力链接",
+        copy_success: "已复制",
+        loading: "加载中..."
     },
     ko: { 
-        placeholder: "영화, 앱 검색...", 
+        title: "ePark 검색",
+        placeholder: "영화, 앱, 애니메이션 검색...", 
         btn: "검색", 
         empty: "결과가 없습니다.", 
         error: "연결 오류", 
         hot: "인기", 
         verified: "인증됨",
-        downloads: "다운로드"
+        downloads: "다운로드",
+        size: "크기",
+        date: "날짜",
+        seeders: "시더",
+        leechers: "리처",
+        back: "검색으로 돌아가기",
+        magnet_open: "마그넷 열기",
+        copy_success: "복사됨",
+        loading: "로딩 중..."
     }
 };
 
-// 默认语言
-let currentLang = 'en';
-// 缓存上一次的数据，用于切换语言时无需重新请求
-let lastData = null;
-
-// 初始化
-window.onload = () => {
-    // 检查 URL 是否有查询参数 (e.g. ?q=ubuntu)
+// 获取当前语言 (默认 en)
+function getLang() {
     const params = new URLSearchParams(window.location.search);
-    if (params.get('q')) {
-        document.getElementById('searchInput').value = params.get('q');
-        doSearch();
-    }
-    // 自动检测浏览器语言
-    const userLang = navigator.language || navigator.userLanguage; 
-    if (userLang.includes('zh')) setLang('zh');
-    else if (userLang.includes('ko')) setLang('ko');
-};
+    if(params.get('lang')) return params.get('lang'); // URL优先
+    
+    const saved = localStorage.getItem('epark_lang');
+    if(saved) return saved; // 缓存次之
 
-// 切换语言
+    const navLang = navigator.language || navigator.userLanguage;
+    if(navLang.includes('zh')) return 'zh';
+    if(navLang.includes('ko')) return 'ko';
+    return 'en';
+}
+
+// 设置语言
 function setLang(lang) {
-    currentLang = lang;
+    localStorage.setItem('epark_lang', lang);
+    // 刷新页面或追加参数以应用语言
+    const url = new URL(window.location);
+    url.searchParams.set('lang', lang);
+    window.location.href = url.toString();
+}
+
+// 初始化页面文字
+function initI18n() {
+    const lang = getLang();
+    const t = i18nData[lang];
+
+    // 设置 title
+    document.title = t.title;
+
+    // 设置通用元素
+    const els = {
+        '#searchInput': 'placeholder',
+        '#btnSearch': 'textContent',
+        '#loadingText': 'textContent',
+        '.lang-zh': 'classList', // 标记当前语言按钮
+        '.lang-en': 'classList',
+        '.lang-ko': 'classList'
+    };
+
+    // 搜索框 placeholder
+    const input = document.querySelector('#searchInput');
+    if(input) input.placeholder = t.placeholder;
+
+    // 搜索按钮
+    const btn = document.querySelector('#btnSearch');
+    if(btn) btn.textContent = t.btn;
     
-    // 更新按钮状态
+    // 高亮当前语言按钮
     document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-    document.querySelector(`.lang-btn[onclick="setLang('${lang}')"]`).classList.add('active');
-    
-    // 更新 UI 文字
-    document.getElementById('searchInput').placeholder = i18n[lang].placeholder;
-    document.getElementById('btnSearch').textContent = i18n[lang].btn;
-    
-    // 如果已有结果，重新渲染以更新“热门”、“认证”等文字
-    if (lastData) renderResults(lastData);
-}
+    const activeBtn = document.querySelector(`.lang-btn[data-lang="${lang}"]`);
+    if(activeBtn) activeBtn.classList.add('active');
 
-// 监听回车键
-function handleEnter(e) { 
-    if(e.key === 'Enter') doSearch(); 
-}
-
-// 执行搜索
-async function doSearch(fetchNew = true) {
-    const input = document.getElementById('searchInput');
-    const q = input.value.trim();
-    if (!q && fetchNew) return;
-
-    const status = document.getElementById('status');
-    const container = document.getElementById('results');
-
-    if (fetchNew) {
-        // 显示加载状态
-        status.style.display = 'block';
-        status.innerHTML = '<div class="loading">Loading...</div>';
-        container.innerHTML = '';
-        
-        // 修改浏览器地址栏 URL (SEO友好)
-        const url = new URL(window.location);
-        url.searchParams.set('q', q);
-        window.history.pushState({}, '', url);
-
-        try {
-            // 请求 Worker API
-            const res = await fetch(`${API_BASE}/?q=${encodeURIComponent(q)}`);
-            const data = await res.json();
-            
-            // 缓存数据
-            lastData = data; 
-            renderResults(data);
-        } catch (e) {
-            status.innerHTML = `<div class="error">${i18n[currentLang].error}: ${e.message}</div>`;
-        }
-    } else if (lastData) {
-        // 仅切换语言，不重新请求
-        renderResults(lastData);
-    }
-}
-
-// 渲染结果列表
-function renderResults(data) {
-    const container = document.getElementById('results');
-    const status = document.getElementById('status');
-    const t = i18n[currentLang];
-
-    status.style.display = 'none';
-
-    // 错误或空数据处理
-    if (!data || data.length === 0 || data.error) {
-        status.style.display = 'block';
-        status.innerHTML = `<div class="error">${data.error || t.empty}</div>`;
-        return;
-    }
-
-    // 生成 HTML
-    container.innerHTML = data.map(item => {
-        // 🔥 核心修改：生成只带 hash 的净化链接
-        const detailUrl = `detail.html?hash=${item.infohash}`;
-        
-        // 认证绿勾逻辑
-        const isVerified = item.verified ? `<span class="badge badge-verified">✅ ${t.verified}</span>` : '';
-        
-        // 热门标识逻辑 (>500 下载算热门)
-        const isHot = (item.downloads && item.downloads > 500) ? `<span class="badge badge-hot">🔥 ${t.hot}</span>` : '';
-
-        return `
-        <a href="${detailUrl}" class="card" target="_blank">
-            <div class="card-header">
-                <div class="card-title">${item.name}</div>
-                <div class="card-badges">
-                    <span class="badge badge-size">${item.size}</span>
-                    ${isVerified}
-                </div>
-            </div>
-            <div class="card-meta">
-                <div class="meta-item meta-seeders">⬆ ${item.seeders}</div>
-                <div class="meta-item meta-leechers">⬇ ${item.leechers}</div>
-                <div class="meta-item">📅 ${item.date}</div>
-                <div class="meta-item">${isHot ? item.downloads + ' ' + t.downloads : ''}</div>
-            </div>
-        </a>
-        `;
-    }).join('');
+    return t; // 返回翻译对象供页面逻辑使用
 }

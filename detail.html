@@ -3,149 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loading... | ePark Details</title>
-    <meta name="description" content="Torrent details page">
-    <meta name="robots" content="noindex"> <style>
-        :root { --primary: #0070f3; --bg: #f8f9fa; --card: #fff; }
-        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 20px; line-height: 1.6; color: #333; }
-        .container { max-width: 800px; margin: 0 auto; }
+    <title>Detail - ePark</title>
+    <style>
+        :root { --primary: #0070f3; --bg: #f8f9fa; --card: #fff; --text: #333; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 40px 20px; }
+        .container { max-width: 700px; margin: 0 auto; }
 
-        /* Card Style */
-        .detail-card { background: var(--card); border-radius: 16px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
-        
-        h1 { margin: 0 0 20px 0; font-size: 22px; word-break: break-all; color: #111; }
-        
-        .meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
-        .meta-box { background: #f9f9f9; padding: 10px; border-radius: 8px; text-align: center; }
-        .meta-label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
-        .meta-value { font-size: 16px; font-weight: 700; color: #333; margin-top: 5px; }
-        .val-seed { color: #10b981; }
-        .val-leech { color: #ef4444; }
+        .back-btn { display: inline-block; margin-bottom: 20px; text-decoration: none; color: #666; font-size: 14px; }
+        .back-btn:hover { color: var(--primary); }
 
-        /* Actions */
-        .actions { display: flex; flex-direction: column; gap: 15px; }
-        .magnet-box { background: #f0f7ff; border: 1px solid #cce5ff; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 13px; color: #0056b3; word-break: break-all; cursor: pointer; position: relative; }
-        .magnet-box:hover { background: #e6f2ff; }
+        .detail-card { background: var(--card); padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         
-        .btn { display: block; width: 100%; padding: 16px; text-align: center; border-radius: 10px; font-weight: 600; text-decoration: none; border: none; cursor: pointer; font-size: 16px; transition: opacity 0.2s; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-copy { background: #333; color: white; margin-top: 10px; }
-        .btn:hover { opacity: 0.9; }
+        h1 { margin-top: 0; font-size: 20px; line-height: 1.4; word-break: break-all; }
+        
+        .meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin: 25px 0; border-bottom: 1px solid #eee; padding-bottom: 25px; }
+        .meta-item label { display: block; font-size: 12px; color: #888; margin-bottom: 4px; }
+        .meta-item span { font-size: 16px; font-weight: 600; }
+        .val-green { color: #10b981; }
+        .val-red { color: #ef4444; }
 
-        .file-list { margin-top: 40px; }
-        .file-item { padding: 10px 0; border-bottom: 1px solid #eee; font-size: 14px; display: flex; justify-content: space-between; }
+        .action-area { display: flex; flex-direction: column; gap: 15px; }
+        .btn-magnet { display: block; background: var(--primary); color: white; text-align: center; padding: 14px; text-decoration: none; border-radius: 8px; font-weight: 600; transition: opacity 0.2s; }
+        .btn-magnet:hover { opacity: 0.9; }
         
-        .loading { text-align: center; padding: 50px; color: #666; font-size: 18px; }
-        .back-link { display: inline-block; margin-bottom: 20px; color: #666; text-decoration: none; }
-        
-        /* Toast Notification */
-        #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 20px; font-size: 14px; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+        .raw-magnet { background: #f1f3f4; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 12px; word-break: break-all; color: #555; cursor: pointer; border: 1px solid transparent; }
+        .raw-magnet:hover { border-color: #ccc; background: #e8eaed; }
+
+        #loading { text-align: center; color: #888; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <a href="javascript:history.back()" class="back-link">← Back to Search</a>
+    <a href="javascript:history.back()" class="back-link back-btn">← Back</a>
     
-    <div id="loading" class="loading">
-        Loading details from network...<br>
-        <small style="font-size:12px; color:#999">Querying by Hash...</small>
-    </div>
+    <div id="loading">Loading...</div>
 
-    <div id="content" class="detail-card" style="display: none;">
-        <h1 id="title">Loading...</h1>
+    <div class="detail-card" id="content" style="display:none">
+        <h1 id="d-title"></h1>
         
         <div class="meta-grid">
-            <div class="meta-box"><div class="meta-label">Size</div><div class="meta-value" id="size">-</div></div>
-            <div class="meta-box"><div class="meta-label">Date</div><div class="meta-value" id="date">-</div></div>
-            <div class="meta-box"><div class="meta-label">Seeders</div><div class="meta-value val-seed" id="seeders">-</div></div>
-            <div class="meta-box"><div class="meta-label">Leechers</div><div class="meta-value val-leech" id="leechers">-</div></div>
-            <div class="meta-box"><div class="meta-label">Downloads</div><div class="meta-value" id="downloads">-</div></div>
+            <div class="meta-item"><label id="l-size">Size</label><span id="d-size">-</span></div>
+            <div class="meta-item"><label id="l-date">Date</label><span id="d-date">-</span></div>
+            <div class="meta-item"><label id="l-seeders">Seeders</label><span id="d-seeders" class="val-green">-</span></div>
+            <div class="meta-item"><label id="l-leechers">Leechers</label><span id="d-leechers" class="val-red">-</span></div>
         </div>
 
-        <div class="actions">
-            <a id="magnetBtn" href="#" class="btn btn-primary">🧲 Open Magnet Link</a>
-            <div class="magnet-box" onclick="copyMagnet()" id="magnetRaw" title="Click to Copy">
-                magnet:?xt=urn:btih:...
-            </div>
-        </div>
-
-        <div class="file-list">
-            <h3>Info Hash</h3>
-            <div class="file-item" id="infoHash">-</div>
-            <p style="color:#999; font-size:12px; margin-top:10px;">
-                * Detailed file lists are retrieved via magnet metadata once download starts.
-            </p>
+        <div class="action-area">
+            <a href="#" id="btn-magnet" class="btn-magnet">Magnet Download</a>
+            <div id="raw-magnet" class="raw-magnet" onclick="copyMagnet()" title="Click to copy"></div>
         </div>
     </div>
 </div>
 
-<div id="toast">Copied to clipboard!</div>
-
+<script src="main.js"></script>
 <script>
-    const API_BASE = 'https://api.cili.xyz'; 
-    const hash = new URLSearchParams(window.location.search).get('hash');
+    const t = initI18n();
+    
+    // 初始化界面文字
+    document.querySelector('.back-link').textContent = "← " + t.back;
+    document.getElementById('loading').textContent = t.loading;
+    document.getElementById('l-size').textContent = t.size;
+    document.getElementById('l-date').textContent = t.date;
+    document.getElementById('l-seeders').textContent = t.seeders;
+    document.getElementById('l-leechers').textContent = t.leechers;
+    document.getElementById('btn-magnet').textContent = t.magnet_open;
 
-    // Init
-    if (!hash) {
-        document.getElementById('loading').innerHTML = "Error: Invalid Link (No Hash provided)";
+    const hash = new URLSearchParams(window.location.search).get('hash');
+    
+    if(hash) {
+        loadDetail(hash);
     } else {
-        fetchDetails(hash);
+        document.getElementById('loading').textContent = "Error: Invalid Hash";
     }
 
-    async function fetchDetails(infoHash) {
+    async function loadDetail(infoHash) {
         try {
-            // 🔥 核心逻辑：用 Hash 去搜，API 会返回包含该资源的数组
+            // 利用 Hash 唯一性进行搜索
             const res = await fetch(`${API_BASE}/?q=${infoHash}`);
             const data = await res.json();
             
-            if (!data || data.length === 0 || data.error) {
-                throw new Error("Resource not found or deleted.");
-            }
-
-            // 通常按 Hash 搜只能搜到一个，取第一个
-            const item = data[0];
-            render(item);
-
-        } catch (e) {
-            document.getElementById('loading').innerHTML = `Failed to load details.<br>${e.message}`;
+            if(!data || data.length === 0 || data.error) throw new Error("Not Found");
+            
+            // 取第一个结果
+            render(data[0]);
+        } catch(e) {
+            document.getElementById('loading').textContent = "Error loading details.";
         }
     }
 
     function render(item) {
         document.getElementById('loading').style.display = 'none';
         document.getElementById('content').style.display = 'block';
-
-        // Update DOM
-        document.title = `${item.name} - Download`; // SEO Title update
         
-        // Dynamic Meta Description for SEO
-        let metaDesc = document.querySelector('meta[name="description"]');
-        if (metaDesc) metaDesc.setAttribute("content", `Download ${item.name}. Size: ${item.size}. Seeds: ${item.seeders}.`);
-
-        document.getElementById('title').textContent = item.name;
-        document.getElementById('size').textContent = item.size;
-        document.getElementById('date').textContent = item.date;
-        document.getElementById('seeders').textContent = item.seeders;
-        document.getElementById('leechers').textContent = item.leechers;
-        document.getElementById('downloads').textContent = item.downloads || 0;
-        document.getElementById('infoHash').textContent = item.infohash;
-
-        // Magnet
-        document.getElementById('magnetBtn').href = item.magnet;
-        document.getElementById('magnetRaw').textContent = item.magnet;
-
-        // Robots tag: Allow indexing now content is loaded
-        let robots = document.querySelector('meta[name="robots"]');
-        if(robots) robots.setAttribute("content", "index, follow");
+        document.title = item.name;
+        document.getElementById('d-title').textContent = item.name;
+        document.getElementById('d-size').textContent = item.size;
+        document.getElementById('d-date').textContent = item.date;
+        document.getElementById('d-seeders').textContent = item.seeders;
+        document.getElementById('d-leechers').textContent = item.leechers;
+        
+        document.getElementById('btn-magnet').href = item.magnet;
+        document.getElementById('raw-magnet').textContent = item.magnet;
     }
 
     function copyMagnet() {
-        const text = document.getElementById('magnetRaw').textContent.trim();
+        const text = document.getElementById('raw-magnet').textContent;
         navigator.clipboard.writeText(text).then(() => {
-            const toast = document.getElementById('toast');
-            toast.style.opacity = '1';
-            setTimeout(() => toast.style.opacity = '0', 2000);
+            alert(t.copy_success);
         });
     }
 </script>
