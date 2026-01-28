@@ -1,146 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BitSearch - Resource Details</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <title>Detail - cili.xyz</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@6.6.6/css/flag-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    <style>
-        /* 详情页特有微调 */
-        .detail-hero { padding-top: 6rem; padding-bottom: 4rem; }
-        .tag-badge { font-size: 0.8rem; font-weight: 500; letter-spacing: 0.5px; }
-        .card-spec { border: 1px solid var(--border-light); background: white; border-radius: 16px; overflow: hidden; }
-        .card-spec-header { background: rgba(249, 250, 251, 0.8); border-bottom: 1px solid var(--border-light); padding: 1rem 1.5rem; font-weight: 600; font-size: 0.95rem; }
-    </style>
 </head>
-<body class="bg-body">
+<body>
 
-    <nav class="navbar navbar-expand-lg navbar-apple fixed-top">
-        <div class="container">
-            <a class="navbar-brand navbar-brand-text ls-tight" href="index.html">BitSearch</a>
-            
-            <div class="d-flex gap-2">
-                <a href="javascript:history.back()" class="btn btn-pill btn-pill-light btn-sm px-3">
-                    <i class="fa-solid fa-arrow-left me-1"></i> Back
-                </a>
-                
-                <div class="dropdown">
-                    <button class="btn btn-lang-minimal dropdown-toggle" type="button" data-bs-toggle="dropdown" id="currentLangLabel">
-                        English
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-4 mt-2">
-                        <li><a class="dropdown-item lang-item py-2" href="#" data-lang="zh-CN">简体中文</a></li>
-                        <li><a class="dropdown-item lang-item py-2" href="#" data-lang="en">English</a></li>
-                    </ul>
-                </div>
-            </div>
+    <nav class="navbar-clean">
+        <div class="nav-container">
+            <a href="/" class="brand-logo">cili<span>.xyz</span></a>
+            <div class="lang-flags" id="flagContainer"></div>
         </div>
     </nav>
 
-    <div class="detail-hero text-center border-bottom">
-        <div class="container" style="max-width: 900px;">
+    <div class="detail-header">
+        <div class="nav-container" style="display: block;">
+            <div class="file-icon-large">
+                <i class="fa-regular fa-file"></i>
+            </div>
+            <h1 id="fileName" style="word-break: break-all; margin-bottom: 20px;">Loading...</h1>
             
-            <div class="mb-4">
-                <div class="d-inline-flex align-items-center justify-content-center bg-white shadow-sm rounded-circle" style="width: 80px; height: 80px;">
-                    <i class="fa-solid fa-cube fa-2x text-primary opacity-75"></i>
-                </div>
+            <div style="display: flex; gap: 20px; justify-content: center; color: var(--text-muted); margin-bottom: 30px;">
+                <span><i class="fa-solid fa-database"></i> <span id="fileSize">--</span></span>
+                <span><i class="fa-solid fa-shield-halved"></i> Verified</span>
             </div>
 
-            <h1 class="display-6 fw-bold mb-3 ls-tight px-3 text-break" id="fileName">
-                Loading Resource...
-            </h1>
-
-            <div id="smartTags" class="d-flex justify-content-center flex-wrap gap-2 mb-4">
-                <span class="badge bg-light text-secondary border">Loading tags...</span>
-            </div>
-            
-            <div class="d-flex justify-content-center gap-4 text-secondary fw-500 mb-5 text-uppercase small ls-1">
-                <div><i class="fa-solid fa-database me-2"></i><span id="fileSize">--</span></div>
-                <div><i class="fa-solid fa-calendar me-2"></i><span id="fileDate">--</span></div>
-                <div class="text-success"><i class="fa-solid fa-shield-halved me-2"></i><span data-i18n="label_verified">Verified</span></div>
-            </div>
-            
-            <div class="d-flex justify-content-center gap-3 flex-wrap">
-                <a id="magnetBtn" href="#" class="btn btn-pill btn-pill-primary px-5 py-3 fs-6 shadow-sm">
-                    <i class="fa-solid fa-magnet me-2"></i> <span data-i18n="btn_download">Magnet Download</span>
-                </a>
-                <button id="copyBtn" class="btn btn-pill btn-pill-light px-4 py-3 fs-6 border">
-                    <i class="fa-regular fa-copy me-2"></i> <span data-i18n="btn_copy">Copy Link</span>
-                </button>
-            </div>
-
+            <a href="#" id="magnetBtn" class="btn-action">
+                <i class="fa-solid fa-magnet"></i> <span data-i18n="btn_download">Download Magnet</span>
+            </a>
         </div>
     </div>
 
-    <div class="container py-5" style="max-width: 1000px;">
-        <div class="row g-4">
-            
-            <div class="col-lg-8">
-                
-                <div class="card-spec mb-4 shadow-sm border-0">
-                    <div class="card-body p-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="bg-light p-2 rounded-circle text-secondary">
-                                <i class="fa-solid fa-fingerprint fa-lg"></i>
-                            </div>
-                            <div>
-                                <h6 class="mb-0 fw-bold" data-i18n="label_hash">Info Hash</h6>
-                                <small class="text-muted">Unique Identifier</small>
-                            </div>
-                        </div>
-                        <div class="font-monospace bg-light px-3 py-2 rounded text-secondary user-select-all small" id="infoHash">
-                            Computing...
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card-spec shadow-sm border-0">
-                    <div class="card-spec-header d-flex justify-content-between align-items-center">
-                        <span data-i18n="tab_files">File List</span>
-                        <span class="badge bg-white text-secondary border">1 File</span>
-                    </div>
-                    <ul class="list-group list-group-flush" id="fileList">
-                        <li class="list-group-item text-center py-5 text-muted">
-                            <div class="spinner-border spinner-border-sm mb-2" role="status"></div>
-                            <div>Parsing file structure...</div>
-                        </li>
-                    </ul>
-                </div>
-
+    <div class="nav-container" style="padding-top: 40px; padding-bottom: 60px;">
+        <div style="background: white; border-radius: 16px; padding: 30px; box-shadow: var(--shadow-card);">
+            <h3 style="border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px;">Info Hash</h3>
+            <div id="infoHash" style="font-family: monospace; background: #f8fafc; padding: 15px; border-radius: 8px; word-break: break-all; color: #334155;">
+                --
             </div>
 
-            <div class="col-lg-4">
-                
-                <div class="card-spec shadow-sm border-0 mb-4">
-                    <div class="card-spec-header">
-                        <i class="fa-solid fa-network-wired me-2 text-primary"></i> 
-                        <span data-i18n="tab_trackers">Trackers</span>
-                    </div>
-                    <div class="list-group list-group-flush" id="trackerList" style="max-height: 400px; overflow-y: auto;">
-                        </div>
-                </div>
-
-                <div class="p-4 rounded-4 bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10">
-                    <h6 class="fw-bold mb-2"><i class="fa-solid fa-lock me-2"></i>Secure Connection</h6>
-                    <p class="small mb-0 opacity-75">
-                        Your IP is visible to peers. Use a VPN to stay anonymous while downloading.
-                    </p>
-                </div>
-
+            <h3 style="border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px; margin-top: 40px;" data-i18n="label_files">Files</h3>
+            <div style="color: var(--text-muted); font-style: italic;">
+                File list requires active metadata fetch...
             </div>
         </div>
     </div>
 
-    <footer class="text-center py-5 mt-5 text-secondary small border-top">
-        <div class="container">
-            <p class="mb-1">© 2026 BitSearch. Global Decentralized Network.</p>
-            <p class="opacity-50">DMCA compliant. No files are hosted on this server.</p>
-        </div>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="main.js"></script>
+    <script src="/main.js"></script>
 </body>
 </html>

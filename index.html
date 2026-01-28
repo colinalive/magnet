@@ -1,52 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BitSearch - Discover</title>
-    <meta name="description" content="Minimalist, high-speed search for global resources.">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>cili.xyz - Discover Anything</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@6.6.6/css/flag-icons.min.css">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-apple">
-        <div class="container">
-            <a class="navbar-brand navbar-brand-text ls-tight" href="index.html">
-                BitSearch
-            </a>
-            
-            <div class="dropdown ms-auto">
-                <button class="btn btn-lang-minimal dropdown-toggle" type="button" data-bs-toggle="dropdown" id="currentLangLabel">
-                    English
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-4 mt-2">
-                    <li><a class="dropdown-item lang-item py-2" href="#" data-lang="zh-CN">简体中文</a></li>
-                    <li><a class="dropdown-item lang-item py-2" href="#" data-lang="en">English</a></li>
-                    </ul>
-            </div>
+    <nav class="navbar-clean">
+        <div class="nav-container">
+            <a href="/" class="brand-logo">cili<span>.xyz</span></a>
+            <div class="lang-flags" id="flagContainer"></div>
         </div>
     </nav>
 
-    <div class="container d-flex flex-column justify-content-center align-items-center" style="min-height: 75vh;">
-        
-        <h1 class="display-3 fw-bold mb-3 text-center ls-tight" data-i18n="hero_title" style="color: var(--text-primary);">
-            Discover Anything.
-        </h1>
-        <p class="lead text-secondary mb-5 text-center" data-i18n="hero_subtitle" style="max-width: 600px;">
-            Fast, clean, and intelligent search powered by global cloud caching.
-        </p>
-
-        <div class="search-container-hero w-100">
-            <div class="input-group-apple d-flex">
-                <input type="text" id="searchInput" class="form-control input-apple shadow-none" data-i18n="search_placeholder" placeholder="Search movies, software, resources...">
-                <button id="searchBtn" class="btn-search-apple" data-i18n="search_btn">Search</button>
-            </div>
+    <div class="hero-section">
+        <div style="margin-bottom: 40px;">
+            <i class="fa-solid fa-bolt fa-4x" style="color: var(--brand-color); margin-bottom: 20px;"></i>
+            <h1 class="brand-logo" style="font-size: 3rem; margin: 0;">cili<span>.xyz</span></h1>
+            <p style="color: var(--text-muted); margin-top: 10px;" data-i18n="hero_title">Discover Anything</p>
         </div>
 
+        <div class="search-wrapper">
+            <input type="text" id="searchInput" class="search-input" data-i18n="search_placeholder" placeholder="Type to search...">
+            <button class="search-btn" onclick="doSearch()" data-i18n="search_btn">Search</button>
+        </div>
+        
+        <div style="margin-top: 30px; display:flex; gap:10px; justify-content:center;">
+            <a href="/search/4k" class="tag">4K Movie</a>
+            <a href="/search/ubuntu" class="tag">Ubuntu</a>
+            <a href="/search/lossless" class="tag">Lossless Audio</a>
+        </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="main.js"></script>
 </body>
 </html>
