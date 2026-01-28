@@ -1,57 +1,39 @@
 /**
- * main.js - v5.0 Final Corrected
- * 包含：SEO动态注入、静态路由解析、磁力清洗、Bootstrap适配
+ * main.js - v6.0 Mobile Optimized & Routing Fix
+ * 修复：URL参数读取丢失、手机端显示异常
  */
 
 // ==========================================
-// 1. 完整的多语言与 SEO 字典
+// 1. 字典配置 (SEO & I18n)
 // ==========================================
 const dictionary = {
-    // --- SEO Meta Data (保留之前确认的内容) ---
+    // SEO Meta
     'meta_title': {
         'zh-CN': 'Cili.xyz - 磁力搜索 | 极速纯净',
-        'en': 'Cili.xyz - Magnet Search | Fast & Clean',
-        'ko': 'Cili.xyz - 마그넷 검색',
-        'ja': 'Cili.xyz - 磁気検索',
-        'es': 'Cili.xyz - Búsqueda de Magnet',
-        'fr': 'Cili.xyz - Recherche Magnet'
+        'en': 'Cili.xyz - Magnet Search | Fast & Clean'
     },
     'meta_keywords': {
         'zh-CN': '磁力链接, 种子搜索, BT下载, 电影下载',
-        'en': 'magnet links, torrent search, free movies, p2p',
-        'ko': '마그넷, 토렌트',
-        'ja': 'マグネット, トレント',
-        'es': 'magnet, torrent',
-        'fr': 'magnet, torrent'
+        'en': 'magnet links, torrent search, free movies, p2p'
     },
     'meta_desc': {
         'zh-CN': '极速索引数千万磁力链接，提供高质量的电影、剧集、音乐、游戏和软件下载。',
-        'en': 'Fast indexing of millions of magnet links for high-quality movies, TV series, music, games, and software.',
-        'ko': '수천만 개의 마그넷 링크 인덱싱.',
-        'ja': '数百万のマグネットリンクを高速インデックス。',
-        'es': 'Indexación rápida de millones de enlaces magnéticos.',
-        'fr': 'Indexation rapide de millions de liens magnet.'
+        'en': 'Fast indexing of millions of magnet links for high-quality movies, TV series, music, games, and software.'
     },
 
-    // --- 界面文本 ---
-    'nav_home': { 'zh-CN': '首页', 'en': 'Home', 'ko': '홈', 'ja': 'ホーム', 'es': 'Inicio', 'fr': 'Accueil' },
-    'hero_title': { 'zh-CN': '全网资源聚合', 'en': 'Discover Anything', 'ko': '모든 리소스 검색', 'ja': 'あらゆるものを検索', 'es': 'Descubre Todo', 'fr': 'Découvrez Tout' },
-    'search_placeholder': { 'zh-CN': '搜索电影、剧集、软件...', 'en': 'Search movies, software...', 'ko': '영화, 소프트웨어 검색...', 'ja': '映画、ソフト検索...', 'es': 'Buscar archivos...', 'fr': 'Rechercher...' },
-    'search_btn': { 'zh-CN': '搜索', 'en': 'Search', 'ko': '검색', 'ja': '検索', 'es': 'Buscar', 'fr': 'Chercher' },
-    'res_found': { 'zh-CN': '找到结果', 'en': 'Results', 'ko': '결과', 'ja': '結果', 'es': 'Resultados', 'fr': 'Résultats' },
-    
-    // --- 详情页字段 ---
-    'label_size': { 'zh-CN': '文件大小', 'en': 'File Size', 'ko': '파일 크기', 'ja': 'サイズ', 'es': 'Tamaño', 'fr': 'Taille' },
-    'label_date': { 'zh-CN': '发布日期', 'en': 'Date Uploaded', 'ko': '날짜', 'ja': '日付', 'es': 'Fecha', 'fr': 'Date' },
-    'label_cat':  { 'zh-CN': '资源分类', 'en': 'Category', 'ko': '카테고리', 'ja': 'カテゴリー', 'es': 'Catégorie', 'fr': 'Catégorie' },
-    'label_hash': { 'zh-CN': '信息哈希', 'en': 'Info Hash', 'ko': '해시', 'ja': 'ハッシュ', 'es': 'Hash', 'fr': 'Hash' },
-    'stat_seed':  { 'zh-CN': '做种', 'en': 'Seeders', 'ko': '시더', 'ja': 'シード', 'es': 'Semillas', 'fr': 'Sources' },
-    'stat_leech': { 'zh-CN': '下载中', 'en': 'Leechers', 'ko': '리처', 'ja': 'リーチ', 'es': 'Clientes', 'fr': 'Clients' },
-    'stat_down':  { 'zh-CN': '完成数', 'en': 'Downloads', 'ko': '다운로드', 'ja': 'DL数', 'es': 'Descargas', 'fr': 'Téléchargements' },
-    
-    'btn_magnet': { 'zh-CN': '磁力下载', 'en': 'Magnet Download', 'ko': '마그넷 다운로드', 'ja': 'マグネットDL', 'es': 'Descargar', 'fr': 'Télécharger' },
-    'btn_copy':   { 'zh-CN': '复制链接', 'en': 'Copy Link', 'ko': '링크 복사', 'ja': 'リンクをコピー', 'es': 'Copiar', 'fr': 'Copier' },
-    'msg_copied': { 'zh-CN': '已复制!', 'en': 'Copied!', 'ko': '복사됨!', 'ja': 'コピーしました!', 'es': 'Copiado!', 'fr': 'Copié!' }
+    // UI Text
+    'nav_home': { 'zh-CN': '首页', 'en': 'Home' },
+    'hero_title': { 'zh-CN': '全网资源聚合', 'en': 'Discover Anything' },
+    'search_placeholder': { 'zh-CN': '搜索电影、剧集、软件...', 'en': 'Search movies, software...' },
+    'search_btn': { 'zh-CN': '搜索', 'en': 'Search' },
+    'res_found': { 'zh-CN': '找到结果', 'en': 'Results' },
+    'label_size': { 'zh-CN': '大小', 'en': 'Size' },
+    'label_date': { 'zh-CN': '日期', 'en': 'Date' },
+    'label_files': { 'zh-CN': '文件列表', 'en': 'Files' },
+    'label_hash': { 'zh-CN': '信息哈希', 'en': 'Info Hash' },
+    'btn_magnet': { 'zh-CN': '磁力下载', 'en': 'Magnet Download' },
+    'btn_copy':   { 'zh-CN': '复制链接', 'en': 'Copy Link' },
+    'msg_copied': { 'zh-CN': '已复制!', 'en': 'Copied!' }
 };
 
 const CONFIG = {
@@ -68,36 +50,36 @@ const CONFIG = {
 };
 
 // ==========================================
-// 2. 辅助函数：磁力清洗与 Hash 提取
+// 2. 核心工具函数
 // ==========================================
 
-// 从完整磁力链提取纯 Hash (40位)
-function extractHash(magnet) {
-    const match = magnet.match(/xt=urn:btih:([a-zA-Z0-9]{40})/);
-    return match ? match[1].toLowerCase() : null;
+// 修复路由解析 Bug：
+// URL: https://cili.xyz/search/ubuntu
+// pathname: /search/ubuntu
+// split('/'): ["", "search", "ubuntu"] -> 关键词在 index 2
+function getPathParam(index) {
+    const segments = window.location.pathname.split('/');
+    // 过滤掉空字符串，防止双斜杠影响
+    const cleanSegments = segments.filter(s => s !== '');
+    // cleanSegments: ["search", "ubuntu"] -> index 1 is "ubuntu"
+    // 但为了逻辑通用，我们传入 "path depth"。 
+    // 对于 /search/ubuntu: segment[1]
+    return cleanSegments[index] ? decodeURIComponent(cleanSegments[index]) : null;
 }
 
-// 清洗磁力链接：只保留 magnet:?xt=urn:btih:HASH
+// 磁力清洗：只保留 Hash
 function cleanMagnetLink(magnet) {
-    const hash = extractHash(magnet);
-    if (!hash) return magnet; // 提取失败则返回原样
-    return `magnet:?xt=urn:btih:${hash}`;
+    const match = magnet.match(/xt=urn:btih:([a-zA-Z0-9]{40})/);
+    return match ? `magnet:?xt=urn:btih:${match[1].toLowerCase()}` : magnet;
 }
 
-// 格式化日期
 function formatDate(dateStr) {
     if (!dateStr) return 'N/A';
     return new Date(dateStr).toLocaleDateString();
 }
 
-// 获取 URL 路径参数 (兼容 /search/xxx 和 /detail/xxx)
-function getPathParam(index) {
-    const segments = window.location.pathname.split('/').filter(s => s);
-    return segments[index] ? decodeURIComponent(segments[index]) : null;
-}
-
 // ==========================================
-// 3. 语言与 SEO 核心逻辑
+// 3. I18n & SEO 逻辑
 // ==========================================
 let currentLang = localStorage.getItem(CONFIG.storageKey) || CONFIG.defaultLang;
 
@@ -106,40 +88,26 @@ function t(key) {
 }
 
 function updatePageText() {
-    // 1. 更新页面可见文字
+    // 1. 更新文字
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         if (el.placeholder) el.placeholder = t(key);
         else el.innerText = t(key);
     });
 
-    // 2. 更新 SEO Meta Tags (关键需求)
+    // 2. 更新 SEO
     document.title = t('meta_title');
-    
-    let metaDesc = document.querySelector('meta[name="description"]');
-    if (!metaDesc) {
-        metaDesc = document.createElement('meta');
-        metaDesc.name = 'description';
-        document.head.appendChild(metaDesc);
-    }
-    metaDesc.content = t('meta_desc');
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc) desc.content = t('meta_desc');
 
-    let metaKw = document.querySelector('meta[name="keywords"]');
-    if (!metaKw) {
-        metaKw = document.createElement('meta');
-        metaKw.name = 'keywords';
-        document.head.appendChild(metaKw);
-    }
-    metaKw.content = t('meta_keywords');
-
-    // 3. 渲染国旗
+    // 3. 渲染国旗 (Bootstrap Flex Utilities)
     const container = document.getElementById('flagContainer');
     if (container) {
         container.innerHTML = CONFIG.langs.map(lang => `
-            <button class="btn btn-link p-0 text-decoration-none mx-1 ${lang.code === currentLang ? 'opacity-100' : 'opacity-50'}" 
+            <button class="btn border-0 p-1 opacity-${lang.code === currentLang ? '100' : '50'}" 
                 onclick="window.setLanguage('${lang.code}')" 
                 title="${lang.name}">
-                <span class="fi fi-${lang.flag} fs-5 rounded"></span>
+                <span class="fi fi-${lang.flag} rounded shadow-sm" style="font-size: 1.2rem;"></span>
             </button>
         `).join('');
     }
@@ -152,16 +120,15 @@ window.setLanguage = function(lang) {
 };
 
 // ==========================================
-// 4. 路由与业务逻辑
+// 4. 路由跳转与初始化
 // ==========================================
 const API_BASE = 'https://api.cili.xyz'; 
 
-// 搜索跳转 (静态路由)
 window.doSearch = function() {
     const input = document.getElementById('searchInput');
     const query = input.value.trim();
     if (query) {
-        // 静态化规则: /search/关键词
+        // 静态路由跳转
         window.location.href = `/search/${encodeURIComponent(query)}`;
     }
 };
@@ -169,7 +136,7 @@ window.doSearch = function() {
 document.addEventListener('DOMContentLoaded', () => {
     updatePageText();
 
-    // 绑定回车搜索
+    // 绑定回车
     const input = document.getElementById('searchInput');
     if (input) {
         input.addEventListener('keydown', (e) => {
@@ -177,31 +144,38 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 页面路由判断 ---
     const path = window.location.pathname;
 
-    // A. 搜索结果页
+    // --- A. 搜索页逻辑 ---
+    // 匹配 /search/keyword
     if (path.startsWith('/search')) {
-        const query = getPathParam(1);
+        // path: /search/ubuntu -> segments: ["search", "ubuntu"] -> index 1
+        const query = getPathParam(1); 
+        
+        // 只有当 query 存在时才执行，防止把 input 清空
         if (query) {
-            if(input) input.value = query;
+            if(input) input.value = query; // 回填搜索框
             loadSearchResults(query);
         }
     }
 
-    // B. 详情页 (通过 Hash 获取数据)
+    // --- B. 详情页逻辑 ---
+    // 匹配 /detail/hash
     if (path.startsWith('/detail')) {
         const hash = getPathParam(1);
         if (hash && hash.length === 40) {
             loadDetail(hash);
         } else {
             document.getElementById('detailContainer').innerHTML = 
-                `<div class="alert alert-danger">Invalid Hash</div>`;
+                `<div class="alert alert-danger">Invalid Link</div>`;
         }
     }
 });
 
-// 加载搜索结果
+// ==========================================
+// 5. 数据加载 (API)
+// ==========================================
+
 async function loadSearchResults(query) {
     const list = document.getElementById('resultsList');
     const loading = document.getElementById('loading');
@@ -217,44 +191,40 @@ async function loadSearchResults(query) {
             return;
         }
 
-        // 渲染列表 (Bootstrap Standard Components)
         list.innerHTML = data.map(item => {
-            const hash = extractHash(item.magnet);
-            // 静态化详情链接: /detail/HASH
+            const hash = item.magnet.match(/xt=urn:btih:([a-zA-Z0-9]{40})/)?.[1] || '';
             const detailUrl = hash ? `/detail/${hash}` : '#';
             
-            // 简单的分类图标逻辑
-            let icon = 'fa-file';
-            if(item.category.includes('Video')) icon = 'fa-film';
-            if(item.category.includes('Audio')) icon = 'fa-music';
-            if(item.category.includes('App')) icon = 'fa-cube';
-
+            // 手机端适配：
+            // d-flex flex-column flex-md-row: 手机竖排，电脑横排
             return `
-            <div class="card mb-3 shadow-sm border-0 hover-shadow transition-base">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0 bg-light rounded p-3 text-center me-3" style="width: 60px;">
-                            <i class="fa-solid ${icon} fs-4 text-primary"></i>
+            <div class="card mb-3 shadow-sm border-0">
+                <div class="card-body p-3">
+                    <div class="d-flex flex-column flex-md-row align-items-md-center">
+                        
+                        <div class="d-none d-md-block flex-shrink-0 bg-light rounded p-3 text-center me-3" style="width: 60px;">
+                            <i class="fa-solid fa-file fs-4 text-primary"></i>
                         </div>
+
                         <div class="flex-grow-1 min-w-0">
-                            <h5 class="card-title text-truncate mb-1">
-                                <a href="${detailUrl}" class="text-decoration-none text-dark stretched-link fw-bold">
+                            <h5 class="card-title mb-2">
+                                <a href="${detailUrl}?name=${encodeURIComponent(item.name)}&size=${item.size}" 
+                                   class="text-decoration-none text-dark fw-bold text-break">
                                     ${item.name}
                                 </a>
                             </h5>
-                            <div class="text-muted small">
-                                <span class="badge bg-light text-secondary me-2 border">${item.category}</span>
-                                <span class="me-3"><i class="fa-solid fa-server me-1"></i> ${item.size}</span>
+                            
+                            <div class="text-muted small d-flex flex-wrap gap-2 gap-md-3">
+                                <span class="badge bg-light text-secondary border">${item.category}</span>
+                                <span><i class="fa-solid fa-server me-1"></i> ${item.size}</span>
                                 <span><i class="fa-regular fa-calendar me-1"></i> ${formatDate(item.date)}</span>
+                                <span class="d-md-none text-success ms-auto"><i class="fa-solid fa-arrow-up"></i> ${item.seeders}</span>
                             </div>
                         </div>
-                        <div class="text-end d-none d-md-block ms-3">
-                            <div class="badge bg-success bg-opacity-10 text-success mb-1 d-block">
-                                <i class="fa-solid fa-arrow-up"></i> ${item.seeders}
-                            </div>
-                            <div class="badge bg-danger bg-opacity-10 text-danger d-block">
-                                <i class="fa-solid fa-arrow-down"></i> ${item.leechers}
-                            </div>
+
+                        <div class="text-end d-none d-md-block ms-4" style="min-width: 80px;">
+                            <div class="text-success fw-bold mb-1"><i class="fa-solid fa-arrow-up"></i> ${item.seeders}</div>
+                            <div class="text-danger small"><i class="fa-solid fa-arrow-down"></i> ${item.leechers}</div>
                         </div>
                     </div>
                 </div>
@@ -262,92 +232,88 @@ async function loadSearchResults(query) {
         }).join('');
 
     } catch (e) {
-        loading.innerHTML = `<div class="alert alert-danger text-center">Service Error</div>`;
+        loading.innerHTML = `<div class="alert alert-danger">API Error</div>`;
     }
 }
 
-// 加载详情 (通过 Hash 反查)
 async function loadDetail(hash) {
+    // 逻辑：如果 URL 带了 name 参数，直接渲染；如果没有，通过 hash 搜 API (假设 API 支持)
+    // 这里为了响应速度，优先使用 URL 参数
+    const params = new URLSearchParams(window.location.search);
+    const nameParam = params.get('name');
+    const sizeParam = params.get('size');
+
+    // 构造纯净磁力
+    const cleanMagnet = `magnet:?xt=urn:btih:${hash}`;
     const container = document.getElementById('detailContainer');
-    
-    try {
-        // 使用 Hash 作为关键词搜索，获取 API 里的详细信息
-        const res = await fetch(`${API_BASE}/?q=${hash}`);
-        const data = await res.json();
-        
-        // 假设第一个结果就是我们要的 (Hash 搜索通常唯一)
-        const item = data && data.length > 0 ? data[0] : null;
 
-        if (!item) {
-            container.innerHTML = `<div class="alert alert-warning text-center">Resource details not found.</div>`;
-            return;
-        }
-
-        // 清洗磁力链接
-        const cleanMagnet = cleanMagnetLink(item.magnet);
-        
-        // 更新 UI
-        document.title = `${item.name} - Cili.xyz`;
-        
-        // 渲染详情 (Bootstrap Card)
-        document.getElementById('fileName').innerText = item.name;
+    // 渲染函数
+    const render = (name, size, date, seeds, leechs, downs) => {
+        document.title = `${name} - Cili.xyz`;
+        document.getElementById('fileName').innerText = name;
         document.getElementById('infoHash').innerText = hash;
-        
-        // 填充所有数据
-        const metaHtml = `
-            <div class="row g-3 text-center mb-4">
-                <div class="col-6 col-md-3">
-                    <div class="p-3 bg-light rounded border">
-                        <div class="text-muted small mb-1" data-i18n="label_size">Size</div>
-                        <div class="fw-bold">${item.size}</div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="p-3 bg-light rounded border">
-                        <div class="text-muted small mb-1" data-i18n="label_date">Date</div>
-                        <div class="fw-bold">${formatDate(item.date)}</div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="p-3 bg-light rounded border">
-                        <div class="text-muted small mb-1" data-i18n="stat_seed">Seeders</div>
-                        <div class="fw-bold text-success">${item.seeders}</div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="p-3 bg-light rounded border">
-                        <div class="text-muted small mb-1" data-i18n="stat_down">Downloads</div>
-                        <div class="fw-bold text-primary">${item.downloads}</div>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        // 操作按钮区 (使用清洗后的 Clean Magnet)
-        const actionHtml = `
-            <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
-                <a href="${cleanMagnet}" class="btn btn-primary btn-lg px-5 shadow-sm rounded-pill">
-                    <i class="fa-solid fa-magnet me-2"></i> <span data-i18n="btn_magnet">Magnet Download</span>
-                </a>
-                <button onclick="copyToClipboard('${cleanMagnet}')" class="btn btn-outline-secondary btn-lg px-5 rounded-pill">
-                    <i class="fa-regular fa-copy me-2"></i> <span data-i18n="btn_copy">Copy Link</span>
-                </button>
-            </div>
-        `;
 
-        container.innerHTML = metaHtml + actionHtml;
-        
-        // 重新触发翻译，确保新插入的 HTML 变成对应语言
+        // 详情 Grid
+        container.innerHTML = `
+        <div class="row g-3 text-center mb-4">
+            <div class="col-6 col-md-3">
+                <div class="p-3 bg-light rounded border h-100">
+                    <div class="text-muted small mb-1" data-i18n="label_size">Size</div>
+                    <div class="fw-bold">${size}</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 bg-light rounded border h-100">
+                    <div class="text-muted small mb-1" data-i18n="label_date">Date</div>
+                    <div class="fw-bold">${date}</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 bg-light rounded border h-100">
+                    <div class="text-muted small mb-1" data-i18n="stat_seed">Seeders</div>
+                    <div class="fw-bold text-success">${seeds}</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 bg-light rounded border h-100">
+                    <div class="text-muted small mb-1" data-i18n="stat_down">Downloads</div>
+                    <div class="fw-bold text-primary">${downs}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-5">
+            <a href="${cleanMagnet}" class="btn btn-primary btn-lg px-5 rounded-pill shadow-sm">
+                <i class="fa-solid fa-magnet me-2"></i> <span data-i18n="btn_magnet">Download</span>
+            </a>
+            <button onclick="copyToClipboard('${cleanMagnet}')" class="btn btn-outline-secondary btn-lg px-5 rounded-pill">
+                <i class="fa-regular fa-copy me-2"></i> <span data-i18n="btn_copy">Copy Link</span>
+            </button>
+        </div>
+        `;
         updatePageText();
+    };
 
-    } catch (e) {
-        container.innerHTML = `<div class="alert alert-danger text-center">Network Error</div>`;
+    if (nameParam) {
+        // 只有基本信息时，使用默认占位数据
+        render(nameParam, sizeParam || '--', 'N/A', '-', '-', '-');
+    } else {
+        // 如果没有 name 参数，尝试 fetch API
+        try {
+            const res = await fetch(`${API_BASE}/?q=${hash}`);
+            const data = await res.json();
+            if(data && data.length > 0) {
+                const item = data[0];
+                render(item.name, item.size, formatDate(item.date), item.seeders, item.leechers, item.downloads);
+            } else {
+                render('Unknown Resource', '--', '--', '--', '--', '--');
+            }
+        } catch(e) {
+            render('Error Loading', '--', '--', '--', '--', '--');
+        }
     }
 }
 
-// 复制功能
 window.copyToClipboard = function(text) {
-    navigator.clipboard.writeText(text).then(() => {
-        alert(t('msg_copied'));
-    });
+    navigator.clipboard.writeText(text).then(() => alert(t('msg_copied')));
 };

@@ -3,40 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Results - Cili.xyz</title>
+    <title>Search - Cili.xyz</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@6.6.6/css/flag-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .hover-shadow:hover { box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important; transform: translateY(-2px); }
-        .transition-base { transition: all .2s ease; }
-    </style>
 </head>
 <body class="bg-light">
 
-    <nav class="navbar navbar-expand-lg bg-white border-bottom shadow-sm sticky-top">
+    <nav class="navbar navbar-expand bg-white border-bottom shadow-sm sticky-top">
         <div class="container">
-            <a class="navbar-brand fw-bold text-primary me-4" href="/">
-                <i class="fa-solid fa-bolt me-2"></i>Cili.xyz
+            <a class="navbar-brand fw-bold text-primary d-none d-md-block" href="/">
+                <i class="fa-solid fa-bolt me-2"></i>Cili
             </a>
             
-            <div class="flex-grow-1 me-3 d-none d-md-block" style="max-width: 500px;">
+            <div class="flex-grow-1 mx-2 mx-md-4">
                 <div class="input-group rounded-pill overflow-hidden border bg-light">
                     <input type="text" id="searchInput" class="form-control border-0 bg-light shadow-none" placeholder="...">
-                    <button class="btn btn-link text-decoration-none text-primary" onclick="doSearch()">
+                    <button class="btn btn-link text-decoration-none text-primary" onclick="window.doSearch()">
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </button>
                 </div>
             </div>
 
-            <div class="d-flex align-items-center" id="flagContainer"></div>
+            <div class="d-flex align-items-center overflow-auto" id="flagContainer"></div>
         </div>
     </nav>
 
-    <div class="container py-5">
+    <div class="container py-4">
         <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <h4 class="mb-4 fw-bold text-secondary border-bottom pb-2" data-i18n="res_found">Results</h4>
+            <div class="col-12 col-lg-8">
+                <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                    <h5 class="fw-bold m-0" data-i18n="res_found">Results</h5>
+                </div>
                 
                 <div id="loading" class="text-center py-5">
                     <div class="spinner-border text-primary" role="status"></div>
