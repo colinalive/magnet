@@ -1,8 +1,8 @@
 /**
- * main.js - v14.0 Clean URL & API Fetch
- * 1. 详情页仅依赖 Hash (?q=hash)，数据全走 API
- * 2. 网页标题 (Title) 根据页面状态和语言动态变化
- * 3. 统一 Footer 版权多语言
+ * main.js - v15.0 API-First Detail Page
+ * 1. 详情页完全独立：只依赖 Hash，数据全走 API
+ * 2. 修复了依赖 URL 参数导致详情页空白的问题
+ * 3. 保持多语言、SEO 和 Footer 统一
  */
 
 const API_BASE = 'https://api.cili.xyz'; 
@@ -10,27 +10,13 @@ const API_BASE = 'https://api.cili.xyz';
 const dictionary = {
     // 品牌
     'brand_name': { 'zh-CN': '磁力先锋', 'zh-TW': '磁力先鋒', 'en': 'Magnet Pioneer', 'ko': '마그넷 파이오니어', 'ja': 'マグネットパイオニア' },
-    
-    // 网页标题前缀 (首页用)
     'home_title': { 'zh-CN': '极速纯净的磁力搜索引擎', 'zh-TW': '極速純淨的磁力搜尋引擎', 'en': 'Fast & Clean Magnet Search', 'ko': '빠르고 깨끗한 마그넷 검색', 'ja': '高速でクリーンな磁気検索' },
     
-    // SEO Meta
-    'meta_keywords': {
-        'zh-CN': '磁力链接, 种子搜索, 磁力先锋, BT下载, 资源搜索',
-        'zh-TW': '磁力連結, 種子搜尋, 磁力先鋒, BT下載, 資源搜尋',
-        'en': 'magnet links, torrent search, magnet pioneer, p2p',
-        'ko': '마그넷, 토렌트, 파일 공유',
-        'ja': 'マグネット, トレント, P2P'
-    },
-    'meta_desc': {
-        'zh-CN': '磁力先锋提供极速的磁力链接索引服务，纯净无广告。',
-        'zh-TW': '磁力先鋒提供極速的磁力連結索引服務，純淨無廣告。',
-        'en': 'Magnet Pioneer provides fast indexing of millions of magnet links.',
-        'ko': 'Magnet Pioneer는 수백만 개의 마그넷 링크에 대한 빠른 인덱싱을 제공합니다.',
-        'ja': 'Magnet Pioneerは、数百万のマグネットリンクの高速インデックスを提供します。'
-    },
+    // SEO
+    'meta_keywords': { 'zh-CN': '磁力链接, 种子搜索, 磁力先锋', 'en': 'magnet links, torrent search, magnet pioneer' },
+    'meta_desc': { 'zh-CN': '磁力先锋提供极速的磁力链接索引服务。', 'en': 'Magnet Pioneer provides fast indexing of millions of magnet links.' },
 
-    // 界面文本
+    // 界面
     'nav_home': { 'zh-CN': '首页', 'zh-TW': '首頁', 'en': 'Home', 'ko': '홈', 'ja': 'ホーム' },
     'hero_title': { 'zh-CN': '探索无限资源', 'zh-TW': '探索無限資源', 'en': 'Discover Anything', 'ko': '무한한 자원 탐색', 'ja': 'あらゆるものを検索' },
     'search_placeholder': { 'zh-CN': '搜索电影、剧集、软件...', 'zh-TW': '搜尋電影、劇集、軟體...', 'en': 'Search...', 'ko': '검색...', 'ja': '検索...' },
@@ -40,19 +26,17 @@ const dictionary = {
     // 详情页
     'label_size': { 'zh-CN': '文件大小', 'zh-TW': '檔案大小', 'en': 'File Size', 'ko': '파일 크기', 'ja': 'サイズ' },
     'label_date': { 'zh-CN': '收录日期', 'zh-TW': '收錄日期', 'en': 'Date Indexed', 'ko': '날짜', 'ja': '日付' },
+    'label_files':{ 'zh-CN': '文件概览', 'zh-TW': '檔案預覽', 'en': 'File Preview', 'ko': '파일 미리보기', 'ja': 'ファイル' },
     'stat_seed':  { 'zh-CN': '做种', 'zh-TW': '做種', 'en': 'Seeders', 'ko': '시더', 'ja': 'シード' },
     'stat_leech': { 'zh-CN': '下载中', 'zh-TW': '下載中', 'en': 'Leechers', 'ko': '리처', 'ja': 'リーチ' },
     'btn_magnet': { 'zh-CN': '磁力下载', 'zh-TW': '磁力下載', 'en': 'Magnet Download', 'ko': '마그넷 다운로드', 'ja': 'マグネットDL' },
     'btn_copy':   { 'zh-CN': '复制链接', 'zh-TW': '複製連結', 'en': 'Copy Link', 'ko': '링크 복사', 'ja': 'リンクをコピー' },
     'msg_copied': { 'zh-CN': '链接已复制', 'zh-TW': '連結已複製', 'en': 'Link Copied', 'ko': '복사됨', 'ja': 'コピーしました' },
-    'label_files':{ 'zh-CN': '文件概览', 'zh-TW': '檔案預覽', 'en': 'File Preview', 'ko': '파일 미리보기', 'ja': 'ファイル' },
     
-    // 状态
-    'loading':    { 'zh-CN': '加载中...', 'zh-TW': '加載中...', 'en': 'Loading...', 'ko': '로딩 중...', 'ja': '読み込み中...' },
+    'loading':    { 'zh-CN': '正在加载数据...', 'zh-TW': '正在加載數據...', 'en': 'Fetching Data...', 'ko': '데이터 로드 중...', 'ja': 'データ読み込み中...' },
     'no_results': { 'zh-CN': '未找到相关资源', 'zh-TW': '未找到相關資源', 'en': 'No Results Found', 'ko': '결과 없음', 'ja': '結果なし' },
-    'error_api':  { 'zh-CN': '数据加载失败', 'zh-TW': '數據加載失敗', 'en': 'Data Load Failed', 'ko': '데이터 로드 실패', 'ja': '読み込み失敗' },
-
-    // Footer
+    'error_api':  { 'zh-CN': '连接服务器失败', 'zh-TW': '連接服務器失敗', 'en': 'Connection Failed', 'ko': '연결 실패', 'ja': '接続失敗' },
+    
     'copyright':  { 'zh-CN': '© 2026 磁力先锋。仅提供元数据索引，不存储任何文件。', 'zh-TW': '© 2026 磁力先鋒。僅提供元數據索引，不存儲任何文件。', 'en': '© 2026 Magnet Pioneer. Metadata index only, no files hosted.', 'ko': '© 2026 Magnet Pioneer. 메타데이터 인덱스 전용.', 'ja': '© 2026 Magnet Pioneer. メタデータインデックスのみ。' }
 };
 
@@ -68,40 +52,32 @@ const CONFIG = {
     ]
 };
 
-// 全局变量，用于存储当前的动态标题前缀（如文件名、搜索词）
-window.pageTitlePrefix = null;
-
 // ==========================================
-// 核心工具
+// 2. 核心工具
 // ==========================================
 let currentLang = localStorage.getItem(CONFIG.storageKey) || CONFIG.defaultLang;
+window.pageTitlePrefix = null; // 用于动态标题
 
 function t(key) {
     return dictionary[key]?.[currentLang] || dictionary[key]?.['en'] || key;
 }
 
 function updatePageText() {
-    // 1. 更新普通文本
+    // 更新 data-i18n
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         if (el.placeholder) el.placeholder = t(key);
         else el.innerText = t(key);
     });
 
-    // 2. 更新品牌名
+    // 更新品牌
     document.querySelectorAll('.brand-text').forEach(el => el.innerText = t('brand_name'));
 
-    // 3. 更新网页标题 (Title) - 核心逻辑
+    // 更新 Title
     const brand = t('brand_name');
-    if (window.pageTitlePrefix) {
-        // 详情页/搜索页： "Avatar - 磁力先锋"
-        document.title = `${window.pageTitlePrefix} - ${brand}`;
-    } else {
-        // 首页： "磁力先锋 - 极速纯净..."
-        document.title = `${brand} - ${t('home_title')}`;
-    }
+    document.title = window.pageTitlePrefix ? `${window.pageTitlePrefix} - ${brand}` : `${brand} - ${t('home_title')}`;
 
-    // 4. 更新 SEO Meta
+    // 更新 SEO Meta
     const setMeta = (name, content) => {
         let el = document.querySelector(`meta[name="${name}"]`);
         if (!el) { el = document.createElement('meta'); el.name = name; document.head.appendChild(el); }
@@ -110,7 +86,7 @@ function updatePageText() {
     setMeta('description', t('meta_desc'));
     setMeta('keywords', t('meta_keywords'));
 
-    // 5. 渲染国旗
+    // 渲染国旗
     const container = document.getElementById('flagContainer');
     if (container) {
         container.innerHTML = CONFIG.langs.map(lang => `
@@ -150,7 +126,7 @@ window.copyToClipboard = function(text) {
 };
 
 // ==========================================
-// 业务逻辑入口
+// 3. 业务逻辑入口
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     updatePageText();
@@ -164,19 +140,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // A. 搜索页逻辑
     if (document.getElementById('resultsList') && q) {
         if(input) input.value = q;
-        window.pageTitlePrefix = q; // 设置标题前缀
-        updatePageText(); // 立即刷新标题
+        window.pageTitlePrefix = q; 
+        updatePageText();
         loadSearchResults(q);
     }
 
     // B. 详情页逻辑
     if (document.getElementById('detailContainer')) {
+        // 如果有 q 参数 (Hash)，则请求 API
         if (q && q.length === 40) {
-            // 此时只有 Hash，必须调用 API 获取所有详情
             loadDetailFromApi(q);
         } else {
-            document.getElementById('detailContainer').innerHTML = 
-                `<div class="alert alert-danger text-center mt-5">${t('error_api')} (Invalid Hash)</div>`;
+            showDetailError(t('no_results'));
         }
     }
 });
@@ -185,6 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadSearchResults(query) {
     const list = document.getElementById('resultsList');
     const loading = document.getElementById('loading');
+    
     loading.classList.remove('d-none');
     list.innerHTML = '';
 
@@ -200,7 +176,7 @@ async function loadSearchResults(query) {
 
         list.innerHTML = data.map(item => {
             const hash = extractHash(item.magnet);
-            // 🔥 纯净 URL: 仅传递 Hash
+            // 🔥 Clean URL: 只有 ?q=HASH
             const detailUrl = hash ? `detail.html?q=${hash}` : '#';
             
             let icon = 'fa-file';
@@ -242,28 +218,40 @@ async function loadSearchResults(query) {
     }
 }
 
-// 详情页：通过 Hash 请求 API 获取完整数据
+// 详情页：完全依赖 API 获取数据
 async function loadDetailFromApi(hash) {
     const container = document.getElementById('detailContainer');
-    
+    // 显示 Loading 状态
+    container.innerHTML = `
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="text-muted mt-3" data-i18n="loading">Fetching...</p>
+        </div>
+    `;
+    updatePageText(); // 翻译 "Fetching..."
+
     try {
+        // 使用 Hash 查询 API
         const res = await fetch(`${API_BASE}/?q=${hash}`);
         const data = await res.json();
+        
+        // 假设 API 返回数组，取第一个匹配项
         const item = (data && data.length > 0) ? data[0] : null;
 
         if (!item) {
-            container.innerHTML = `<div class="alert alert-warning text-center mt-5">${t('no_results')}</div>`;
+            showDetailError(t('no_results'));
             return;
         }
 
-        // 设置全局标题前缀，以便切换语言时保持文件名
+        // 设置动态标题
         window.pageTitlePrefix = item.name;
-        updatePageText(); // 刷新标题
+        updatePageText();
 
+        // 渲染详情
         renderDetailView(item, hash);
 
     } catch (e) {
-        container.innerHTML = `<div class="alert alert-danger text-center mt-5">${t('error_api')}: ${e.message}</div>`;
+        showDetailError(`${t('error_api')}: ${e.message}`);
     }
 }
 
@@ -291,8 +279,8 @@ function renderDetailView(item, hash) {
             </div>
 
             <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                <a href="${magnet}" class="btn btn-primary btn-lg px-5 rounded-pill shadow-sm"><i class="fa-solid fa-magnet me-2"></i> <span data-i18n="btn_magnet">Magnet Download</span></a>
-                <button onclick="window.copyToClipboard('${magnet}')" class="btn btn-outline-secondary btn-lg px-5 rounded-pill"><i class="fa-regular fa-copy me-2"></i> <span data-i18n="btn_copy">Copy Link</span></button>
+                <a href="${magnet}" class="btn btn-primary btn-lg px-5 rounded-pill shadow-sm"><i class="fa-solid fa-magnet me-2"></i> <span data-i18n="btn_magnet">Download</span></a>
+                <button onclick="window.copyToClipboard('${magnet}')" class="btn btn-outline-secondary btn-lg px-5 rounded-pill"><i class="fa-regular fa-copy me-2"></i> <span data-i18n="btn_copy">Copy</span></button>
             </div>
             
             <div class="mt-5 text-start">
@@ -303,6 +291,10 @@ function renderDetailView(item, hash) {
             </div>
         </div>
     `;
-    // 渲染完 DOM 后，再次调用翻译，确保 Size/Date 等静态标签被翻译
-    updatePageText();
+    updatePageText(); // 确保新渲染的 HTML (Size/Date标签) 被翻译
+}
+
+function showDetailError(msg) {
+    document.getElementById('detailContainer').innerHTML = 
+        `<div class="alert alert-danger text-center my-5">${msg}</div>`;
 }
