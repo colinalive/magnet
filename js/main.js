@@ -2,10 +2,10 @@
  * js/main.js - 核心逻辑 (修复版)
  */
 
-// 🔥 你的 API 地址
+// 🔥 你的 API 地址 (Cloudflare Worker)
 const API_BASE = 'https://api.cili.xyz'; 
 
-// 多语言字典 (支持 5 种语言)
+// 多语言字典 (完整版)
 const i18nData = {
     'en': { 
         title: "Magnet Pioneer",
@@ -25,7 +25,8 @@ const i18nData = {
         copy_success: "Copied!",
         loading: "Loading...",
         infohash: "Info Hash",
-        files: "Files"
+        files: "Files",
+        category: "Category"
     },
     'zh-CN': { 
         title: "磁力先锋",
@@ -45,7 +46,8 @@ const i18nData = {
         copy_success: "已复制",
         loading: "加载中...",
         infohash: "哈希值 (Info Hash)",
-        files: "文件列表"
+        files: "文件列表",
+        category: "分类"
     },
     'zh-TW': { 
         title: "磁力先鋒",
@@ -65,7 +67,8 @@ const i18nData = {
         copy_success: "已複製",
         loading: "載入中...",
         infohash: "哈希值 (Info Hash)",
-        files: "檔案列表"
+        files: "檔案列表",
+        category: "分類"
     },
     'ja': { 
         title: "マグネットパイオニア",
@@ -85,7 +88,8 @@ const i18nData = {
         copy_success: "コピーしました",
         loading: "読み込み中...",
         infohash: "情報ハッシュ",
-        files: "ファイルリスト"
+        files: "ファイルリスト",
+        category: "カテゴリー"
     },
     'ko': { 
         title: "마그넷 파이오니어",
@@ -105,13 +109,14 @@ const i18nData = {
         copy_success: "복사됨",
         loading: "로딩 중...",
         infohash: "인포 해시",
-        files: "파일 목록"
+        files: "파일 목록",
+        category: "분류"
     }
 };
 
-// --- 工具函数 (全部挂载到 window) ---
+// --- 工具函数 (全部挂载到 window，防止 ReferenceError) ---
 
-// 1. 语言代码标准化 (解决 zh-CN 匹配不到的问题)
+// 1. 语言代码标准化 (关键修复：解决 zh-CN 匹配不到的问题)
 window.normalizeLang = function(lang) {
     if (!lang) return 'en';
     lang = lang.toLowerCase();
@@ -137,6 +142,7 @@ window.getLang = function() {
 // 3. 设置语言
 window.setLang = function(lang) {
     localStorage.setItem('cili_lang', lang);
+    // 刷新页面并带上参数
     const url = new URL(window.location);
     url.searchParams.set('lang', lang);
     window.location.href = url.toString();
@@ -145,7 +151,7 @@ window.setLang = function(lang) {
 // 4. 初始化页面
 window.initPage = function() {
     const lang = window.getLang();
-    // 🔥 核心修复：添加回退保护，如果字典里没有该语言，回退到 en
+    // 🔥 回退保护：如果字典里没有该语言，回退到 en
     const t = i18nData[lang] || i18nData['en'];
 
     // 设置网页标题
@@ -166,9 +172,9 @@ window.initPage = function() {
     // 高亮当前语言标记
     document.querySelectorAll('.lang-btn').forEach(btn => {
         if(btn.dataset.lang === lang) {
-            btn.classList.add('bg-secondary', 'text-white'); // Bootstrap 高亮样式
+            btn.classList.add('active', 'bg-secondary', 'text-white'); 
         } else {
-            btn.classList.remove('bg-secondary', 'text-white');
+            btn.classList.remove('active', 'bg-secondary', 'text-white');
         }
     });
 

@@ -8,11 +8,11 @@
 </head>
 <body class="bg-light">
 
-    <nav class="navbar navbar-light bg-white border-bottom sticky-top">
+    <nav class="navbar navbar-light bg-white border-bottom sticky-top shadow-sm">
         <div class="container">
             <a class="navbar-brand fw-bold d-none d-md-block" href="index.html">🧲</a>
             
-            <div class="d-flex flex-grow-1 mx-2" style="max-width: 600px;">
+            <div class="d-flex flex-grow-1 mx-md-4">
                 <input type="text" id="searchInput" class="form-control me-2" onkeypress="handleEnter(event)">
                 <button class="btn btn-outline-primary" id="btnSearch" onclick="goSearch()">Search</button>
             </div>
@@ -29,7 +29,7 @@
         </div>
     </nav>
 
-    <div class="container d-md-none mt-2 text-center">
+    <div class="container d-md-none mt-3 text-center">
          <div class="btn-group btn-group-sm" role="group">
             <button class="btn btn-outline-secondary lang-btn" data-lang="en" onclick="setLang('en')">🇺🇸</button>
             <button class="btn btn-outline-secondary lang-btn" data-lang="zh-CN" onclick="setLang('zh-CN')">🇨🇳</button>
@@ -84,16 +84,18 @@
                     
                     const verifiedBadge = item.verified ? `<span class="badge bg-success me-1">✓ ${t.verified}</span>` : '';
                     const hotBadge = (item.downloads > 500) ? `<span class="badge bg-danger me-1">🔥 ${t.hot}</span>` : '';
+                    const sizeBadge = `<span class="badge bg-light text-dark border ms-2">${item.size}</span>`;
 
                     return `
                     <a href="${detailUrl}" class="list-group-item list-group-item-action p-3">
                         <div class="d-flex w-100 justify-content-between align-items-start mb-2">
                             <h5 class="mb-1 text-primary text-break" style="font-size:1.1rem">${item.name}</h5>
-                            <span class="badge bg-light text-dark border ms-2">${item.size}</span>
+                            ${sizeBadge}
                         </div>
                         <div class="mb-2">
                             ${verifiedBadge}
                             ${hotBadge}
+                            <span class="badge bg-secondary opacity-50">${item.category || 'General'}</span>
                         </div>
                         <div class="d-flex gap-3 small text-muted">
                             <span class="text-success fw-bold">⬆ ${item.seeders}</span>
