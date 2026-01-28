@@ -3,113 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>搜索结果 - 磁力先锋</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>磁力先锋 - cili.xyz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" />
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif; background-color: #f5f5f7; }
+        .apple-nav { background: rgba(255, 255, 255, 0.75); backdrop-filter: saturate(180%) blur(20px); border-bottom: 0.5px solid rgba(0,0,0,0.1); }
+        .apple-card { border-radius: 20px; border: none; transition: transform 0.3s cubic-bezier(0,0,0.5,1); }
+        .apple-card:hover { transform: scale(1.02); box-shadow: 0 20px 40px rgba(0,0,0,0.06); }
+    </style>
 </head>
-<body class="bg-light">
+<body class="min-h-screen flex flex-col">
 
-    <nav class="navbar navbar-light bg-white border-bottom sticky-top shadow-sm">
-        <div class="container">
-            <a class="navbar-brand fw-bold d-none d-md-block" href="index.html">🧲</a>
-            
-            <div class="d-flex flex-grow-1 mx-md-4">
-                <input type="text" id="searchInput" class="form-control me-2" onkeypress="handleEnter(event)">
-                <button class="btn btn-outline-primary" id="btnSearch" onclick="goSearch()">Search</button>
-            </div>
-
-            <div class="d-none d-md-block">
-                 <div class="btn-group btn-group-sm">
-                    <button class="btn btn-outline-secondary lang-btn" data-lang="en" onclick="setLang('en')">🇺🇸</button>
-                    <button class="btn btn-outline-secondary lang-btn" data-lang="zh-CN" onclick="setLang('zh-CN')">🇨🇳</button>
-                    <button class="btn btn-outline-secondary lang-btn" data-lang="zh-TW" onclick="setLang('zh-TW')">🇭🇰</button>
-                    <button class="btn btn-outline-secondary lang-btn" data-lang="ja" onclick="setLang('ja')">🇯🇵</button>
-                    <button class="btn btn-outline-secondary lang-btn" data-lang="ko" onclick="setLang('ko')">🇰🇷</button>
-                </div>
+<nav class="apple-nav fixed w-full z-50 top-0">
+    <div class="max-w-4xl flex items-center justify-between mx-auto p-3">
+        <a href="index.html" class="text-xl font-bold text-black tracking-tight">⚡ cili.xyz</a>
+        <div class="flex items-center">
+            <button id="langDrop" data-dropdown-toggle="langList" class="text-lg px-2 py-1 bg-white/50 border rounded-full">🇺🇸</button>
+            <div id="langList" class="z-10 hidden bg-white rounded-2xl shadow-xl w-36 border">
+                <ul class="py-2 text-sm">
+                    <li><button onclick="App.changeLang('en')" class="block w-full px-4 py-2 hover:bg-gray-100">🇺🇸 English</button></li>
+                    <li><button onclick="App.changeLang('zh-CN')" class="block w-full px-4 py-2 hover:bg-gray-100">🇨🇳 简体中文</button></li>
+                    <li><button onclick="App.changeLang('zh-TW')" class="block w-full px-4 py-2 hover:bg-gray-100">🇭🇰 繁體中文</button></li>
+                    <li><button onclick="App.changeLang('ja')" class="block w-full px-4 py-2 hover:bg-gray-100">🇯🇵 日本語</button></li>
+                    <li><button onclick="App.changeLang('ko')" class="block w-full px-4 py-2 hover:bg-gray-100">🇰🇷 한국어</button></li>
+                </ul>
             </div>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <div class="container d-md-none mt-3 text-center">
-         <div class="btn-group btn-group-sm">
-            <button class="btn btn-outline-secondary lang-btn" data-lang="en" onclick="setLang('en')">🇺🇸</button>
-            <button class="btn btn-outline-secondary lang-btn" data-lang="zh-CN" onclick="setLang('zh-CN')">🇨🇳</button>
-            <button class="btn btn-outline-secondary lang-btn" data-lang="zh-TW" onclick="setLang('zh-TW')">🇭🇰</button>
-            <button class="btn btn-outline-secondary lang-btn" data-lang="ja" onclick="setLang('ja')">🇯🇵</button>
-            <button class="btn btn-outline-secondary lang-btn" data-lang="ko" onclick="setLang('ko')">🇰🇷</button>
-        </div>
+<main class="mt-28 px-4 max-w-4xl mx-auto flex-grow w-full">
+    <div class="relative mb-12">
+        <input type="text" id="searchInput" class="w-full p-5 bg-white border-0 rounded-3xl shadow-sm focus:ring-4 focus:ring-blue-100 transition-all text-xl" placeholder="Search...">
+        <button onclick="doSearch()" class="absolute right-3 top-3 bg-blue-600 text-white rounded-2xl px-8 py-2.5 font-bold">Search</button>
     </div>
 
-    <div class="container py-4" style="max-width: 900px;">
-        <div id="statusAlert" class="alert alert-light text-center border" role="alert">
-            Loading...
+    <div id="status" class="text-center py-10 hidden"></div>
+    <div id="results" class="space-y-5"></div>
+</main>
+
+<footer class="mt-20 py-10 border-t bg-white">
+    <div class="max-w-4xl mx-auto px-4 text-center text-sm text-gray-400">
+        <p class="mb-2">© 2026 磁力先锋 (cili.xyz). All search data is powered by BitSearch Network.</p>
+        <div class="space-x-4">
+            <a href="#" class="hover:text-black">DMCA</a>
+            <a href="#" class="hover:text-black">API</a>
+            <a href="#" class="hover:text-black">Privacy</a>
         </div>
-        <div class="list-group shadow-sm" id="resultsList"></div>
     </div>
+</footer>
 
-    <script src="js/main.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            const t = window.initPage(); 
-            const params = new URLSearchParams(window.location.search);
-            const q = params.get('q');
+<script src="js/app.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const t = App.t;
+        document.getElementById('searchInput').placeholder = t.placeholder;
+        const q = new URLSearchParams(window.location.search).get('q');
+        if(q) {
+            document.getElementById('searchInput').value = q;
+            doSearch(q);
+        }
+    });
 
-            if(q) document.getElementById('searchInput').value = q;
-            if(!q) return;
-            
-            const statusEl = document.getElementById('statusAlert');
-            const listEl = document.getElementById('resultsList');
-            statusEl.textContent = t.loading;
+    async function doSearch(val) {
+        const q = val || document.getElementById('searchInput').value;
+        if(!q) return;
+        
+        const resList = document.getElementById('results');
+        const status = document.getElementById('status');
+        
+        status.innerHTML = App.t.loading;
+        status.classList.remove('hidden');
+        resList.innerHTML = '';
 
-            try {
-                // 请求 API
-                const res = await fetch(`${API_BASE}/?q=${encodeURIComponent(q)}`);
-                const data = await res.json();
+        try {
+            const res = await fetch(`${CONFIG.API_BASE}/?q=${encodeURIComponent(q)}`);
+            const data = await res.json();
+            status.classList.add('hidden');
 
-                if(data.error) throw new Error(data.error);
-                if(!data || data.length === 0) {
-                    statusEl.className = "alert alert-warning text-center";
-                    statusEl.textContent = t.empty;
-                    return;
-                }
-
-                statusEl.style.display = 'none';
-
-                // 渲染结果
-                listEl.innerHTML = data.map(item => {
-                    const hash = item.infohash;
-                    // 生成详情页链接 (传递 Hash 和 Lang)
-                    const detailUrl = hash ? `detail.html?hash=${hash}&lang=${window.getLang()}` : '#';
-                    
-                    const verifiedBadge = item.verified ? `<span class="badge bg-success me-1">✓ ${t.verified}</span>` : '';
-                    const hotBadge = (item.downloads > 500) ? `<span class="badge bg-danger me-1">🔥 ${t.hot}</span>` : '';
-                    const sizeBadge = `<span class="badge bg-light text-dark border ms-2">${item.size}</span>`;
-
-                    return `
-                    <a href="${detailUrl}" class="list-group-item list-group-item-action p-3">
-                        <div class="d-flex w-100 justify-content-between align-items-start mb-2">
-                            <h5 class="mb-1 text-primary text-break text-decoration-underline-hover">${item.name}</h5>
-                            ${sizeBadge}
-                        </div>
-                        <div class="mb-2">
-                            ${verifiedBadge}
-                            ${hotBadge}
-                            <span class="badge bg-secondary opacity-50">${item.category || 'General'}</span>
-                        </div>
-                        <div class="d-flex gap-3 small text-muted">
-                            <span class="text-success fw-bold">⬆ ${item.seeders}</span>
-                            <span class="text-danger">⬇ ${item.leechers}</span>
-                            <span>💾 ${item.downloads || 0} ${t.downloads}</span>
-                            <span>📅 ${item.date}</span>
-                        </div>
-                    </a>
-                    `;
-                }).join('');
-
-            } catch(e) {
-                statusEl.className = "alert alert-danger text-center";
-                statusEl.textContent = `${t.error}: ${e.message}`;
+            if(!data.length) {
+                status.classList.remove('hidden');
+                status.innerHTML = App.t.empty;
+                return;
             }
-        });
-    </script>
+
+            resList.innerHTML = data.map(item => `
+                <div class="apple-card bg-white p-6 shadow-sm cursor-pointer" onclick="viewDetail('${item.infohash}', '${btoa(encodeURIComponent(JSON.stringify(item)))}')">
+                    <h3 class="text-blue-600 text-xl font-bold hover:underline mb-3">${item.name}</h3>
+                    <div class="flex flex-wrap gap-5 text-sm font-medium text-gray-500">
+                        <span class="bg-gray-100 px-3 py-1 rounded-full">${item.size}</span>
+                        <span class="text-green-600">⬆ ${item.seeders}</span>
+                        <span>📅 ${item.date}</span>
+                        ${item.verified ? `<span class="text-blue-500 font-bold">Verified ✅</span>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        } catch(e) {
+            status.innerHTML = `<span class="text-red-500">${App.t.error}</span>`;
+        }
+    }
+
+    function viewDetail(hash, raw) {
+        // 详情页传参优化：先存入 sessionStorage，解决 404 隐患
+        sessionStorage.setItem('cili_info_' + hash, raw);
+        window.location.href = `detail.html?hash=${hash}`;
+    }
+</script>
 </body>
 </html>

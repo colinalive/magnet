@@ -3,147 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>详情 - 磁力先锋</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>磁力详情 - cili.xyz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: -apple-system, sans-serif; background-color: #fff; }
+        .data-grid { background: #f5f5f7; border-radius: 28px; padding: 2.5rem; }
+        .btn-copy { background: #1d1d1f; color: white; border-radius: 14px; transition: all 0.2s; }
+        .btn-copy:hover { background: #000; transform: scale(1.02); }
+        .label-text { color: #86868b; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; }
+    </style>
 </head>
-<body class="bg-light">
+<body class="min-h-screen flex flex-col">
 
-    <div class="container py-5" style="max-width: 800px;">
-        <button class="btn btn-outline-secondary mb-3" onclick="history.back()" id="btnBack">← Back</button>
+<nav class="fixed w-full z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100">
+    <div class="max-w-4xl mx-auto p-4 flex justify-between items-center">
+        <a href="index.html" class="font-bold text-lg">⚡ cili.xyz</a>
+        <button onclick="history.back()" class="bg-gray-100 px-5 py-2 rounded-full text-sm font-bold">← Back</button>
+    </div>
+</nav>
+
+<main class="mt-32 max-w-4xl mx-auto px-6 w-full flex-grow">
+    <div id="content" class="hidden">
+        <h1 id="title" class="text-3xl md:text-4xl font-extrabold text-black mb-10 leading-tight"></h1>
         
-        <div id="loading" class="text-center py-5 text-muted">Loading...</div>
-        
-        <div id="errorAlert" class="alert alert-danger text-center shadow-sm" style="display:none"></div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+            <div class="data-grid"><p class="label-text">Size</p><p id="size" class="text-2xl font-bold mt-2"></p></div>
+            <div class="data-grid"><p class="label-text">Seeds</p><p id="seeds" class="text-2xl font-bold mt-2 text-green-600"></p></div>
+            <div class="data-grid"><p class="label-text">Peers</p><p id="leech" class="text-2xl font-bold mt-2 text-red-500"></p></div>
+            <div class="data-grid"><p class="label-text">Downloads</p><p id="downloads" class="text-2xl font-bold mt-2"></p></div>
+        </div>
 
-        <div class="card shadow-sm" id="detailCard" style="display:none">
-            <div class="card-header bg-white py-3">
-                 <h4 class="card-title text-break mb-0 text-primary" id="d-title"></h4>
-            </div>
-            <div class="card-body">
-                <div class="row text-center mb-4">
-                    <div class="col-3 border-end">
-                        <div class="text-muted small" id="l-seeders">Seeders</div>
-                        <div class="fs-4 fw-bold text-success" id="d-seeders">-</div>
-                    </div>
-                    <div class="col-3 border-end">
-                        <div class="text-muted small" id="l-leechers">Leechers</div>
-                        <div class="fs-4 fw-bold text-danger" id="d-leechers">-</div>
-                    </div>
-                    <div class="col-3 border-end">
-                        <div class="text-muted small" id="l-size">Size</div>
-                        <div class="fs-5 fw-bold" id="d-size">-</div>
-                    </div>
-                    <div class="col-3">
-                        <div class="text-muted small" id="l-downloads">Downloads</div>
-                        <div class="fs-5 fw-bold" id="d-downloads">-</div>
-                    </div>
-                </div>
+        <div class="mb-14">
+            <button onclick="copyLink()" class="btn-copy w-full py-6 text-xl font-bold shadow-2xl flex items-center justify-center space-x-3">
+                <span>🧲</span><span id="copyBtnTxt">Copy Magnet</span>
+            </button>
+            <div id="magnetRaw" class="mt-6 p-5 bg-gray-50 rounded-2xl text-xs font-mono text-gray-400 break-all select-all border border-dashed"></div>
+        </div>
 
-                <div class="d-grid gap-2 mb-4">
-                    <a href="#" id="magnetLink" class="btn btn-success btn-lg shadow-sm">
-                        🧲 <span id="btn-text">Magnet Download</span>
-                    </a>
-                </div>
-
-                <table class="table table-bordered table-sm small">
-                    <tbody>
-                        <tr>
-                            <th class="bg-light w-25 ps-3 align-middle" id="l-date">Date</th>
-                            <td class="p-2" id="d-date">-</td>
-                        </tr>
-                        <tr>
-                            <th class="bg-light ps-3 align-middle" id="l-hash">Info Hash</th>
-                            <td class="font-monospace text-break p-2" id="d-hash">-</td>
-                        </tr>
-                        <tr>
-                            <th class="bg-light ps-3 align-middle">Magnet Raw</th>
-                            <td class="p-2">
-                                <div class="font-monospace text-break text-muted bg-light p-2 rounded border" 
-                                     style="cursor:pointer" onclick="copyMagnet()" id="rawMagnet"></div>
-                                <div id="copyToast" class="text-success small mt-1 fw-bold" style="opacity:0; transition: opacity 0.5s">Copied!</div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+        <div class="border-t border-gray-100 pt-12 mb-20">
+            <h2 class="text-2xl font-bold mb-8">Metadata Details</h2>
+            <div class="grid gap-6">
+                <div class="flex justify-between py-4 border-b border-gray-50"><span class="label-text">Info Hash</span><span id="hash" class="font-mono text-xs"></span></div>
+                <div class="flex justify-between py-4 border-b border-gray-50"><span class="label-text">Category</span><span id="category" class="font-bold"></span></div>
+                <div class="flex justify-between py-4 border-b border-gray-50"><span class="label-text">Date</span><span id="date" class="font-bold"></span></div>
+                <div class="flex justify-between py-4 border-b border-gray-50"><span class="label-text">Verified</span><span id="verified" class="font-bold"></span></div>
             </div>
         </div>
     </div>
+    
+    <div id="loading" class="text-center py-20 text-gray-400">Requesting BitSearch API...</div>
+</main>
 
-    <script src="js/main.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            const t = window.initPage();
-            
-            // 填充 UI 文本
-            document.getElementById('btnBack').textContent = `← ${t.back}`;
-            document.getElementById('loading').textContent = t.loading;
-            document.getElementById('l-seeders').textContent = t.seeders;
-            document.getElementById('l-leechers').textContent = t.leechers;
-            document.getElementById('l-size').textContent = t.size;
-            document.getElementById('l-downloads').textContent = t.downloads;
-            document.getElementById('l-date').textContent = t.date;
-            document.getElementById('l-hash').textContent = t.infohash;
-            document.getElementById('btn-text').textContent = t.magnet_open;
+<footer class="py-12 border-t border-gray-100 bg-gray-50">
+    <div class="max-w-4xl mx-auto px-6 text-center">
+        <p class="text-sm text-gray-400">© 2026 磁力先锋 (cili.xyz). Professional Indexing Service.</p>
+    </div>
+</footer>
 
-            const hash = new URLSearchParams(window.location.search).get('hash');
-            if(!hash) {
-                document.getElementById('loading').style.display = 'none';
-                showError("Invalid Link (No Hash provided)");
-                return;
-            }
+<script src="js/app.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const hash = new URLSearchParams(window.location.search).get('hash');
+        if(!hash) return (location.href = 'index.html');
 
+        // 详情页 100% 成功方案：优先读取 Session 缓存
+        const cached = sessionStorage.getItem('cili_info_' + hash);
+
+        if(cached) {
+            render(JSON.parse(decodeURIComponent(atob(cached))));
+        } else {
+            // 回退方案：通过接口直接根据 Hash 查询
             try {
-                // 🔥 核心请求：直接使用 Hash 搜索
-                // 如果后端或 API 暂时未索引此 Hash，会抛出错误
-                const res = await fetch(`${API_BASE}/?q=${hash}`);
+                const res = await fetch(`${CONFIG.API_BASE}/?q=${hash}`);
                 const data = await res.json();
-
-                if(!data || data.length === 0 || data.error) {
-                    throw new Error(data.error || t.empty);
-                }
-
-                // 渲染第一个匹配项
-                const item = data[0];
-                renderDetail(item);
-
+                if(data && data.length) render(data[0]);
+                else throw new Error("NotFound");
             } catch(e) {
-                document.getElementById('loading').style.display = 'none';
-                showError(`${t.error}: ${e.message}`);
+                document.getElementById('loading').innerHTML = `<p class="text-red-500">Resource not found in index.</p>`;
             }
-        });
-
-        function renderDetail(item) {
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('detailCard').style.display = 'block';
-
-            document.title = `${item.name} - 磁力先锋`;
-            document.getElementById('d-title').textContent = item.name;
-            document.getElementById('d-seeders').textContent = item.seeders;
-            document.getElementById('d-leechers').textContent = item.leechers;
-            document.getElementById('d-size').textContent = item.size;
-            document.getElementById('d-downloads').textContent = item.downloads || 0;
-            document.getElementById('d-date').textContent = item.date;
-            document.getElementById('d-hash').textContent = item.infohash;
-            
-            document.getElementById('magnetLink').href = item.magnet;
-            document.getElementById('rawMagnet').textContent = item.magnet;
         }
+    });
 
-        function showError(msg) {
-            const el = document.getElementById('errorAlert');
-            el.style.display = 'block';
-            el.textContent = msg;
-        }
+    function render(item) {
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('content').classList.remove('hidden');
+        
+        document.getElementById('title').textContent = item.name;
+        document.getElementById('size').textContent = item.size;
+        document.getElementById('seeds').textContent = item.seeders;
+        document.getElementById('leech').textContent = item.leechers;
+        document.getElementById('downloads').textContent = item.downloads || 0;
+        document.getElementById('magnetRaw').textContent = item.magnet;
+        document.getElementById('hash').textContent = item.infohash;
+        document.getElementById('date').textContent = item.date;
+        document.getElementById('category').textContent = item.category || 'Other';
+        document.getElementById('verified').textContent = item.verified ? "✅ Verified" : "Unverified";
+        document.getElementById('copyBtnTxt').textContent = App.t.copy;
+        
+        App.updateMeta(item.name); //
+    }
 
-        function copyMagnet() {
-            const text = document.getElementById('rawMagnet').textContent;
-            navigator.clipboard.writeText(text).then(() => {
-                const toast = document.getElementById('copyToast');
-                toast.style.opacity = 1;
-                toast.textContent = window.initPage().copy_success;
-                setTimeout(() => toast.style.opacity = 0, 2000);
-            });
-        }
-    </script>
+    function copyLink() {
+        const link = document.getElementById('magnetRaw').textContent;
+        navigator.clipboard.writeText(link);
+        alert(App.t.success);
+    }
+</script>
 </body>
 </html>

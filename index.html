@@ -3,42 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>磁力先锋 - cili.xyz</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <meta name="description" content="Global verified torrent search engine.">
+    <title>磁力先锋 - 专业磁力搜索引擎</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" />
+    <meta name="description" content="磁力先锋 (Magnet Pioneer) - 快速、纯净、官方认证的磁力搜索引擎。cili.xyz 提供全球海量种子资源索引。">
+    <meta name="keywords" content="磁力先锋, cili.xyz, 磁力搜索, 种子下载, 磁力链接, 电影搜索">
+    
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", sans-serif; 
+            background-color: #fff;
+            color: #1d1d1f;
+        }
+        .apple-nav { 
+            background: rgba(255, 255, 255, 0.72); 
+            backdrop-filter: saturate(180%) blur(20px); 
+        }
+        .search-input-home {
+            border-radius: 18px;
+            background: #f5f5f7;
+            border: 1px solid transparent;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .search-input-home:focus {
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(0, 125, 250, 0.15);
+            border-color: #0071e3;
+        }
+        .btn-apple-main {
+            background: #0071e3;
+            border-radius: 18px;
+            color: #fff;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-apple-main:hover {
+            background: #0077ed;
+            transform: scale(1.02);
+        }
+    </style>
 </head>
-<body class="d-flex flex-column min-vh-100 bg-light">
+<body class="flex flex-col min-h-screen">
 
-    <div class="container flex-grow-1 d-flex align-items-center justify-content-center">
-        <div class="text-center w-100" style="max-width: 600px;">
-            <h1 class="display-3 fw-bold mb-4">⚡ cili.xyz</h1>
-            
-            <div class="input-group input-group-lg shadow-sm">
-                <input type="text" id="searchInput" class="form-control" autofocus onkeypress="handleEnter(event)">
-                <button class="btn btn-primary px-4" id="btnSearch" onclick="goSearch()">Search</button>
-            </div>
-            
-            <div class="mt-5">
-                <div class="btn-group shadow-sm" role="group">
-                    <button class="btn btn-light border lang-btn" data-lang="en" onclick="setLang('en')" title="English">🇺🇸</button>
-                    <button class="btn btn-light border lang-btn" data-lang="zh-CN" onclick="setLang('zh-CN')" title="简体中文">🇨🇳</button>
-                    <button class="btn btn-light border lang-btn" data-lang="zh-TW" onclick="setLang('zh-TW')" title="繁體中文(HK)">🇭🇰</button>
-                    <button class="btn btn-light border lang-btn" data-lang="ja" onclick="setLang('ja')" title="日本語">🇯🇵</button>
-                    <button class="btn btn-light border lang-btn" data-lang="ko" onclick="setLang('ko')" title="한국어">🇰🇷</button>
-                </div>
+<nav class="apple-nav fixed w-full z-50 top-0">
+    <div class="max-w-screen-xl flex items-center justify-between mx-auto p-4">
+        <div class="flex items-center space-x-1 font-bold text-xl tracking-tight">
+            <span>⚡ cili.xyz</span>
+        </div>
+        
+        <div class="flex items-center">
+            <button id="langDropHome" data-dropdown-toggle="langItemsHome" class="flex items-center text-lg px-3 py-1 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+                <span id="currentFlag">🇺🇸</span>
+            </button>
+            <div id="langItemsHome" class="z-10 hidden bg-white rounded-2xl shadow-2xl w-40 border border-gray-100 overflow-hidden">
+                <ul class="py-2 text-sm font-medium">
+                    <li><button onclick="App.changeLang('en')" class="flex items-center w-full px-4 py-3 hover:bg-gray-50">🇺🇸 English</button></li>
+                    <li><button onclick="App.changeLang('zh-CN')" class="flex items-center w-full px-4 py-3 hover:bg-gray-50">🇨🇳 简体中文</button></li>
+                    <li><button onclick="App.changeLang('zh-TW')" class="flex items-center w-full px-4 py-3 hover:bg-gray-50">🇭🇰 繁體中文</button></li>
+                    <li><button onclick="App.changeLang('ja')" class="flex items-center w-full px-4 py-3 hover:bg-gray-50">🇯🇵 日本語</button></li>
+                    <li><button onclick="App.changeLang('ko')" class="flex items-center w-full px-4 py-3 hover:bg-gray-50">🇰🇷 한국어</button></li>
+                </ul>
             </div>
         </div>
     </div>
+</nav>
 
-    <footer class="text-center py-3 text-muted border-top bg-white small">
-        &copy; 2026 磁力先锋 (Magnet Pioneer)
-    </footer>
+<main class="flex-grow flex flex-col items-center justify-center px-4">
+    <div class="w-full max-w-2xl text-center">
+        <h1 class="text-6xl md:text-8xl font-extrabold tracking-tighter mb-4">
+            <span class="text-black">cili</span><span class="text-blue-600">.xyz</span>
+        </h1>
+        <p id="heroSubtitle" class="text-xl md:text-2xl text-gray-500 font-medium mb-12">Magnet Pioneer: Indexing the Future.</p>
+        
+        <div class="relative group">
+            <input type="text" id="searchInput" 
+                class="search-input-home w-full p-5 text-xl outline-none" 
+                autofocus
+                onkeypress="if(event.key === 'Enter') goSearch()">
+            <button onclick="goSearch()" 
+                class="btn-apple-main absolute right-3 top-3 px-8 py-2.5">
+                <span id="btnText">Search</span>
+            </button>
+        </div>
+        
+        <div class="mt-8 flex justify-center space-x-6 text-sm font-medium text-gray-400">
+            <span class="cursor-help hover:text-blue-600 transition-colors">Movies</span>
+            <span class="cursor-help hover:text-blue-600 transition-colors">Anime</span>
+            <span class="cursor-help hover:text-blue-600 transition-colors">Software</span>
+        </div>
+    </div>
+</main>
 
-    <script src="js/main.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            window.initPage();
-        });
-    </script>
+<footer class="py-12 border-t border-gray-100 bg-white">
+    <div class="max-w-screen-xl mx-auto px-4">
+        <div class="flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
+            <div class="mb-4 md:mb-0">
+                © 2026 <strong>磁力先锋 (cili.xyz)</strong>. All rights reserved.
+            </div>
+            <div class="flex space-x-8 font-medium">
+                <a href="#" class="hover:text-black">DMCA</a>
+                <a href="#" class="hover:text-black">Privacy</a>
+                <a href="#" class="hover:text-black">API Support</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="js/app.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // 1. 初始化页面语言
+        const t = App.t;
+        
+        // 2. 动态翻译
+        document.getElementById('searchInput').placeholder = t.search + "...";
+        document.getElementById('btnText').textContent = t.search;
+        document.getElementById('heroSubtitle').textContent = t.title + ": Indexing the Universe.";
+        
+        // 3. 更新国旗
+        const flags = {'en':'🇺🇸', 'zh-CN':'🇨🇳', 'zh-TW':'🇭🇰', 'ja':'🇯🇵', 'ko':'🇰🇷'};
+        document.getElementById('currentFlag').textContent = flags[App.lang] || '🇺🇸';
+    });
+
+    function goSearch() {
+        const q = document.getElementById('searchInput').value.trim();
+        if(!q) return;
+        // 跳转到 search.html，url 保持纯净，无 lang 参数
+        window.location.href = `search.html?q=${encodeURIComponent(q)}`;
+    }
+</script>
+
 </body>
 </html>
