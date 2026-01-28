@@ -58,14 +58,27 @@
                     <!-- Title -->
                     <h1 id="title" style="font-size: 1.75rem; font-weight: 700; color: var(--color-text); margin-bottom: 24px; line-height: 1.4;"></h1>
 
-                    <!-- Verified Badge (if applicable) -->
-                    <div id="verifiedBadge" class="hidden mb-6">
-                        <span class="result-tag verified" style="font-size: 0.875rem; padding: 8px 16px;">
+                    <!-- Badges Row -->
+                    <div id="badgesRow" class="mb-6" style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        <!-- Verified Badge -->
+                        <span id="verifiedBadge" class="result-tag verified hidden" style="font-size: 0.875rem; padding: 8px 16px;">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
                                 <polyline points="22 4 12 14.01 9 11.01"/>
                             </svg>
                             <span id="verifiedText">Verified</span>
+                        </span>
+                        <!-- Category Badge -->
+                        <span id="categoryBadge" class="result-tag hidden" style="font-size: 0.875rem; padding: 8px 16px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                            </svg>
+                            <span id="categoryText"></span>
+                        </span>
+                        <!-- IMDb Badge -->
+                        <span id="imdbBadge" class="result-tag hidden" style="font-size: 0.875rem; padding: 8px 16px; background: rgba(245, 197, 24, 0.15); color: #f5c518;">
+                            <span style="font-weight: 700;">IMDb</span>
+                            <span id="imdbRating"></span>
                         </span>
                     </div>
 
@@ -89,14 +102,27 @@
                         </div>
                     </div>
 
-                    <!-- Copy Magnet Button -->
-                    <button class="btn btn-dark btn-lg btn-block mb-4" id="copyBtn" onclick="copyMagnet()">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                        </svg>
-                        <span id="copyBtnText">Copy Magnet Link</span>
-                    </button>
+                    <!-- Action Buttons -->
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px;">
+                        <!-- Copy Magnet Button -->
+                        <button class="btn btn-dark btn-lg" id="copyBtn" onclick="copyMagnet()" style="flex: 1; min-width: 200px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                            <span id="copyBtnText">Copy Magnet Link</span>
+                        </button>
+
+                        <!-- Download Torrent Button (if available) -->
+                        <a id="torrentBtn" href="#" class="btn btn-secondary btn-lg hidden" style="flex: 1; min-width: 200px; text-decoration: none;" target="_blank" rel="noopener">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            <span id="torrentBtnText">Download .torrent</span>
+                        </a>
+                    </div>
 
                     <!-- Magnet Link Display -->
                     <div class="magnet-display mb-8" id="magnetDisplay"></div>
@@ -104,7 +130,6 @@
                     <!-- Technical Details Section -->
                     <div class="detail-section">
                         <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 20px;" id="techDetailsTitle">Technical Details</h2>
-
                         <div id="detailRows">
                             <!-- Dynamic rows will be inserted here -->
                         </div>
@@ -133,7 +158,7 @@
     <script>
         let currentMagnet = '';
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const app = window.App;
             const t = app.t;
 
@@ -149,33 +174,47 @@
 
             // Update static translations
             document.getElementById('backBtn').querySelector('span').textContent = t.back;
-            document.getElementById('statusText').textContent = t.searchingText;
+            document.getElementById('statusText').textContent = t.loading;
             document.getElementById('labelSize').textContent = t.size;
             document.getElementById('labelSeeds').textContent = t.seeds;
             document.getElementById('labelLeechers').textContent = t.leechers;
             document.getElementById('labelDownloads').textContent = t.downloads;
             document.getElementById('copyBtnText').textContent = t.copyMagnet;
+            document.getElementById('torrentBtnText').textContent = t.downloadTorrent;
             document.getElementById('techDetailsTitle').textContent = t.technicalDetails;
             document.getElementById('fileListTitle').textContent = t.fileList;
             document.getElementById('verifiedText').textContent = t.verified;
 
-            // Get hash from URL path: /detail/{hash}
+            // Get ID from URL path: /detail/{id}
             const pathParts = window.location.pathname.split('/');
-            const hash = pathParts[2] || '';
+            const id = pathParts[2] || '';
 
-            if (!hash) {
+            if (!id) {
                 showError(t.resourceNotFound);
                 return;
             }
 
             // Try to get cached data first
-            const cachedData = app.getCachedDetail(hash);
+            let data = app.getCachedDetail(id);
 
-            if (cachedData) {
-                renderDetail(cachedData);
-            } else {
-                // No cache - show error since API doesn't support hash queries
-                showError(t.resourceNotFound);
+            if (data) {
+                renderDetail(data);
+                return;
+            }
+
+            // No cache - try to fetch from API
+            try {
+                data = await app.getDetail(id);
+                if (data && !data.error) {
+                    // Cache for future use
+                    app.cacheDetail(id, data);
+                    renderDetail(data);
+                } else {
+                    showError(t.resourceNotFound);
+                }
+            } catch (error) {
+                console.error('Failed to fetch detail:', error);
+                showError(t.loadingError);
             }
         });
 
@@ -195,12 +234,28 @@
             app.updateSEO({
                 title: `${title} - ${t.siteName}`,
                 description: `Download ${title} - ${item.size || 'Unknown size'}`,
-                canonical: `https://cili.xyz/detail/${item.infohash}`
+                canonical: `https://cili.xyz/detail/${item.id || item.infohash}`
             });
 
             // Verified badge
             if (item.verified) {
                 document.getElementById('verifiedBadge').classList.remove('hidden');
+            }
+
+            // Category badge
+            if (item.category) {
+                const categoryBadge = document.getElementById('categoryBadge');
+                const categoryText = item.subcategory
+                    ? `${item.category} / ${item.subcategory}`
+                    : item.category;
+                document.getElementById('categoryText').textContent = categoryText;
+                categoryBadge.classList.remove('hidden');
+            }
+
+            // IMDb badge
+            if (item.imdb && item.imdb.rating) {
+                document.getElementById('imdbRating').textContent = item.imdb.rating;
+                document.getElementById('imdbBadge').classList.remove('hidden');
             }
 
             // Stats
@@ -210,8 +265,15 @@
             document.getElementById('statDownloads').textContent = item.downloads ?? '-';
 
             // Magnet link
-            currentMagnet = item.magnet || `magnet:?xt=urn:btih:${item.infohash}`;
+            currentMagnet = item.magnet || item.magnetUrl || `magnet:?xt=urn:btih:${item.infohash}`;
             document.getElementById('magnetDisplay').textContent = currentMagnet;
+
+            // Torrent download button
+            if (item.torrentUrl) {
+                const torrentBtn = document.getElementById('torrentBtn');
+                torrentBtn.href = item.torrentUrl;
+                torrentBtn.classList.remove('hidden');
+            }
 
             // Technical details
             const detailRows = document.getElementById('detailRows');
@@ -224,8 +286,11 @@
             if (item.category) {
                 details.push({ label: t.category, value: item.category });
             }
-            if (item.date) {
-                details.push({ label: t.dateAdded, value: item.date });
+            if (item.subcategory) {
+                details.push({ label: t.subcategory, value: item.subcategory });
+            }
+            if (item.date || item.uploadedAt) {
+                details.push({ label: t.uploadedAt, value: app.formatDate(item.date || item.uploadedAt) });
             }
             if (item.id) {
                 details.push({ label: 'ID', value: item.id, mono: true });
@@ -233,11 +298,21 @@
             if (item.size_bytes) {
                 details.push({ label: `${t.size} (bytes)`, value: item.size_bytes.toLocaleString() });
             }
+            if (item.imdb && item.imdb.id) {
+                details.push({
+                    label: 'IMDb',
+                    value: item.imdb.id,
+                    link: `https://www.imdb.com/title/${item.imdb.id}/`
+                });
+            }
 
             detailRows.innerHTML = details.map(d => `
                 <div class="detail-row">
                     <span class="detail-label">${app.escapeHtml(d.label)}</span>
-                    <span class="detail-value ${d.mono ? 'mono' : ''}">${app.escapeHtml(d.value)}</span>
+                    ${d.link
+                        ? `<a href="${d.link}" target="_blank" rel="noopener" class="detail-value ${d.mono ? 'mono' : ''}" style="color: var(--color-primary);">${app.escapeHtml(d.value)}</a>`
+                        : `<span class="detail-value ${d.mono ? 'mono' : ''}">${app.escapeHtml(String(d.value))}</span>`
+                    }
                 </div>
             `).join('');
 
@@ -248,14 +323,37 @@
                 const fileCount = document.getElementById('fileCount');
 
                 fileListSection.classList.remove('hidden');
-                fileCount.textContent = `(${item.files.length} ${t.files})`;
+                fileCount.textContent = ` (${item.files.length} ${t.files})`;
 
-                fileList.innerHTML = item.files.map(file => `
-                    <div class="file-item">
-                        <span class="file-name">${app.escapeHtml(file.name || file.path || 'Unknown')}</span>
-                        <span class="file-size">${file.size || app.formatSize(file.size_bytes) || '-'}</span>
-                    </div>
-                `).join('');
+                // Sort files by size (largest first) or by path
+                const sortedFiles = [...item.files].sort((a, b) => {
+                    const sizeA = a.size_bytes || a.sizeBytes || 0;
+                    const sizeB = b.size_bytes || b.sizeBytes || 0;
+                    return sizeB - sizeA;
+                });
+
+                // Limit to first 100 files for performance
+                const displayFiles = sortedFiles.slice(0, 100);
+
+                fileList.innerHTML = displayFiles.map(file => {
+                    const fileName = file.name || file.path || 'Unknown';
+                    const fileSize = file.size || app.formatSize(file.size_bytes || file.sizeBytes);
+                    return `
+                        <div class="file-item">
+                            <span class="file-name">${app.escapeHtml(fileName)}</span>
+                            <span class="file-size">${fileSize || '-'}</span>
+                        </div>
+                    `;
+                }).join('');
+
+                // Show "more files" note if truncated
+                if (sortedFiles.length > 100) {
+                    fileList.innerHTML += `
+                        <div class="file-item" style="color: var(--color-text-tertiary); font-style: italic;">
+                            ... and ${sortedFiles.length - 100} more files
+                        </div>
+                    `;
+                }
             }
         }
 
