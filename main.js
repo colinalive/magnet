@@ -1,39 +1,55 @@
 /**
- * main.js - v6.0 Mobile Optimized & Routing Fix
- * 修复：URL参数读取丢失、手机端显示异常
+ * main.js - v8.0 Final Stable
+ * 1. 路由模式：Query Params (?q=xxx)
+ * 2. 详情页逻辑：通过 Hash 反查 API
+ * 3. 品牌：磁力先锋 (Magnet Pioneer)
  */
 
 // ==========================================
-// 1. 字典配置 (SEO & I18n)
+// 1. 字典配置 (品牌与SEO)
 // ==========================================
 const dictionary = {
+    // 品牌名称变量
+    'brand_name': {
+        'zh-CN': '磁力先锋',
+        'en': 'Magnet Pioneer',
+        'ko': '마그넷 파이오니어',
+        'ja': 'マグネットパイオニア',
+        'es': 'Pionero Magnético',
+        'fr': 'Pionnier Magnétique'
+    },
+    
     // SEO Meta
-    'meta_title': {
-        'zh-CN': 'Cili.xyz - 磁力搜索 | 极速纯净',
-        'en': 'Cili.xyz - Magnet Search | Fast & Clean'
+    'meta_title': { 
+        'zh-CN': '磁力先锋 - 极速纯净的磁力搜索引擎', 
+        'en': 'Magnet Pioneer - Fast & Clean Magnet Search' 
     },
-    'meta_keywords': {
-        'zh-CN': '磁力链接, 种子搜索, BT下载, 电影下载',
-        'en': 'magnet links, torrent search, free movies, p2p'
+    'meta_keywords': { 
+        'zh-CN': '磁力链接, 种子搜索, 磁力先锋, BT下载', 
+        'en': 'magnet links, torrent search, magnet pioneer, p2p' 
     },
-    'meta_desc': {
-        'zh-CN': '极速索引数千万磁力链接，提供高质量的电影、剧集、音乐、游戏和软件下载。',
-        'en': 'Fast indexing of millions of magnet links for high-quality movies, TV series, music, games, and software.'
+    'meta_desc': { 
+        'zh-CN': '磁力先锋提供极速的磁力链接索引服务，纯净无广告，支持多语言搜索。', 
+        'en': 'Magnet Pioneer provides fast indexing of millions of magnet links. Clean, ad-free, and multilingual.' 
     },
 
     // UI Text
     'nav_home': { 'zh-CN': '首页', 'en': 'Home' },
-    'hero_title': { 'zh-CN': '全网资源聚合', 'en': 'Discover Anything' },
+    'hero_title': { 'zh-CN': '探索无限资源', 'en': 'Discover Anything' },
     'search_placeholder': { 'zh-CN': '搜索电影、剧集、软件...', 'en': 'Search movies, software...' },
     'search_btn': { 'zh-CN': '搜索', 'en': 'Search' },
-    'res_found': { 'zh-CN': '找到结果', 'en': 'Results' },
-    'label_size': { 'zh-CN': '大小', 'en': 'Size' },
-    'label_date': { 'zh-CN': '日期', 'en': 'Date' },
-    'label_files': { 'zh-CN': '文件列表', 'en': 'Files' },
+    'res_found': { 'zh-CN': '搜索结果', 'en': 'Results' },
+    
+    // 详情页
+    'label_size': { 'zh-CN': '文件大小', 'en': 'File Size' },
+    'label_date': { 'zh-CN': '收录日期', 'en': 'Date Indexed' },
     'label_hash': { 'zh-CN': '信息哈希', 'en': 'Info Hash' },
+    'label_files': { 'zh-CN': '文件概览', 'en': 'File Preview' },
     'btn_magnet': { 'zh-CN': '磁力下载', 'en': 'Magnet Download' },
     'btn_copy':   { 'zh-CN': '复制链接', 'en': 'Copy Link' },
-    'msg_copied': { 'zh-CN': '已复制!', 'en': 'Copied!' }
+    'msg_copied': { 'zh-CN': '链接已复制', 'en': 'Link Copied' },
+    'loading':    { 'zh-CN': '加载中...', 'en': 'Loading...' },
+    'error_api':  { 'zh-CN': '数据加载失败', 'en': 'Data Load Failed' }
 };
 
 const CONFIG = {
@@ -50,27 +66,19 @@ const CONFIG = {
 };
 
 // ==========================================
-// 2. 核心工具函数
+// 2. 工具函数：清洗与提取
 // ==========================================
 
-// 修复路由解析 Bug：
-// URL: https://cili.xyz/search/ubuntu
-// pathname: /search/ubuntu
-// split('/'): ["", "search", "ubuntu"] -> 关键词在 index 2
-function getPathParam(index) {
-    const segments = window.location.pathname.split('/');
-    // 过滤掉空字符串，防止双斜杠影响
-    const cleanSegments = segments.filter(s => s !== '');
-    // cleanSegments: ["search", "ubuntu"] -> index 1 is "ubuntu"
-    // 但为了逻辑通用，我们传入 "path depth"。 
-    // 对于 /search/ubuntu: segment[1]
-    return cleanSegments[index] ? decodeURIComponent(cleanSegments[index]) : null;
+// 提取 40位 Hash
+function extractHash(magnet) {
+    const match = magnet.match(/xt=urn:btih:([a-zA-Z0-9]{40})/);
+    return match ? match[1].toLowerCase() : null;
 }
 
-// 磁力清洗：只保留 Hash
-function cleanMagnetLink(magnet) {
-    const match = magnet.match(/xt=urn:btih:([a-zA-Z0-9]{40})/);
-    return match ? `magnet:?xt=urn:btih:${match[1].toLowerCase()}` : magnet;
+// 构造纯净磁力链 (无任何杂质参数)
+function makeCleanMagnet(hash) {
+    if (!hash) return '';
+    return `magnet:?xt=urn:btih:${hash}`;
 }
 
 function formatDate(dateStr) {
@@ -79,7 +87,7 @@ function formatDate(dateStr) {
 }
 
 // ==========================================
-// 3. I18n & SEO 逻辑
+// 3. 语言与 SEO 核心
 // ==========================================
 let currentLang = localStorage.getItem(CONFIG.storageKey) || CONFIG.defaultLang;
 
@@ -88,19 +96,29 @@ function t(key) {
 }
 
 function updatePageText() {
-    // 1. 更新文字
+    // 1. 更新所有 data-i18n 元素
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         if (el.placeholder) el.placeholder = t(key);
         else el.innerText = t(key);
     });
 
-    // 2. 更新 SEO
-    document.title = t('meta_title');
-    const desc = document.querySelector('meta[name="description"]');
-    if (desc) desc.content = t('meta_desc');
+    // 2. 更新品牌名称 (cili.xyz / 磁力先锋)
+    document.querySelectorAll('.brand-text').forEach(el => {
+        el.innerText = t('brand_name');
+    });
 
-    // 3. 渲染国旗 (Bootstrap Flex Utilities)
+    // 3. 更新 SEO Meta
+    document.title = t('meta_title');
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (!metaDesc) {
+        metaDesc = document.createElement('meta');
+        metaDesc.name = 'description';
+        document.head.appendChild(metaDesc);
+    }
+    metaDesc.content = t('meta_desc');
+
+    // 4. 渲染国旗
     const container = document.getElementById('flagContainer');
     if (container) {
         container.innerHTML = CONFIG.langs.map(lang => `
@@ -117,10 +135,11 @@ window.setLanguage = function(lang) {
     currentLang = lang;
     localStorage.setItem(CONFIG.storageKey, lang);
     updatePageText();
+    // 如果在搜索或详情页，可能需要重新渲染数据以更新翻译(可选)
 };
 
 // ==========================================
-// 4. 路由跳转与初始化
+// 4. 路由与业务逻辑
 // ==========================================
 const API_BASE = 'https://api.cili.xyz'; 
 
@@ -128,15 +147,14 @@ window.doSearch = function() {
     const input = document.getElementById('searchInput');
     const query = input.value.trim();
     if (query) {
-        // 静态路由跳转
-        window.location.href = `/search/${encodeURIComponent(query)}`;
+        // 回归最原始的参数模式
+        window.location.href = `search.html?q=${encodeURIComponent(query)}`;
     }
 };
 
 document.addEventListener('DOMContentLoaded', () => {
     updatePageText();
 
-    // 绑定回车
     const input = document.getElementById('searchInput');
     if (input) {
         input.addEventListener('keydown', (e) => {
@@ -144,44 +162,32 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const path = window.location.pathname;
+    // 获取 URL 参数
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get('q'); // 这是一个通用参数，在 search页是keyword，在 detail页是hash
 
-    // --- A. 搜索页逻辑 ---
-    // 匹配 /search/keyword
-    if (path.startsWith('/search')) {
-        // path: /search/ubuntu -> segments: ["search", "ubuntu"] -> index 1
-        const query = getPathParam(1); 
-        
-        // 只有当 query 存在时才执行，防止把 input 清空
-        if (query) {
-            if(input) input.value = query; // 回填搜索框
-            loadSearchResults(query);
-        }
+    const pathname = window.location.pathname;
+
+    // A. 搜索页逻辑
+    if (pathname.includes('search.html') && q) {
+        if(input) input.value = q;
+        loadSearchResults(q);
     }
 
-    // --- B. 详情页逻辑 ---
-    // 匹配 /detail/hash
-    if (path.startsWith('/detail')) {
-        const hash = getPathParam(1);
-        if (hash && hash.length === 40) {
-            loadDetail(hash);
-        } else {
-            document.getElementById('detailContainer').innerHTML = 
-                `<div class="alert alert-danger">Invalid Link</div>`;
-        }
+    // B. 详情页逻辑
+    if (pathname.includes('detail.html') && q) {
+        // 这里的 q 应该是 40位 hash
+        loadDetail(q);
     }
 });
 
-// ==========================================
-// 5. 数据加载 (API)
-// ==========================================
-
-async function loadSearchResults(query) {
+// 加载搜索结果
+async function loadSearchResults(keyword) {
     const list = document.getElementById('resultsList');
     const loading = document.getElementById('loading');
     
     try {
-        const res = await fetch(`${API_BASE}/?q=${encodeURIComponent(query)}`);
+        const res = await fetch(`${API_BASE}/?q=${encodeURIComponent(keyword)}`);
         const data = await res.json();
         
         loading.classList.add('d-none');
@@ -192,36 +198,35 @@ async function loadSearchResults(query) {
         }
 
         list.innerHTML = data.map(item => {
-            const hash = item.magnet.match(/xt=urn:btih:([a-zA-Z0-9]{40})/)?.[1] || '';
-            const detailUrl = hash ? `/detail/${hash}` : '#';
+            const hash = extractHash(item.magnet);
+            // 详情页链接：只带 Hash，不带其他杂质
+            const detailUrl = hash ? `detail.html?q=${hash}` : '#';
             
-            // 手机端适配：
-            // d-flex flex-column flex-md-row: 手机竖排，电脑横排
+            // 简单的图标分类
+            let icon = 'fa-file';
+            if(item.category.includes('Video')) icon = 'fa-film';
+            if(item.category.includes('App')) icon = 'fa-cube';
+
             return `
             <div class="card mb-3 shadow-sm border-0">
                 <div class="card-body p-3">
                     <div class="d-flex flex-column flex-md-row align-items-md-center">
-                        
                         <div class="d-none d-md-block flex-shrink-0 bg-light rounded p-3 text-center me-3" style="width: 60px;">
-                            <i class="fa-solid fa-file fs-4 text-primary"></i>
+                            <i class="fa-solid ${icon} fs-4 text-primary"></i>
                         </div>
-
                         <div class="flex-grow-1 min-w-0">
                             <h5 class="card-title mb-2">
-                                <a href="${detailUrl}?name=${encodeURIComponent(item.name)}&size=${item.size}" 
-                                   class="text-decoration-none text-dark fw-bold text-break">
+                                <a href="${detailUrl}" class="text-decoration-none text-dark fw-bold text-break">
                                     ${item.name}
                                 </a>
                             </h5>
-                            
-                            <div class="text-muted small d-flex flex-wrap gap-2 gap-md-3">
+                            <div class="text-muted small d-flex flex-wrap gap-3">
                                 <span class="badge bg-light text-secondary border">${item.category}</span>
                                 <span><i class="fa-solid fa-server me-1"></i> ${item.size}</span>
                                 <span><i class="fa-regular fa-calendar me-1"></i> ${formatDate(item.date)}</span>
                                 <span class="d-md-none text-success ms-auto"><i class="fa-solid fa-arrow-up"></i> ${item.seeders}</span>
                             </div>
                         </div>
-
                         <div class="text-end d-none d-md-block ms-4" style="min-width: 80px;">
                             <div class="text-success fw-bold mb-1"><i class="fa-solid fa-arrow-up"></i> ${item.seeders}</div>
                             <div class="text-danger small"><i class="fa-solid fa-arrow-down"></i> ${item.leechers}</div>
@@ -232,88 +237,93 @@ async function loadSearchResults(query) {
         }).join('');
 
     } catch (e) {
-        loading.innerHTML = `<div class="alert alert-danger">API Error</div>`;
+        loading.innerHTML = `<div class="alert alert-danger text-center">${t('error_api')}</div>`;
     }
 }
 
+// 加载详情 (通过 Hash 反查)
 async function loadDetail(hash) {
-    // 逻辑：如果 URL 带了 name 参数，直接渲染；如果没有，通过 hash 搜 API (假设 API 支持)
-    // 这里为了响应速度，优先使用 URL 参数
-    const params = new URLSearchParams(window.location.search);
-    const nameParam = params.get('name');
-    const sizeParam = params.get('size');
-
-    // 构造纯净磁力
-    const cleanMagnet = `magnet:?xt=urn:btih:${hash}`;
     const container = document.getElementById('detailContainer');
+    
+    // 构造纯净磁力链
+    const cleanMagnet = makeCleanMagnet(hash);
 
-    // 渲染函数
-    const render = (name, size, date, seeds, leechs, downs) => {
-        document.title = `${name} - Cili.xyz`;
-        document.getElementById('fileName').innerText = name;
+    try {
+        // 使用 Hash 去 API 搜索详情
+        const res = await fetch(`${API_BASE}/?q=${hash}`);
+        const data = await res.json();
+        
+        // 通常 Hash 搜索只返回一个结果
+        const item = data && data.length > 0 ? data[0] : null;
+
+        if (!item) {
+            container.innerHTML = `<div class="alert alert-warning text-center">Details not found for hash: ${hash}</div>`;
+            return;
+        }
+
+        // 更新页面标题
+        document.title = `${item.name} - ${t('brand_name')}`;
+        document.getElementById('fileName').innerText = item.name;
         document.getElementById('infoHash').innerText = hash;
 
-        // 详情 Grid
+        // 渲染数据
         container.innerHTML = `
-        <div class="row g-3 text-center mb-4">
-            <div class="col-6 col-md-3">
-                <div class="p-3 bg-light rounded border h-100">
-                    <div class="text-muted small mb-1" data-i18n="label_size">Size</div>
-                    <div class="fw-bold">${size}</div>
+            <div class="row g-3 text-center mb-5">
+                <div class="col-6 col-md-3">
+                    <div class="p-3 bg-light rounded border h-100">
+                        <div class="text-muted small mb-1" data-i18n="label_size">Size</div>
+                        <div class="fw-bold">${item.size}</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3 bg-light rounded border h-100">
+                        <div class="text-muted small mb-1" data-i18n="label_date">Date</div>
+                        <div class="fw-bold">${formatDate(item.date)}</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3 bg-light rounded border h-100">
+                        <div class="text-muted small mb-1" data-i18n="stat_seed">Seeders</div>
+                        <div class="fw-bold text-success">${item.seeders}</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3 bg-light rounded border h-100">
+                        <div class="text-muted small mb-1" data-i18n="stat_leech">Leechers</div>
+                        <div class="fw-bold text-danger">${item.leechers}</div>
+                    </div>
                 </div>
             </div>
-            <div class="col-6 col-md-3">
-                <div class="p-3 bg-light rounded border h-100">
-                    <div class="text-muted small mb-1" data-i18n="label_date">Date</div>
-                    <div class="fw-bold">${date}</div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="p-3 bg-light rounded border h-100">
-                    <div class="text-muted small mb-1" data-i18n="stat_seed">Seeders</div>
-                    <div class="fw-bold text-success">${seeds}</div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="p-3 bg-light rounded border h-100">
-                    <div class="text-muted small mb-1" data-i18n="stat_down">Downloads</div>
-                    <div class="fw-bold text-primary">${downs}</div>
-                </div>
-            </div>
-        </div>
 
-        <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-5">
-            <a href="${cleanMagnet}" class="btn btn-primary btn-lg px-5 rounded-pill shadow-sm">
-                <i class="fa-solid fa-magnet me-2"></i> <span data-i18n="btn_magnet">Download</span>
-            </a>
-            <button onclick="copyToClipboard('${cleanMagnet}')" class="btn btn-outline-secondary btn-lg px-5 rounded-pill">
-                <i class="fa-regular fa-copy me-2"></i> <span data-i18n="btn_copy">Copy Link</span>
-            </button>
-        </div>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <a href="${cleanMagnet}" class="btn btn-primary btn-lg px-5 rounded-pill shadow-sm">
+                    <i class="fa-solid fa-magnet me-2"></i> <span data-i18n="btn_magnet">Magnet Download</span>
+                </a>
+                <button onclick="copyToClipboard('${cleanMagnet}')" class="btn btn-outline-secondary btn-lg px-5 rounded-pill">
+                    <i class="fa-regular fa-copy me-2"></i> <span data-i18n="btn_copy">Copy Link</span>
+                </button>
+            </div>
+            
+            <div class="mt-5 text-start">
+                 <h5 class="border-bottom pb-2 mb-3" data-i18n="label_files">Files</h5>
+                 <div class="bg-light p-3 rounded text-muted small">
+                    <i class="fa-regular fa-file me-2"></i> ${item.name}
+                    <br>
+                    <span class="opacity-50 fst-italic ms-4">(API does not provide tree view)</span>
+                 </div>
+            </div>
         `;
+        
+        // 重新应用翻译（因为插入了新 HTML）
         updatePageText();
-    };
 
-    if (nameParam) {
-        // 只有基本信息时，使用默认占位数据
-        render(nameParam, sizeParam || '--', 'N/A', '-', '-', '-');
-    } else {
-        // 如果没有 name 参数，尝试 fetch API
-        try {
-            const res = await fetch(`${API_BASE}/?q=${hash}`);
-            const data = await res.json();
-            if(data && data.length > 0) {
-                const item = data[0];
-                render(item.name, item.size, formatDate(item.date), item.seeders, item.leechers, item.downloads);
-            } else {
-                render('Unknown Resource', '--', '--', '--', '--', '--');
-            }
-        } catch(e) {
-            render('Error Loading', '--', '--', '--', '--', '--');
-        }
+    } catch (e) {
+        container.innerHTML = `<div class="alert alert-danger text-center">${t('error_api')}</div>`;
     }
 }
 
 window.copyToClipboard = function(text) {
-    navigator.clipboard.writeText(text).then(() => alert(t('msg_copied')));
+    navigator.clipboard.writeText(text).then(() => {
+        alert(t('msg_copied'));
+    });
 };
