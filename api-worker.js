@@ -78,8 +78,8 @@ export default {
  * 处理搜索请求
  */
 async function handleSearch(query, env, ctx) {
-    // 构建缓存 key
-    const cacheKey = `search:${utf8ToBase64(query)}`;
+    // 构建缓存 key - 直接使用搜索词，更可读
+    const cacheKey = `search:${query}`;
 
     // 1. 检查缓存
     if (env.MAGNET_CACHE) {

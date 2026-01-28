@@ -168,6 +168,16 @@
 
                 resultsContainer.innerHTML = results.map(item => renderResultCard(item, app)).join('');
 
+                // Add click handlers for result cards
+                resultsContainer.querySelectorAll('.result-card[data-id]').forEach(card => {
+                    card.addEventListener('click', () => {
+                        const id = card.dataset.id;
+                        if (id) {
+                            window.location.href = `/detail.html?q=${encodeURIComponent(id)}`;
+                        }
+                    });
+                });
+
                 // Render pagination if available
                 if (response.pagination && response.pagination.total > 20) {
                     renderPagination(response.pagination, query);
@@ -195,7 +205,7 @@
             if (detailId) app.cacheDetail(detailId, item);
 
             return `
-                <div class="result-card" onclick="viewDetail('${detailId}')">
+                <div class="result-card" data-id="${detailId}" style="cursor: pointer;">
                     <h3 class="result-title">${name}</h3>
                     <div class="result-meta">
                         <span class="result-tag">
@@ -298,14 +308,6 @@
                 url.searchParams.delete('page');
             }
             window.location.href = url.href;
-        }
-
-        function viewDetail(id) {
-            if (!id) {
-                console.error('viewDetail called with empty id');
-                return;
-            }
-            window.location.href = `/detail.html?q=${id}`;
         }
 
         function showError(message) {
