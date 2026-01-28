@@ -19,15 +19,15 @@
             </div>
             <div class="card-body">
                 <div class="row text-center mb-4">
-                    <div class="col-3">
+                    <div class="col-3 border-end">
                         <div class="text-muted small" id="l-seeders">Seeders</div>
                         <div class="fs-4 fw-bold text-success" id="d-seeders">-</div>
                     </div>
-                    <div class="col-3">
+                    <div class="col-3 border-end">
                         <div class="text-muted small" id="l-leechers">Leechers</div>
                         <div class="fs-4 fw-bold text-danger" id="d-leechers">-</div>
                     </div>
-                    <div class="col-3">
+                    <div class="col-3 border-end">
                         <div class="text-muted small" id="l-size">Size</div>
                         <div class="fs-5 fw-bold" id="d-size">-</div>
                     </div>
@@ -38,7 +38,7 @@
                 </div>
 
                 <div class="d-grid gap-2 mb-4">
-                    <a href="#" id="magnetLink" class="btn btn-success btn-lg">
+                    <a href="#" id="magnetLink" class="btn btn-success btn-lg shadow-sm">
                         🧲 <span id="btn-text">Magnet Download</span>
                     </a>
                 </div>
@@ -46,18 +46,18 @@
                 <table class="table table-bordered table-sm small">
                     <tbody>
                         <tr>
-                            <th class="bg-light w-25" id="l-date">Date</th>
-                            <td id="d-date">-</td>
+                            <th class="bg-light w-25 ps-3 align-middle" id="l-date">Date</th>
+                            <td class="p-2" id="d-date">-</td>
                         </tr>
                         <tr>
-                            <th class="bg-light" id="l-hash">Info Hash</th>
-                            <td class="font-monospace text-break" id="d-hash">-</td>
+                            <th class="bg-light ps-3 align-middle" id="l-hash">Info Hash</th>
+                            <td class="font-monospace text-break p-2" id="d-hash">-</td>
                         </tr>
                         <tr>
-                            <th class="bg-light">Magnet Raw</th>
-                            <td>
-                                <div class="font-monospace text-break text-muted bg-light p-2 rounded" style="cursor:pointer" onclick="copyMagnet()" id="rawMagnet"></div>
-                                <div id="copyToast" class="text-success small mt-1" style="opacity:0">Copied!</div>
+                            <th class="bg-light ps-3 align-middle">Magnet Raw</th>
+                            <td class="p-2">
+                                <div class="font-monospace text-break text-muted bg-light p-2 rounded border" style="cursor:pointer" onclick="copyMagnet()" id="rawMagnet"></div>
+                                <div id="copyToast" class="text-success small mt-1 fw-bold" style="opacity:0; transition: opacity 0.5s">Copied!</div>
                             </td>
                         </tr>
                     </tbody>
@@ -69,9 +69,9 @@
     <script src="js/main.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
-            const t = initPage(); // 初始化语言
+            const t = window.initPage();
             
-            // UI 文本初始化
+            // 初始化界面文字
             document.getElementById('btnBack').textContent = `← ${t.back}`;
             document.getElementById('loading').textContent = t.loading;
             document.getElementById('l-seeders').textContent = t.seeders;
@@ -84,24 +84,23 @@
 
             const hash = new URLSearchParams(window.location.search).get('hash');
             if(!hash) {
-                document.getElementById('loading').textContent = "Error: Invalid Hash";
+                document.getElementById('loading').textContent = "Error: Invalid Link (No Hash)";
                 return;
             }
 
             try {
-                // 用 Hash 搜索详情
+                // 通过 Hash 获取详情
                 const res = await fetch(`${API_BASE}/?q=${hash}`);
                 const data = await res.json();
 
-                if(!data || data.length === 0 || data.error) throw new Error("Not Found");
+                if(!data || data.length === 0 || data.error) throw new Error("Resource not found");
 
-                const item = data[0]; // 取第一个匹配项
+                const item = data[0];
 
-                // 渲染数据
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('detailCard').style.display = 'block';
 
-                document.title = item.name;
+                document.title = `${item.name} - ${t.title}`;
                 document.getElementById('d-title').textContent = item.name;
                 document.getElementById('d-seeders').textContent = item.seeders;
                 document.getElementById('d-leechers').textContent = item.leechers;
@@ -114,8 +113,7 @@
                 document.getElementById('rawMagnet').textContent = item.magnet;
 
             } catch(e) {
-                document.getElementById('loading').className = "text-center py-5 text-danger";
-                document.getElementById('loading').textContent = `Error: ${e.message}`;
+                document.getElementById('loading').innerHTML = `<span class="text-danger">Error: ${e.message}</span>`;
             }
         });
 
@@ -124,6 +122,7 @@
             navigator.clipboard.writeText(text).then(() => {
                 const toast = document.getElementById('copyToast');
                 toast.style.opacity = 1;
+                toast.textContent = window.initPage().copy_success; // 获取当前语言的提示
                 setTimeout(() => toast.style.opacity = 0, 2000);
             });
         }

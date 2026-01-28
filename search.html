@@ -11,37 +11,50 @@
     <nav class="navbar navbar-light bg-white border-bottom sticky-top">
         <div class="container">
             <a class="navbar-brand fw-bold d-none d-md-block" href="index.html">🧲</a>
-            <div class="d-flex flex-grow-1" style="max-width: 600px;">
+            
+            <div class="d-flex flex-grow-1 mx-2" style="max-width: 600px;">
                 <input type="text" id="searchInput" class="form-control me-2" onkeypress="handleEnter(event)">
                 <button class="btn btn-outline-primary" id="btnSearch" onclick="goSearch()">Search</button>
             </div>
-            <div class="d-none d-md-block ms-3">
-                 <button class="btn btn-sm btn-link text-decoration-none lang-select" data-lang="en" onclick="setLang('en')">EN</button>
-                 <button class="btn btn-sm btn-link text-decoration-none lang-select" data-lang="zh" onclick="setLang('zh')">中</button>
+
+            <div class="d-none d-md-block">
+                 <div class="btn-group btn-group-sm" role="group">
+                    <button class="btn btn-outline-secondary lang-btn" data-lang="en" onclick="setLang('en')">🇺🇸</button>
+                    <button class="btn btn-outline-secondary lang-btn" data-lang="zh-CN" onclick="setLang('zh-CN')">🇨🇳</button>
+                    <button class="btn btn-outline-secondary lang-btn" data-lang="zh-TW" onclick="setLang('zh-TW')">🇭🇰</button>
+                    <button class="btn btn-outline-secondary lang-btn" data-lang="ja" onclick="setLang('ja')">🇯🇵</button>
+                    <button class="btn btn-outline-secondary lang-btn" data-lang="ko" onclick="setLang('ko')">🇰🇷</button>
+                </div>
             </div>
         </div>
     </nav>
 
+    <div class="container d-md-none mt-2 text-center">
+         <div class="btn-group btn-group-sm" role="group">
+            <button class="btn btn-outline-secondary lang-btn" data-lang="en" onclick="setLang('en')">🇺🇸</button>
+            <button class="btn btn-outline-secondary lang-btn" data-lang="zh-CN" onclick="setLang('zh-CN')">🇨🇳</button>
+            <button class="btn btn-outline-secondary lang-btn" data-lang="zh-TW" onclick="setLang('zh-TW')">🇭🇰</button>
+            <button class="btn btn-outline-secondary lang-btn" data-lang="ja" onclick="setLang('ja')">🇯🇵</button>
+            <button class="btn btn-outline-secondary lang-btn" data-lang="ko" onclick="setLang('ko')">🇰🇷</button>
+        </div>
+    </div>
+
     <div class="container py-4" style="max-width: 900px;">
-        <div id="statusAlert" class="alert alert-info text-center" role="alert">
+        <div id="statusAlert" class="alert alert-light text-center border" role="alert">
             Loading...
         </div>
 
-        <div class="list-group shadow-sm" id="resultsList">
-            </div>
+        <div class="list-group shadow-sm" id="resultsList"></div>
     </div>
 
     <script src="js/main.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
-            const t = initPage(); // 初始化语言
+            const t = window.initPage(); 
             const params = new URLSearchParams(window.location.search);
             const q = params.get('q');
 
-            // 回填搜索框
             if(q) document.getElementById('searchInput').value = q;
-            
-            // 开始搜索
             if(!q) return;
             
             const statusEl = document.getElementById('statusAlert');
@@ -53,6 +66,7 @@
                 const res = await fetch(`${API_BASE}/?q=${encodeURIComponent(q)}`);
                 const data = await res.json();
 
+                // 错误处理
                 if(data.error) throw new Error(data.error);
                 if(!data || data.length === 0) {
                     statusEl.className = "alert alert-warning text-center";
@@ -60,28 +74,26 @@
                     return;
                 }
 
-                statusEl.style.display = 'none'; // 隐藏 Loading
+                statusEl.style.display = 'none';
 
-                // 渲染列表 (Bootstrap List Group)
+                // 渲染列表
                 listEl.innerHTML = data.map(item => {
-                    // 构造详情页链接
                     const hash = item.infohash;
-                    const detailUrl = hash ? `detail.html?hash=${hash}&lang=${getLang()}` : '#';
+                    // 生成详情页链接
+                    const detailUrl = hash ? `detail.html?hash=${hash}&lang=${window.getLang()}` : '#';
                     
-                    // 徽章
                     const verifiedBadge = item.verified ? `<span class="badge bg-success me-1">✓ ${t.verified}</span>` : '';
                     const hotBadge = (item.downloads > 500) ? `<span class="badge bg-danger me-1">🔥 ${t.hot}</span>` : '';
 
                     return `
                     <a href="${detailUrl}" class="list-group-item list-group-item-action p-3">
                         <div class="d-flex w-100 justify-content-between align-items-start mb-2">
-                            <h5 class="mb-1 text-primary text-break">${item.name}</h5>
-                            <small class="text-muted text-nowrap ms-2">${item.size}</small>
+                            <h5 class="mb-1 text-primary text-break" style="font-size:1.1rem">${item.name}</h5>
+                            <span class="badge bg-light text-dark border ms-2">${item.size}</span>
                         </div>
                         <div class="mb-2">
                             ${verifiedBadge}
                             ${hotBadge}
-                            <span class="badge bg-light text-dark border">${item.category || 'General'}</span>
                         </div>
                         <div class="d-flex gap-3 small text-muted">
                             <span class="text-success fw-bold">⬆ ${item.seeders}</span>
