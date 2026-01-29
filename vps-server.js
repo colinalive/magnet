@@ -1,10 +1,10 @@
 /**
- * server.js - v9.0 Rich Data Edition
+ * server.js - v10.0 Full Feature Edition
  * VPS 桥接服务器 (hands.cili.xyz)
  *
  * 功能：
- *   GET /search?q={keyword}     - 搜索接口
- *   GET /detail/{id}            - 详情接口（新增）
+ *   GET /search?q={keyword}&page={n}&category={cat}&sort={field}&order={asc|desc}
+ *   GET /detail/{id}
  *
  * 部署在 VPS 上，因为 BitSearch 阻止 Cloudflare Worker 直接访问
  */
@@ -57,13 +57,29 @@ const CATEGORY_MAP = {
     7: 'Other'
 };
 
+// 反向分类映射 (名称 -> ID)
+const CATEGORY_ID_MAP = {
+    'video': 1,
+    'audio': 2,
+    'software': 3,
+    'games': 4,
+    'books': 5,
+    'anime': 6,
+    'other': 7
+};
+
 function getCategory(catId) {
     return CATEGORY_MAP[catId] || 'Other';
 }
 
+function getCategoryId(catName) {
+    if (!catName) return null;
+    return CATEGORY_ID_MAP[catName.toLowerCase()] || null;
+}
+
 /**
  * 搜索接口
- * GET /search?q={keyword}&enc=b64
+ * GET /search?q={keyword}&enc=b64&page={n}&category={cat}&sort={field}&order={asc|desc}
  */
 app.get('/search', async (req, res) => {
     // 1. 鉴权
@@ -86,17 +102,43 @@ app.get('/search', async (req, res) => {
         console.log(`[SEARCH] Query: ${query}`);
     }
 
-    // 3. 请求 BitSearch
+    // 3. 获取分页和筛选参数
+    const page = parseInt(req.query.page) || 1;
+    const category = req.query.category;
+    const sort = req.query.sort || 'relevance';  // relevance, seeders, size, date
+    const order = req.query.order || 'desc';      // asc, desc
+
+    // 4. 请求 BitSearch
     const currentApiKey = getRandomKey();
 
     try {
-        const targetUrl = `https://bitsearch.to/api/v1/search?q=${encodeURIComponent(query)}`;
+        // 构建 BitSearch API URL
+        let targetUrl = `https://bitsearch.to/api/v1/search?q=${encodeURIComponent(query)}&page=${page}`;
+
+        // 添加分类筛选
+        const catId = getCategoryId(category);
+        if (catId) {
+            targetUrl += `&category=${catId}`;
+        }
+
+        // 添加排序
+        // BitSearch API 排序参数: sort=seeders, sort=size, sort=date
+        if (sort && sort !== 'relevance') {
+            targetUrl += `&sort=${sort}`;
+            if (order === 'asc') {
+                targetUrl += `&order=asc`;
+            }
+        }
+
+        console.log(`[SEARCH] Target URL: ${targetUrl}`);
+
         const response = await axios.get(targetUrl, {
             headers: { 'X-Api-Key': currentApiKey },
             timeout: 20000
         });
 
         const list = response.data.results || [];
+        const total = response.data.total || list.length;
 
         // 映射数据
         const cleanData = list.map(item => ({
@@ -112,11 +154,23 @@ app.get('/search', async (req, res) => {
             infohash: item.infohash,
             magnet: `magnet:?xt=urn:btih:${item.infohash}`,
             category: getCategory(item.category),
-            // 额外字段（如果有）
-            imdb: item.imdb || null
+            categoryId: item.category,
+            // 额外字段
+            imdb: item.imdb || null,
+            // torrent 下载链接
+            torrentUrl: item.torrentUrl || null
         }));
 
-        res.json(cleanData);
+        // 返回带分页信息的响应
+        res.json({
+            results: cleanData,
+            pagination: {
+                page: page,
+                limit: 20,
+                total: total,
+                hasMore: list.length === 20 && (page * 20) < total
+            }
+        });
 
     } catch (error) {
         console.error('[SEARCH] API Error:', error.message);
@@ -157,6 +211,13 @@ app.get('/detail/:id', async (req, res) => {
             return res.status(404).json({ error: 'Not found' });
         }
 
+        // 文件列表处理
+        const files = (item.files || []).map(f => ({
+            name: f.name || f.path,
+            size: formatSize(f.size),
+            size_bytes: f.size
+        }));
+
         // 映射详情数据
         const detail = {
             id: item.id,
@@ -165,25 +226,28 @@ app.get('/detail/:id', async (req, res) => {
             size_bytes: item.size,
             date: item.createdAt ? item.createdAt.split('T')[0] : 'Unknown',
             createdAt: item.createdAt,
+            updatedAt: item.updatedAt || null,
             seeders: item.seeders || 0,
             leechers: item.leechers || 0,
             downloads: item.downloads || 0,
             verified: item.verified === true,
             infohash: item.infohash,
             magnet: item.magnetUrl || `magnet:?xt=urn:btih:${item.infohash}`,
+            // 🔥 torrent 下载链接
             torrentUrl: item.torrentUrl || null,
             category: getCategory(item.category),
+            categoryId: item.category,
             subcategory: item.subcategory || null,
             // IMDb 信息
             imdb: item.imdb || null,
             // 文件列表
-            files: (item.files || []).map(f => ({
-                name: f.name || f.path,
-                size: formatSize(f.size),
-                size_bytes: f.size
-            })),
-            // 描述（如果有）
-            description: item.description || null
+            files: files,
+            fileCount: files.length,
+            // 描述
+            description: item.description || null,
+            // 健康度相关
+            ratio: item.seeders && item.leechers ? (item.seeders / (item.leechers || 1)).toFixed(2) : null,
+            status: item.seeders > 10 ? 'healthy' : item.seeders > 0 ? 'moderate' : 'dead'
         };
 
         res.json(detail);
@@ -202,11 +266,11 @@ app.get('/detail/:id', async (req, res) => {
 
 // 健康检查
 app.get('/health', (req, res) => {
-    res.json({ status: 'ok', version: '9.0' });
+    res.json({ status: 'ok', version: '10.0' });
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 VPS Bridge Server v9.0 running on port ${PORT}`);
-    console.log(`   - Search:  GET /search?q={keyword}`);
+    console.log(`🚀 VPS Bridge Server v10.0 running on port ${PORT}`);
+    console.log(`   - Search:  GET /search?q={keyword}&page={n}&category={cat}&sort={field}`);
     console.log(`   - Detail:  GET /detail/{id}`);
 });

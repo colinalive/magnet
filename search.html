@@ -25,6 +25,112 @@
     <!-- Styles -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css">
     <link rel="stylesheet" href="/style.css">
+    <style>
+        /* Filter Bar */
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding: 16px;
+            background: var(--color-bg);
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
+        }
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .filter-label {
+            font-size: 0.875rem;
+            color: var(--color-text-secondary);
+            white-space: nowrap;
+        }
+        .filter-select {
+            padding: 8px 32px 8px 12px;
+            font-size: 0.875rem;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            background: var(--color-bg);
+            color: var(--color-text);
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+        }
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+        .sort-btn {
+            padding: 8px 12px;
+            font-size: 0.875rem;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            background: var(--color-bg);
+            color: var(--color-text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .sort-btn:hover {
+            border-color: var(--color-primary);
+        }
+        .sort-btn svg {
+            transition: transform 0.2s;
+        }
+        .sort-btn.asc svg {
+            transform: rotate(180deg);
+        }
+
+        /* Loading more indicator */
+        .load-more {
+            display: flex;
+            justify-content: center;
+            padding: 32px;
+        }
+        .load-more.hidden {
+            display: none;
+        }
+        .load-more-spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--color-border);
+            border-top-color: var(--color-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* End of results */
+        .end-message {
+            text-align: center;
+            padding: 24px;
+            color: var(--color-text-tertiary);
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 640px) {
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .filter-group {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .filter-select {
+                flex: 1;
+            }
+        }
+    </style>
 </head>
 <body class="bg-secondary">
     <!-- Navigation -->
@@ -58,6 +164,38 @@
                     <p id="totalResults" class="text-center mt-4" style="color: var(--color-text-tertiary); font-size: 0.875rem;"></p>
                 </div>
 
+                <!-- Filter Bar -->
+                <div class="filter-bar" id="filterBar" style="display: none;">
+                    <div class="filter-group">
+                        <span class="filter-label" id="categoryLabel">Category:</span>
+                        <select class="filter-select" id="categoryFilter">
+                            <option value="">All Categories</option>
+                            <option value="video">Video</option>
+                            <option value="audio">Audio</option>
+                            <option value="software">Software</option>
+                            <option value="games">Games</option>
+                            <option value="books">Books</option>
+                            <option value="anime">Anime</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <span class="filter-label" id="sortLabel">Sort by:</span>
+                        <select class="filter-select" id="sortFilter">
+                            <option value="relevance">Relevance</option>
+                            <option value="seeders">Seeders</option>
+                            <option value="size">Size</option>
+                            <option value="date">Date</option>
+                        </select>
+                        <button class="sort-btn desc" id="orderBtn" title="Toggle order">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 5v14M5 12l7 7 7-7"/>
+                            </svg>
+                            <span id="orderText">Desc</span>
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Status -->
                 <div id="status" class="status">
                     <div class="loading"></div>
@@ -67,8 +205,13 @@
                 <!-- Results List -->
                 <div id="results"></div>
 
-                <!-- Pagination -->
-                <div id="pagination" class="hidden" style="display: flex; justify-content: center; gap: 12px; margin-top: 32px;"></div>
+                <!-- Load More Indicator -->
+                <div id="loadMore" class="load-more hidden">
+                    <div class="load-more-spinner"></div>
+                </div>
+
+                <!-- End Message -->
+                <div id="endMessage" class="end-message hidden"></div>
             </div>
         </div>
     </main>
@@ -83,6 +226,12 @@
     <script>
         let currentQuery = '';
         let currentPage = 1;
+        let currentCategory = '';
+        let currentSort = 'relevance';
+        let currentOrder = 'desc';
+        let isLoading = false;
+        let hasMore = true;
+        let totalResults = 0;
 
         document.addEventListener('DOMContentLoaded', () => {
             const app = window.App;
@@ -102,11 +251,18 @@
             document.getElementById('searchInput').placeholder = t.searchPlaceholder;
             document.getElementById('resultsForText').textContent = t.resultsFor;
             document.getElementById('statusText').textContent = t.searchingText;
+            document.getElementById('categoryLabel').textContent = t.category + ':';
+            document.getElementById('sortLabel').textContent = t.sortBy + ':';
 
-            // Get search query and page from URL: /search.html?q={query}&page={page}
+            // Update filter options translations
+            updateFilterTranslations(t);
+
+            // Get search parameters from URL
             const urlParams = new URLSearchParams(window.location.search);
             currentQuery = urlParams.get('q') || '';
-            currentPage = parseInt(urlParams.get('page')) || 1;
+            currentCategory = urlParams.get('category') || '';
+            currentSort = urlParams.get('sort') || 'relevance';
+            currentOrder = urlParams.get('order') || 'desc';
 
             if (!currentQuery) {
                 showError(t.noResults);
@@ -117,6 +273,11 @@
             document.getElementById('searchInput').value = currentQuery;
             document.getElementById('queryDisplay').textContent = currentQuery;
 
+            // Set filter values
+            document.getElementById('categoryFilter').value = currentCategory;
+            document.getElementById('sortFilter').value = currentSort;
+            updateOrderButton();
+
             // Update SEO
             app.updateSEO({
                 title: `"${currentQuery}" - ${t.searchTitle} - ${t.siteName}`,
@@ -124,52 +285,179 @@
                 canonical: `https://cili.xyz/search.html?q=${encodeURIComponent(currentQuery)}`
             });
 
-            // Perform search
-            performSearch(currentQuery, currentPage);
+            // Perform initial search
+            performSearch(true);
 
-            // Search input handler
+            // Setup event listeners
+            setupEventListeners();
+
+            // Setup infinite scroll
+            setupInfiniteScroll();
+        });
+
+        function updateFilterTranslations(t) {
+            const categoryFilter = document.getElementById('categoryFilter');
+            categoryFilter.options[0].text = t.allCategories || 'All Categories';
+            categoryFilter.options[1].text = t.catVideo || 'Video';
+            categoryFilter.options[2].text = t.catAudio || 'Audio';
+            categoryFilter.options[3].text = t.catSoftware || 'Software';
+            categoryFilter.options[4].text = t.catGames || 'Games';
+            categoryFilter.options[5].text = t.catBooks || 'Books';
+            categoryFilter.options[6].text = t.catAnime || 'Anime';
+            categoryFilter.options[7].text = t.catOther || 'Other';
+
+            const sortFilter = document.getElementById('sortFilter');
+            sortFilter.options[0].text = t.sortRelevance || 'Relevance';
+            sortFilter.options[1].text = t.sortSeeders || 'Seeders';
+            sortFilter.options[2].text = t.sortSize || 'Size';
+            sortFilter.options[3].text = t.sortDate || 'Date';
+
+            document.getElementById('orderText').textContent = currentOrder === 'desc' ? (t.descending || 'Desc') : (t.ascending || 'Asc');
+        }
+
+        function setupEventListeners() {
+            const app = window.App;
+
+            // Search input
             const searchInput = document.getElementById('searchInput');
             searchInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     const newQuery = searchInput.value.trim();
                     if (newQuery && newQuery !== currentQuery) {
-                        window.location.href = `/search.html?q=${encodeURIComponent(newQuery)}`;
+                        navigateToSearch(newQuery);
                     }
                 }
             });
-        });
 
-        async function performSearch(query, page = 1) {
+            // Category filter
+            document.getElementById('categoryFilter').addEventListener('change', (e) => {
+                currentCategory = e.target.value;
+                currentPage = 1;
+                resetAndSearch();
+            });
+
+            // Sort filter
+            document.getElementById('sortFilter').addEventListener('change', (e) => {
+                currentSort = e.target.value;
+                currentPage = 1;
+                resetAndSearch();
+            });
+
+            // Order button
+            document.getElementById('orderBtn').addEventListener('click', () => {
+                currentOrder = currentOrder === 'desc' ? 'asc' : 'desc';
+                updateOrderButton();
+                currentPage = 1;
+                resetAndSearch();
+            });
+        }
+
+        function updateOrderButton() {
+            const btn = document.getElementById('orderBtn');
+            const t = window.App.t;
+            btn.classList.remove('asc', 'desc');
+            btn.classList.add(currentOrder);
+            document.getElementById('orderText').textContent = currentOrder === 'desc' ? (t.descending || 'Desc') : (t.ascending || 'Asc');
+        }
+
+        function navigateToSearch(query) {
+            let url = `/search.html?q=${encodeURIComponent(query)}`;
+            if (currentCategory) url += `&category=${currentCategory}`;
+            if (currentSort !== 'relevance') url += `&sort=${currentSort}`;
+            if (currentOrder !== 'desc') url += `&order=${currentOrder}`;
+            window.location.href = url;
+        }
+
+        function resetAndSearch() {
+            document.getElementById('results').innerHTML = '';
+            hasMore = true;
+            document.getElementById('endMessage').classList.add('hidden');
+            performSearch(true);
+        }
+
+        function setupInfiniteScroll() {
+            const options = {
+                root: null,
+                rootMargin: '200px',
+                threshold: 0
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && !isLoading && hasMore) {
+                        currentPage++;
+                        performSearch(false);
+                    }
+                });
+            }, options);
+
+            // Observe the load more element
+            observer.observe(document.getElementById('loadMore'));
+        }
+
+        async function performSearch(isFirstPage = false) {
+            if (isLoading) return;
+
             const app = window.App;
             const t = app.t;
             const resultsContainer = document.getElementById('results');
             const statusEl = document.getElementById('status');
             const headerEl = document.getElementById('searchHeader');
+            const filterBar = document.getElementById('filterBar');
+            const loadMoreEl = document.getElementById('loadMore');
+            const endMessageEl = document.getElementById('endMessage');
+
+            isLoading = true;
+
+            if (isFirstPage) {
+                statusEl.style.display = 'block';
+            } else {
+                loadMoreEl.classList.remove('hidden');
+            }
 
             try {
-                const response = await app.search(query, { page, limit: 20 });
+                const response = await app.search(currentQuery, {
+                    page: currentPage,
+                    limit: 20,
+                    category: currentCategory,
+                    sort: currentSort,
+                    order: currentOrder
+                });
 
                 statusEl.style.display = 'none';
+                loadMoreEl.classList.add('hidden');
 
                 const results = response.results || response;
+                const pagination = response.pagination;
 
-                if (!results || results.length === 0) {
-                    showError(t.noResults);
-                    return;
+                if (isFirstPage) {
+                    if (!results || results.length === 0) {
+                        showError(t.noResults);
+                        return;
+                    }
+
+                    headerEl.style.display = 'block';
+                    filterBar.style.display = 'flex';
+
+                    if (pagination && pagination.total) {
+                        totalResults = pagination.total;
+                        document.getElementById('totalResults').textContent =
+                            `${t.total} ${pagination.total.toLocaleString()} ${t.results}`;
+                    }
                 }
 
-                headerEl.style.display = 'block';
+                // Render results
+                const newResultsHtml = results.map(item => renderResultCard(item, app)).join('');
 
-                // Show total results if available
-                if (response.pagination && response.pagination.total) {
-                    document.getElementById('totalResults').textContent =
-                        `${t.total} ${response.pagination.total.toLocaleString()} ${t.results}`;
+                if (isFirstPage) {
+                    resultsContainer.innerHTML = newResultsHtml;
+                } else {
+                    resultsContainer.insertAdjacentHTML('beforeend', newResultsHtml);
                 }
 
-                resultsContainer.innerHTML = results.map(item => renderResultCard(item, app)).join('');
-
-                // Add click handlers for result cards
-                resultsContainer.querySelectorAll('.result-card[data-id]').forEach(card => {
+                // Add click handlers for new result cards
+                resultsContainer.querySelectorAll('.result-card[data-id]:not([data-bound])').forEach(card => {
+                    card.setAttribute('data-bound', 'true');
                     card.addEventListener('click', () => {
                         const id = card.dataset.id;
                         if (id) {
@@ -178,14 +466,28 @@
                     });
                 });
 
-                // Render pagination if available
-                if (response.pagination && response.pagination.total > 20) {
-                    renderPagination(response.pagination, query);
+                // Check if there are more results
+                if (pagination) {
+                    hasMore = pagination.hasMore || (results.length === 20 && currentPage * 20 < pagination.total);
+                } else {
+                    hasMore = results.length === 20;
+                }
+
+                if (!hasMore) {
+                    endMessageEl.textContent = t.endOfResults || 'No more results';
+                    endMessageEl.classList.remove('hidden');
                 }
 
             } catch (error) {
                 console.error('Search error:', error);
-                showError(t.apiError);
+                if (isFirstPage) {
+                    showError(t.apiError);
+                } else {
+                    loadMoreEl.classList.add('hidden');
+                    hasMore = false;
+                }
+            } finally {
+                isLoading = false;
             }
         }
 
@@ -256,58 +558,6 @@
                     </div>
                 </div>
             `;
-        }
-
-        function renderPagination(pagination, query) {
-            const t = window.App.t;
-            const paginationEl = document.getElementById('pagination');
-            const totalPages = Math.ceil(pagination.total / pagination.limit);
-
-            if (totalPages <= 1) {
-                paginationEl.classList.add('hidden');
-                return;
-            }
-
-            paginationEl.classList.remove('hidden');
-
-            let html = '';
-
-            // Previous button
-            if (currentPage > 1) {
-                html += `<button class="btn btn-secondary" onclick="goToPage(${currentPage - 1})">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M15 18l-6-6 6-6"/>
-                    </svg>
-                    ${t.prev}
-                </button>`;
-            }
-
-            // Page indicator
-            html += `<span class="btn btn-secondary" style="pointer-events: none;">
-                ${t.page} ${currentPage} ${t.of} ${totalPages}
-            </span>`;
-
-            // Next button
-            if (currentPage < totalPages) {
-                html += `<button class="btn btn-secondary" onclick="goToPage(${currentPage + 1})">
-                    ${t.next}
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 18l6-6-6-6"/>
-                    </svg>
-                </button>`;
-            }
-
-            paginationEl.innerHTML = html;
-        }
-
-        function goToPage(page) {
-            const url = new URL(window.location.href);
-            if (page > 1) {
-                url.searchParams.set('page', page);
-            } else {
-                url.searchParams.delete('page');
-            }
-            window.location.href = url.href;
         }
 
         function showError(message) {

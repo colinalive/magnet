@@ -3,8 +3,8 @@
  * 通过 VPS 桥接 (hands.cili.xyz) 访问 BitSearch API
  *
  * 端点：
- *   GET /?q={keyword}     - 搜索
- *   GET /detail/{id}      - 获取详情
+ *   GET /?q={keyword}&page={n}&category={cat}&sort={field}&order={asc|desc}
+ *   GET /detail/{id}
  *
  * 注意：BitSearch 阻止 Cloudflare Worker 直接访问，
  *       必须通过 VPS 做桥接
@@ -55,7 +55,11 @@ export default {
             // 路由: GET /?q={keyword} - 搜索
             const query = url.searchParams.get('q');
             if (query) {
-                return await handleSearch(query, env, ctx);
+                const page = url.searchParams.get('page') || '1';
+                const category = url.searchParams.get('category') || '';
+                const sort = url.searchParams.get('sort') || 'relevance';
+                const order = url.searchParams.get('order') || 'desc';
+                return await handleSearch(query, { page, category, sort, order }, env, ctx);
             }
 
             // 无效路由
@@ -77,9 +81,11 @@ export default {
 /**
  * 处理搜索请求
  */
-async function handleSearch(query, env, ctx) {
-    // 构建缓存 key - 直接使用搜索词，更可读
-    const cacheKey = `search:${query}`;
+async function handleSearch(query, options, env, ctx) {
+    const { page, category, sort, order } = options;
+
+    // 构建缓存 key - 包含所有参数
+    const cacheKey = `search:${query}:p${page}:c${category}:s${sort}:o${order}`;
 
     // 1. 检查缓存
     if (env.MAGNET_CACHE) {
@@ -94,7 +100,12 @@ async function handleSearch(query, env, ctx) {
     // 2. 请求 VPS 桥接
     const rawBase64 = utf8ToBase64(query);
     const safeQuery = encodeURIComponent(rawBase64);
-    const targetUrl = `${VPS_API}/search?q=${safeQuery}&enc=b64`;
+    let targetUrl = `${VPS_API}/search?q=${safeQuery}&enc=b64&page=${page}`;
+
+    // 添加可选参数
+    if (category) targetUrl += `&category=${category}`;
+    if (sort) targetUrl += `&sort=${sort}`;
+    if (order) targetUrl += `&order=${order}`;
 
     const response = await fetch(targetUrl, {
         headers: {
@@ -111,8 +122,8 @@ async function handleSearch(query, env, ctx) {
 
     const data = await response.text();
 
-    // 3. 写入缓存
-    if (env.MAGNET_CACHE && data.startsWith('[') && data.length > 5) {
+    // 3. 写入缓存 (只缓存有结果的响应)
+    if (env.MAGNET_CACHE && data.includes('"results"')) {
         ctx.waitUntil(
             env.MAGNET_CACHE.put(cacheKey, data, { expirationTtl: CACHE_TTL_SEARCH })
         );
