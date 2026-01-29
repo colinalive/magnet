@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#0071e3">
+
+    <title>Support - cili.xyz</title>
+    <meta name="description" content="Support and Help for cili.xyz - Magnet Pioneer">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css">
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        .legal-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .legal-content h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: var(--color-text);
+        }
+        .legal-content h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 32px 0 16px;
+            color: var(--color-text);
+        }
+        .legal-content p {
+            color: var(--color-text-secondary);
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+        .legal-content ul {
+            color: var(--color-text-secondary);
+            line-height: 1.8;
+            margin-bottom: 16px;
+            padding-left: 24px;
+        }
+        .legal-content li {
+            margin-bottom: 8px;
+        }
+        .legal-content a {
+            color: var(--color-primary);
+            text-decoration: none;
+        }
+        .legal-content a:hover {
+            text-decoration: underline;
+        }
+        .faq-item {
+            background: var(--color-bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .faq-question {
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 8px;
+        }
+        .faq-answer {
+            color: var(--color-text-secondary);
+            line-height: 1.6;
+        }
+        .contact-card {
+            background: linear-gradient(135deg, var(--color-primary), #5856d6);
+            border-radius: 16px;
+            padding: 32px;
+            margin: 32px 0;
+            color: white;
+            text-align: center;
+        }
+        .contact-card h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        .contact-card p {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 20px;
+        }
+        .contact-card a {
+            display: inline-block;
+            background: white;
+            color: var(--color-primary);
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+        .contact-card a:hover {
+            transform: scale(1.05);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">⚡ cili.xyz</a>
+            <div class="nav-actions" id="navActions">
+                <!-- Language selector injected by JS -->
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="legal-content">
+            <h1 id="pageTitle">Help & Support</h1>
+
+            <p id="intro">Welcome to cili.xyz support. Here you'll find answers to common questions and ways to get help.</p>
+
+            <h2 id="faqTitle">Frequently Asked Questions</h2>
+
+            <div class="faq-item">
+                <p class="faq-question" id="faq1q">What is cili.xyz?</p>
+                <p class="faq-answer" id="faq1a">cili.xyz (Magnet Pioneer) is a search engine for discovering torrent metadata. We index publicly available information from across the internet to help you find what you're looking for.</p>
+            </div>
+
+            <div class="faq-item">
+                <p class="faq-question" id="faq2q">Do you host any files?</p>
+                <p class="faq-answer" id="faq2a">No. We are a search engine only. We do not host, store, or distribute any files or torrent content. We only index metadata (titles, sizes, hashes) that is already publicly available.</p>
+            </div>
+
+            <div class="faq-item">
+                <p class="faq-question" id="faq3q">What is a magnet link?</p>
+                <p class="faq-answer" id="faq3a">A magnet link is a type of hyperlink that allows you to download files using a BitTorrent client. It contains a hash that uniquely identifies the content, rather than a specific file location.</p>
+            </div>
+
+            <div class="faq-item">
+                <p class="faq-question" id="faq4q">How do I use a magnet link?</p>
+                <p class="faq-answer" id="faq4a">Click the "Copy Magnet Link" button on any detail page, then paste the link into your preferred BitTorrent client (such as qBittorrent, Transmission, or uTorrent).</p>
+            </div>
+
+            <div class="faq-item">
+                <p class="faq-question" id="faq5q">Why isn't my search returning results?</p>
+                <p class="faq-answer" id="faq5a">Try using different keywords or check your spelling. Our search works best with specific terms. If you're searching in a non-English language, make sure your search terms are spelled correctly.</p>
+            </div>
+
+            <div class="faq-item">
+                <p class="faq-question" id="faq6q">What do Seeds and Leechers mean?</p>
+                <p class="faq-answer" id="faq6a">Seeds are users who have the complete file and are sharing it. Leechers are users who are currently downloading. More seeds generally means faster download speeds.</p>
+            </div>
+
+            <div class="faq-item">
+                <p class="faq-question" id="faq7q">Is it legal to use cili.xyz?</p>
+                <p class="faq-answer" id="faq7a">cili.xyz is a search engine, similar to Google. Searching for information is legal. However, downloading copyrighted content without permission may be illegal in your jurisdiction. Always respect copyright laws.</p>
+            </div>
+
+            <div class="faq-item">
+                <p class="faq-question" id="faq8q">How can I change the language?</p>
+                <p class="faq-answer" id="faq8a">Click on the language selector in the top right corner of any page. We support English, Simplified Chinese, Traditional Chinese, Japanese, and Korean.</p>
+            </div>
+
+            <div class="contact-card">
+                <h3 id="contactTitle">Still need help?</h3>
+                <p id="contactDesc">Can't find what you're looking for? Send us an email and we'll get back to you.</p>
+                <a href="mailto:support@cili.xyz" id="contactBtn">Contact Support</a>
+            </div>
+
+            <h2 id="tipsTitle">Tips for Better Searching</h2>
+            <ul>
+                <li id="tip1">Use specific keywords for better results</li>
+                <li id="tip2">Include the year for movies and TV shows (e.g., "Avatar 2022")</li>
+                <li id="tip3">Use filters to narrow down by category</li>
+                <li id="tip4">Sort by seeders to find the most available content</li>
+                <li id="tip5">Check the file list on the detail page to verify content</li>
+            </ul>
+
+            <h2 id="reportTitle">Report Issues</h2>
+            <p id="reportContent">If you encounter any technical issues or bugs with our website, please let us know at: bugs@cili.xyz</p>
+            <p id="reportCopyright">For copyright-related issues, please refer to our <a href="/dmca.html">DMCA page</a>.</p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" id="footer">
+        <!-- Footer content injected by JS -->
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const app = window.App;
+            const t = app.t;
+
+            // Update page language
+            document.documentElement.lang = app.lang;
+
+            // Inject language selector
+            document.getElementById('navActions').innerHTML = app.generateLangSelector();
+            app.initLangSelector();
+
+            // Inject footer
+            document.getElementById('footer').outerHTML = app.generateFooter();
+
+            // Translations
+            const supportTranslations = {
+                'zh-CN': {
+                    pageTitle: '帮助与支持',
+                    intro: '欢迎来到 cili.xyz 支持中心。在这里您可以找到常见问题的答案和获取帮助的方式。',
+                    faqTitle: '常见问题',
+                    faq1q: 'cili.xyz 是什么？',
+                    faq1a: 'cili.xyz（磁力先锋）是一个用于发现种子元数据的搜索引擎。我们索引互联网上公开可用的信息，帮助您找到所需内容。',
+                    faq2q: '你们托管任何文件吗？',
+                    faq2a: '不。我们只是一个搜索引擎。我们不托管、存储或分发任何文件或种子内容。我们只索引已经公开可用的元数据（标题、大小、哈希值）。',
+                    faq3q: '什么是磁力链接？',
+                    faq3a: '磁力链接是一种超链接，允许您使用 BitTorrent 客户端下载文件。它包含一个唯一标识内容的哈希值，而不是特定的文件位置。',
+                    faq4q: '如何使用磁力链接？',
+                    faq4a: '在任何详情页面上点击"复制磁力链接"按钮，然后将链接粘贴到您喜欢的 BitTorrent 客户端（如 qBittorrent、Transmission 或 uTorrent）。',
+                    faq5q: '为什么我的搜索没有返回结果？',
+                    faq5a: '尝试使用不同的关键词或检查拼写。我们的搜索在使用特定术语时效果最好。如果您使用非英语搜索，请确保搜索词拼写正确。',
+                    faq6q: '做种和下载中是什么意思？',
+                    faq6a: '做种是拥有完整文件并正在分享的用户。下载中是正在下载的用户。更多的做种通常意味着更快的下载速度。',
+                    faq7q: '使用 cili.xyz 合法吗？',
+                    faq7a: 'cili.xyz 是一个搜索引擎，类似于谷歌。搜索信息是合法的。但是，未经许可下载受版权保护的内容在您所在的司法管辖区可能是非法的。请始终遵守版权法。',
+                    faq8q: '如何更改语言？',
+                    faq8a: '点击任何页面右上角的语言选择器。我们支持英语、简体中文、繁体中文、日语和韩语。',
+                    contactTitle: '还需要帮助？',
+                    contactDesc: '找不到您要找的内容？给我们发电子邮件，我们会回复您。',
+                    contactBtn: '联系支持',
+                    tipsTitle: '更好搜索的技巧',
+                    tip1: '使用特定的关键词获得更好的结果',
+                    tip2: '为电影和电视节目包含年份（例如"阿凡达 2022"）',
+                    tip3: '使用筛选器按分类缩小范围',
+                    tip4: '按做种数排序以找到最可用的内容',
+                    tip5: '查看详情页面上的文件列表以验证内容',
+                    reportTitle: '报告问题',
+                    reportContent: '如果您遇到任何技术问题或网站错误，请通过以下邮箱告知我们：bugs@cili.xyz',
+                    reportCopyright: '如有版权相关问题，请参阅我们的 DMCA 页面。'
+                },
+                'zh-TW': {
+                    pageTitle: '幫助與支援',
+                    intro: '歡迎來到 cili.xyz 支援中心。在這裡您可以找到常見問題的答案和獲取幫助的方式。',
+                    faqTitle: '常見問題',
+                    faq1q: 'cili.xyz 是什麼？',
+                    faq1a: 'cili.xyz（磁力先鋒）是一個用於發現種子元資料的搜尋引擎。我們索引網際網路上公開可用的資訊，幫助您找到所需內容。',
+                    faq2q: '你們託管任何檔案嗎？',
+                    faq2a: '不。我們只是一個搜尋引擎。我們不託管、儲存或分發任何檔案或種子內容。我們只索引已經公開可用的元資料（標題、大小、雜湊值）。',
+                    faq3q: '什麼是磁力連結？',
+                    faq3a: '磁力連結是一種超連結，允許您使用 BitTorrent 客戶端下載檔案。它包含一個唯一標識內容的雜湊值，而不是特定的檔案位置。',
+                    faq4q: '如何使用磁力連結？',
+                    faq4a: '在任何詳情頁面上點擊「複製磁力連結」按鈕，然後將連結貼上到您喜歡的 BitTorrent 客戶端（如 qBittorrent、Transmission 或 uTorrent）。',
+                    faq5q: '為什麼我的搜尋沒有返回結果？',
+                    faq5a: '嘗試使用不同的關鍵詞或檢查拼寫。我們的搜尋在使用特定術語時效果最好。如果您使用非英語搜尋，請確保搜尋詞拼寫正確。',
+                    faq6q: '做種和下載中是什麼意思？',
+                    faq6a: '做種是擁有完整檔案並正在分享的用戶。下載中是正在下載的用戶。更多的做種通常意味著更快的下載速度。',
+                    faq7q: '使用 cili.xyz 合法嗎？',
+                    faq7a: 'cili.xyz 是一個搜尋引擎，類似於 Google。搜尋資訊是合法的。但是，未經許可下載受版權保護的內容在您所在的司法管轄區可能是非法的。請始終遵守版權法。',
+                    faq8q: '如何更改語言？',
+                    faq8a: '點擊任何頁面右上角的語言選擇器。我們支援英語、簡體中文、繁體中文、日語和韓語。',
+                    contactTitle: '還需要幫助？',
+                    contactDesc: '找不到您要找的內容？給我們發電子郵件，我們會回覆您。',
+                    contactBtn: '聯繫支援',
+                    tipsTitle: '更好搜尋的技巧',
+                    tip1: '使用特定的關鍵詞獲得更好的結果',
+                    tip2: '為電影和電視節目包含年份（例如「阿凡達 2022」）',
+                    tip3: '使用篩選器按分類縮小範圍',
+                    tip4: '按做種數排序以找到最可用的內容',
+                    tip5: '查看詳情頁面上的檔案列表以驗證內容',
+                    reportTitle: '報告問題',
+                    reportContent: '如果您遇到任何技術問題或網站錯誤，請透過以下郵箱告知我們：bugs@cili.xyz',
+                    reportCopyright: '如有版權相關問題，請參閱我們的 DMCA 頁面。'
+                },
+                'ja': {
+                    pageTitle: 'ヘルプ＆サポート',
+                    intro: 'cili.xyz サポートへようこそ。ここでは、よくある質問への回答やヘルプの取得方法をご覧いただけます。',
+                    faqTitle: 'よくある質問',
+                    faq1q: 'cili.xyz とは何ですか？',
+                    faq1a: 'cili.xyz（マグネットパイオニア）は、トレントメタデータを検索するための検索エンジンです。インターネット上で公開されている情報をインデックスし、お探しのものを見つけるお手伝いをします。',
+                    faq2q: 'ファイルをホストしていますか？',
+                    faq2a: 'いいえ。私たちは検索エンジンのみです。ファイルやトレントコンテンツのホスト、保存、配布は行っていません。すでに公開されているメタデータ（タイトル、サイズ、ハッシュ）のみをインデックスしています。',
+                    faq3q: 'マグネットリンクとは何ですか？',
+                    faq3a: 'マグネットリンクは、BitTorrent クライアントを使用してファイルをダウンロードできるハイパーリンクの一種です。特定のファイルの場所ではなく、コンテンツを一意に識別するハッシュが含まれています。',
+                    faq4q: 'マグネットリンクの使い方は？',
+                    faq4a: '詳細ページの「マグネットリンクをコピー」ボタンをクリックし、お好みの BitTorrent クライアント（qBittorrent、Transmission、uTorrent など）にリンクを貼り付けてください。',
+                    faq5q: '検索結果が表示されないのはなぜですか？',
+                    faq5a: '別のキーワードを使用するか、スペルを確認してください。特定の用語を使用すると検索がうまく機能します。英語以外で検索している場合は、検索語のスペルが正しいことを確認してください。',
+                    faq6q: 'シードとリーチャーの意味は？',
+                    faq6a: 'シードは完全なファイルを持ち、共有しているユーザーです。リーチャーは現在ダウンロード中のユーザーです。シードが多いほど、一般的にダウンロード速度が速くなります。',
+                    faq7q: 'cili.xyz の使用は合法ですか？',
+                    faq7a: 'cili.xyz は Google のような検索エンジンです。情報を検索することは合法です。ただし、許可なく著作権で保護されたコンテンツをダウンロードすることは、お住まいの地域では違法である可能性があります。常に著作権法を遵守してください。',
+                    faq8q: '言語を変更するには？',
+                    faq8a: '任意のページの右上隅にある言語セレクターをクリックしてください。英語、簡体字中国語、繁体字中国語、日本語、韓国語に対応しています。',
+                    contactTitle: 'まだ助けが必要ですか？',
+                    contactDesc: 'お探しのものが見つかりませんか？メールでお問い合わせください。',
+                    contactBtn: 'サポートに連絡',
+                    tipsTitle: 'より良い検索のヒント',
+                    tip1: '特定のキーワードを使用してより良い結果を得る',
+                    tip2: '映画やテレビ番組には年を含める（例：「アバター 2022」）',
+                    tip3: 'フィルターを使用してカテゴリで絞り込む',
+                    tip4: 'シード数で並べ替えて最も利用可能なコンテンツを見つける',
+                    tip5: '詳細ページのファイルリストでコンテンツを確認する',
+                    reportTitle: '問題を報告',
+                    reportContent: 'ウェブサイトで技術的な問題やバグが発生した場合は、bugs@cili.xyz までお知らせください。',
+                    reportCopyright: '著作権関連の問題については、DMCA ページをご参照ください。'
+                },
+                'ko': {
+                    pageTitle: '도움말 및 지원',
+                    intro: 'cili.xyz 지원에 오신 것을 환영합니다. 여기에서 자주 묻는 질문에 대한 답변과 도움을 받는 방법을 찾을 수 있습니다.',
+                    faqTitle: '자주 묻는 질문',
+                    faq1q: 'cili.xyz란 무엇인가요?',
+                    faq1a: 'cili.xyz(마그넷 파이오니어)는 토렌트 메타데이터를 검색하는 검색 엔진입니다. 인터넷 전반에서 공개적으로 사용 가능한 정보를 인덱싱하여 원하는 것을 찾는 데 도움을 드립니다.',
+                    faq2q: '파일을 호스팅하나요?',
+                    faq2a: '아니요. 우리는 검색 엔진일 뿐입니다. 파일이나 토렌트 콘텐츠를 호스팅, 저장 또는 배포하지 않습니다. 이미 공개적으로 사용 가능한 메타데이터(제목, 크기, 해시)만 인덱싱합니다.',
+                    faq3q: '마그넷 링크란 무엇인가요?',
+                    faq3a: '마그넷 링크는 BitTorrent 클라이언트를 사용하여 파일을 다운로드할 수 있는 하이퍼링크의 일종입니다. 특정 파일 위치가 아닌 콘텐츠를 고유하게 식별하는 해시가 포함되어 있습니다.',
+                    faq4q: '마그넷 링크를 어떻게 사용하나요?',
+                    faq4a: '상세 페이지에서 "마그넷 링크 복사" 버튼을 클릭한 다음, 선호하는 BitTorrent 클라이언트(qBittorrent, Transmission, uTorrent 등)에 링크를 붙여넣으세요.',
+                    faq5q: '검색 결과가 나오지 않는 이유는 무엇인가요?',
+                    faq5a: '다른 키워드를 사용하거나 철자를 확인해 보세요. 특정 용어를 사용할 때 검색이 가장 잘 작동합니다. 영어가 아닌 언어로 검색하는 경우 검색어의 철자가 올바른지 확인하세요.',
+                    faq6q: '시드와 리처가 무엇을 의미하나요?',
+                    faq6a: '시드는 완전한 파일을 가지고 있고 공유하는 사용자입니다. 리처는 현재 다운로드 중인 사용자입니다. 시드가 많을수록 일반적으로 다운로드 속도가 빠릅니다.',
+                    faq7q: 'cili.xyz를 사용하는 것은 합법인가요?',
+                    faq7a: 'cili.xyz는 Google과 같은 검색 엔진입니다. 정보를 검색하는 것은 합법입니다. 그러나 허가 없이 저작권으로 보호된 콘텐츠를 다운로드하는 것은 귀하의 관할권에서 불법일 수 있습니다. 항상 저작권법을 준수하세요.',
+                    faq8q: '언어를 어떻게 변경하나요?',
+                    faq8a: '페이지 오른쪽 상단의 언어 선택기를 클릭하세요. 영어, 중국어 간체, 중국어 번체, 일본어, 한국어를 지원합니다.',
+                    contactTitle: '아직 도움이 필요하신가요?',
+                    contactDesc: '찾는 것을 찾을 수 없으신가요? 이메일을 보내주시면 답변 드리겠습니다.',
+                    contactBtn: '지원팀 연락',
+                    tipsTitle: '더 나은 검색을 위한 팁',
+                    tip1: '더 나은 결과를 위해 특정 키워드 사용',
+                    tip2: '영화와 TV 프로그램에는 연도 포함(예: "아바타 2022")',
+                    tip3: '필터를 사용하여 카테고리별로 범위 좁히기',
+                    tip4: '시드 수로 정렬하여 가장 이용 가능한 콘텐츠 찾기',
+                    tip5: '상세 페이지의 파일 목록에서 콘텐츠 확인',
+                    reportTitle: '문제 신고',
+                    reportContent: '웹사이트에서 기술적인 문제나 버그가 발생하면 bugs@cili.xyz로 알려주세요.',
+                    reportCopyright: '저작권 관련 문제는 DMCA 페이지를 참조해 주세요.'
+                }
+            };
+
+            // Apply translations
+            const pageLang = supportTranslations[app.lang];
+            if (pageLang) {
+                Object.keys(pageLang).forEach(key => {
+                    const el = document.getElementById(key);
+                    if (el) {
+                        el.textContent = pageLang[key];
+                    }
+                });
+                // Fix DMCA link translation
+                const reportCopyrightEl = document.getElementById('reportCopyright');
+                if (reportCopyrightEl && app.lang !== 'en') {
+                    reportCopyrightEl.innerHTML = pageLang.reportCopyright.replace('DMCA', '<a href="/dmca.html">DMCA</a>');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

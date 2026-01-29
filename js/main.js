@@ -47,9 +47,10 @@ const LANGUAGES = {
 
 const i18n = {
     'en': {
-        // Common
+        // Brand
         siteName: 'cili.xyz',
         siteTitle: 'Magnet Pioneer',
+        brandName: 'Magnet Pioneer',
         // Home
         heroTitle: 'cili<span>.xyz</span>',
         heroSubtitle: 'Magnet Pioneer: Indexing the Future',
@@ -68,12 +69,29 @@ const i18n = {
         next: 'Next',
         total: 'Total',
         results: 'results',
+        endOfResults: 'No more results',
+        // Filters & Sorting
+        category: 'Category',
+        sortBy: 'Sort by',
+        allCategories: 'All Categories',
+        catVideo: 'Video',
+        catAudio: 'Audio',
+        catSoftware: 'Software',
+        catGames: 'Games',
+        catBooks: 'Books',
+        catAnime: 'Anime',
+        catOther: 'Other',
+        sortRelevance: 'Relevance',
+        sortSeeders: 'Seeders',
+        sortSize: 'Size',
+        sortDate: 'Date',
+        ascending: 'Asc',
+        descending: 'Desc',
         // Detail labels
         size: 'Size',
         seeds: 'Seeds',
         leechers: 'Leechers',
         downloads: 'Downloads',
-        category: 'Category',
         subcategory: 'Subcategory',
         dateAdded: 'Date Added',
         uploadedAt: 'Uploaded',
@@ -96,7 +114,7 @@ const i18n = {
         dmca: 'DMCA',
         privacy: 'Privacy',
         support: 'Support',
-        copyright: '© 2026 cili.xyz. All rights reserved.',
+        copyright: '© 2026 Magnet Pioneer (cili.xyz). All rights reserved.',
         // Errors
         resourceNotFound: 'Resource not found',
         loadingError: 'Failed to load data',
@@ -106,28 +124,51 @@ const i18n = {
         searchMetaDescription: 'Search results for "{query}" on cili.xyz - Find magnet links fast'
     },
     'zh-CN': {
+        // Brand
         siteName: 'cili.xyz',
         siteTitle: '磁力先锋',
+        brandName: '磁力先锋',
+        // Home
         heroTitle: 'cili<span>.xyz</span>',
         heroSubtitle: '磁力先锋：索引未来资源',
         searchPlaceholder: '搜索资源...',
         searchButton: '搜索',
+        // Search
         searchTitle: '搜索结果',
         searchingText: '搜索中...',
         noResults: '未找到相关资源',
         apiError: '连接错误，请重试',
         resultsFor: '搜索结果',
+        // Pagination
         page: '第',
         of: '页，共',
         prev: '上一页',
         next: '下一页',
         total: '共',
         results: '条结果',
+        endOfResults: '没有更多结果了',
+        // Filters & Sorting
+        category: '分类',
+        sortBy: '排序',
+        allCategories: '全部分类',
+        catVideo: '视频',
+        catAudio: '音频',
+        catSoftware: '软件',
+        catGames: '游戏',
+        catBooks: '电子书',
+        catAnime: '动漫',
+        catOther: '其他',
+        sortRelevance: '相关度',
+        sortSeeders: '做种数',
+        sortSize: '文件大小',
+        sortDate: '上传日期',
+        ascending: '升序',
+        descending: '降序',
+        // Detail
         size: '大小',
         seeds: '做种',
         leechers: '下载中',
         downloads: '下载次数',
-        category: '分类',
         subcategory: '子分类',
         dateAdded: '添加日期',
         uploadedAt: '上传时间',
@@ -142,42 +183,69 @@ const i18n = {
         files: '个文件',
         verified: '官方认证',
         imdbRating: 'IMDb 评分',
+        // Navigation
         back: '返回',
         home: '首页',
+        // Footer
         footerTagline: '快速、可靠的磁力搜索',
         dmca: 'DMCA',
         privacy: '隐私政策',
         support: '帮助支持',
         copyright: '© 2026 磁力先锋 (cili.xyz). 保留所有权利。',
+        // Errors
         resourceNotFound: '资源未找到',
         loadingError: '加载数据失败',
         loading: '加载中...',
+        // SEO
         metaDescription: 'cili.xyz - 快速可靠的磁力链接搜索引擎。轻松查找种子资源。',
         searchMetaDescription: '"{query}" 的搜索结果 - cili.xyz 磁力搜索'
     },
     'zh-TW': {
+        // Brand
         siteName: 'cili.xyz',
         siteTitle: '磁力先鋒',
+        brandName: '磁力先鋒',
+        // Home
         heroTitle: 'cili<span>.xyz</span>',
         heroSubtitle: '磁力先鋒：索引未來資源',
         searchPlaceholder: '搜尋資源...',
         searchButton: '搜尋',
+        // Search
         searchTitle: '搜尋結果',
         searchingText: '搜尋中...',
         noResults: '未找到相關資源',
         apiError: '連接錯誤，請重試',
         resultsFor: '搜尋結果',
+        // Pagination
         page: '第',
         of: '頁，共',
         prev: '上一頁',
         next: '下一頁',
         total: '共',
         results: '條結果',
+        endOfResults: '沒有更多結果了',
+        // Filters & Sorting
+        category: '分類',
+        sortBy: '排序',
+        allCategories: '全部分類',
+        catVideo: '影片',
+        catAudio: '音訊',
+        catSoftware: '軟體',
+        catGames: '遊戲',
+        catBooks: '電子書',
+        catAnime: '動漫',
+        catOther: '其他',
+        sortRelevance: '相關度',
+        sortSeeders: '做種數',
+        sortSize: '檔案大小',
+        sortDate: '上傳日期',
+        ascending: '升序',
+        descending: '降序',
+        // Detail
         size: '大小',
         seeds: '做種',
         leechers: '下載中',
         downloads: '下載次數',
-        category: '分類',
         subcategory: '子分類',
         dateAdded: '添加日期',
         uploadedAt: '上傳時間',
@@ -192,42 +260,69 @@ const i18n = {
         files: '個檔案',
         verified: '官方認證',
         imdbRating: 'IMDb 評分',
+        // Navigation
         back: '返回',
         home: '首頁',
+        // Footer
         footerTagline: '快速、可靠的磁力搜尋',
         dmca: 'DMCA',
         privacy: '隱私政策',
         support: '幫助支援',
         copyright: '© 2026 磁力先鋒 (cili.xyz). 保留所有權利。',
+        // Errors
         resourceNotFound: '資源未找到',
         loadingError: '載入資料失敗',
         loading: '載入中...',
+        // SEO
         metaDescription: 'cili.xyz - 快速可靠的磁力連結搜尋引擎。輕鬆查找種子資源。',
         searchMetaDescription: '"{query}" 的搜尋結果 - cili.xyz 磁力搜尋'
     },
     'ja': {
+        // Brand
         siteName: 'cili.xyz',
         siteTitle: 'マグネットパイオニア',
+        brandName: 'マグネットパイオニア',
+        // Home
         heroTitle: 'cili<span>.xyz</span>',
         heroSubtitle: 'マグネットパイオニア：未来をインデックス',
         searchPlaceholder: 'トレントを検索...',
         searchButton: '検索',
+        // Search
         searchTitle: '検索結果',
         searchingText: '検索中...',
         noResults: '結果が見つかりません',
         apiError: '接続エラー。もう一度お試しください。',
         resultsFor: '検索結果',
+        // Pagination
         page: 'ページ',
         of: '/',
         prev: '前へ',
         next: '次へ',
         total: '合計',
         results: '件',
+        endOfResults: '結果はこれ以上ありません',
+        // Filters & Sorting
+        category: 'カテゴリー',
+        sortBy: '並び替え',
+        allCategories: 'すべてのカテゴリー',
+        catVideo: '動画',
+        catAudio: '音声',
+        catSoftware: 'ソフトウェア',
+        catGames: 'ゲーム',
+        catBooks: '電子書籍',
+        catAnime: 'アニメ',
+        catOther: 'その他',
+        sortRelevance: '関連性',
+        sortSeeders: 'シード数',
+        sortSize: 'サイズ',
+        sortDate: '日付',
+        ascending: '昇順',
+        descending: '降順',
+        // Detail
         size: 'サイズ',
         seeds: 'シード',
         leechers: 'リーチャー',
         downloads: 'ダウンロード',
-        category: 'カテゴリー',
         subcategory: 'サブカテゴリー',
         dateAdded: '追加日',
         uploadedAt: 'アップロード日',
@@ -242,42 +337,69 @@ const i18n = {
         files: 'ファイル',
         verified: '認証済み',
         imdbRating: 'IMDb評価',
+        // Navigation
         back: '戻る',
         home: 'ホーム',
+        // Footer
         footerTagline: '高速で信頼性の高いマグネット検索',
         dmca: 'DMCA',
         privacy: 'プライバシー',
         support: 'サポート',
-        copyright: '© 2026 cili.xyz. All rights reserved.',
+        copyright: '© 2026 マグネットパイオニア (cili.xyz). All rights reserved.',
+        // Errors
         resourceNotFound: 'リソースが見つかりません',
         loadingError: 'データの読み込みに失敗しました',
         loading: '読み込み中...',
+        // SEO
         metaDescription: 'cili.xyz - 高速で信頼性の高いマグネットリンク検索エンジン。',
         searchMetaDescription: '"{query}" の検索結果 - cili.xyz'
     },
     'ko': {
+        // Brand
         siteName: 'cili.xyz',
         siteTitle: '마그넷 파이오니어',
+        brandName: '마그넷 파이오니어',
+        // Home
         heroTitle: 'cili<span>.xyz</span>',
         heroSubtitle: '마그넷 파이오니어: 미래를 색인하다',
         searchPlaceholder: '토렌트 검색...',
         searchButton: '검색',
+        // Search
         searchTitle: '검색 결과',
         searchingText: '검색 중...',
         noResults: '결과를 찾을 수 없습니다',
         apiError: '연결 오류. 다시 시도해 주세요.',
         resultsFor: '검색 결과',
+        // Pagination
         page: '페이지',
         of: '/',
         prev: '이전',
         next: '다음',
         total: '총',
         results: '개 결과',
+        endOfResults: '더 이상 결과가 없습니다',
+        // Filters & Sorting
+        category: '카테고리',
+        sortBy: '정렬',
+        allCategories: '모든 카테고리',
+        catVideo: '비디오',
+        catAudio: '오디오',
+        catSoftware: '소프트웨어',
+        catGames: '게임',
+        catBooks: '전자책',
+        catAnime: '애니메이션',
+        catOther: '기타',
+        sortRelevance: '관련성',
+        sortSeeders: '시드 수',
+        sortSize: '크기',
+        sortDate: '날짜',
+        ascending: '오름차순',
+        descending: '내림차순',
+        // Detail
         size: '크기',
         seeds: '시드',
         leechers: '리처',
         downloads: '다운로드',
-        category: '카테고리',
         subcategory: '하위 카테고리',
         dateAdded: '추가 날짜',
         uploadedAt: '업로드 날짜',
@@ -292,16 +414,20 @@ const i18n = {
         files: '파일',
         verified: '인증됨',
         imdbRating: 'IMDb 평점',
+        // Navigation
         back: '뒤로',
         home: '홈',
+        // Footer
         footerTagline: '빠르고 신뢰할 수 있는 마그넷 검색',
         dmca: 'DMCA',
         privacy: '개인정보',
         support: '지원',
-        copyright: '© 2026 cili.xyz. All rights reserved.',
+        copyright: '© 2026 마그넷 파이오니어 (cili.xyz). All rights reserved.',
+        // Errors
         resourceNotFound: '리소스를 찾을 수 없습니다',
         loadingError: '데이터 로드 실패',
         loading: '로딩 중...',
+        // SEO
         metaDescription: 'cili.xyz - 빠르고 신뢰할 수 있는 마그넷 링크 검색 엔진.',
         searchMetaDescription: '"{query}" 검색 결과 - cili.xyz'
     }
@@ -528,15 +654,16 @@ class CiliApp {
      * Search API - through our proxy
      */
     async search(query, options = {}) {
-        const { page = 1, limit = 20, category, subcategory } = options;
+        const { page = 1, limit = 20, category, sort, order } = options;
 
         let url = `${CONFIG.API_BASE}/?q=${encodeURIComponent(query)}`;
 
-        // Add optional parameters if our API supports them
+        // Add optional parameters
         if (page > 1) url += `&page=${page}`;
         if (limit) url += `&limit=${limit}`;
         if (category) url += `&category=${category}`;
-        if (subcategory) url += `&subcategory=${subcategory}`;
+        if (sort) url += `&sort=${sort}`;
+        if (order) url += `&order=${order}`;
 
         const response = await fetch(url);
         if (!response.ok) throw new Error('API Error');
@@ -550,7 +677,8 @@ class CiliApp {
                 pagination: {
                     page: 1,
                     limit: data.length,
-                    total: data.length
+                    total: data.length,
+                    hasMore: false
                 }
             };
         }
@@ -630,7 +758,7 @@ class CiliApp {
         return `
             <footer class="footer">
                 <div class="footer-container">
-                    <div class="footer-brand">⚡ ${this.t.siteName}</div>
+                    <div class="footer-brand">⚡ ${this.t.brandName}</div>
                     <p class="footer-tagline">${this.t.footerTagline}</p>
                     <div class="footer-links">
                         <a href="/dmca.html" class="footer-link">${this.t.dmca}</a>

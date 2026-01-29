@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#0071e3">
+
+    <title>DMCA - cili.xyz</title>
+    <meta name="description" content="DMCA Policy and Copyright Information for cili.xyz">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css">
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        .legal-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .legal-content h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: var(--color-text);
+        }
+        .legal-content h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 32px 0 16px;
+            color: var(--color-text);
+        }
+        .legal-content p {
+            color: var(--color-text-secondary);
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+        .legal-content ul {
+            color: var(--color-text-secondary);
+            line-height: 1.8;
+            margin-bottom: 16px;
+            padding-left: 24px;
+        }
+        .legal-content li {
+            margin-bottom: 8px;
+        }
+        .legal-content a {
+            color: var(--color-primary);
+            text-decoration: none;
+        }
+        .legal-content a:hover {
+            text-decoration: underline;
+        }
+        .contact-box {
+            background: var(--color-bg-secondary);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+        .contact-box p {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">⚡ cili.xyz</a>
+            <div class="nav-actions" id="navActions">
+                <!-- Language selector injected by JS -->
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="legal-content">
+            <h1 id="pageTitle">DMCA Policy</h1>
+
+            <p id="intro">cili.xyz respects the intellectual property rights of others and expects its users to do the same. In accordance with the Digital Millennium Copyright Act of 1998 ("DMCA"), we will respond expeditiously to claims of copyright infringement.</p>
+
+            <h2 id="whatWeAre">What We Are</h2>
+            <p id="whatWeAreContent">cili.xyz is a search engine that indexes publicly available torrent metadata from various sources across the internet. We do not host any files, torrents, or copyrighted content on our servers. We simply provide a search interface to help users find information that is already publicly available.</p>
+
+            <h2 id="noHosting">No File Hosting</h2>
+            <p id="noHostingContent">We want to make it absolutely clear that:</p>
+            <ul>
+                <li id="noHosting1">We do NOT host any torrent files or copyrighted material</li>
+                <li id="noHosting2">We do NOT track or store any user downloads</li>
+                <li id="noHosting3">We only index metadata (titles, sizes, hashes) that is publicly available</li>
+                <li id="noHosting4">Magnet links are hash-based references, not hosted content</li>
+            </ul>
+
+            <h2 id="takedownTitle">Takedown Requests</h2>
+            <p id="takedownContent">If you are a copyright owner or authorized agent and believe that content indexed by our search engine infringes your copyright, you may submit a DMCA takedown notice. Please include:</p>
+            <ul>
+                <li id="takedown1">Identification of the copyrighted work claimed to be infringed</li>
+                <li id="takedown2">The exact URL(s) on cili.xyz where the allegedly infringing material appears</li>
+                <li id="takedown3">Your contact information (name, address, phone, email)</li>
+                <li id="takedown4">A statement that you have a good faith belief that the use is not authorized</li>
+                <li id="takedown5">A statement, under penalty of perjury, that the information is accurate</li>
+                <li id="takedown6">Your physical or electronic signature</li>
+            </ul>
+
+            <div class="contact-box">
+                <h2 id="contactTitle" style="margin-top: 0;">Contact Information</h2>
+                <p id="contactEmail"><strong>Email:</strong> dmca@cili.xyz</p>
+                <p id="contactResponse"><strong>Response Time:</strong> We aim to respond within 24-48 hours</p>
+            </div>
+
+            <h2 id="processTitle">Our Process</h2>
+            <p id="processContent">Upon receiving a valid DMCA notice, we will:</p>
+            <ul>
+                <li id="process1">Review the request for completeness and validity</li>
+                <li id="process2">Remove the search result from our index if appropriate</li>
+                <li id="process3">Notify you of the action taken</li>
+            </ul>
+
+            <h2 id="counterTitle">Counter-Notification</h2>
+            <p id="counterContent">If you believe your content was removed in error, you may file a counter-notification with the required information as specified in the DMCA.</p>
+
+            <p id="lastUpdated" style="margin-top: 48px; font-size: 0.875rem; color: var(--color-text-tertiary);">Last updated: January 2026</p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" id="footer">
+        <!-- Footer content injected by JS -->
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const app = window.App;
+            const t = app.t;
+
+            // Update page language
+            document.documentElement.lang = app.lang;
+
+            // Inject language selector
+            document.getElementById('navActions').innerHTML = app.generateLangSelector();
+            app.initLangSelector();
+
+            // Inject footer
+            document.getElementById('footer').outerHTML = app.generateFooter();
+
+            // Translations for this page
+            const dmcaTranslations = {
+                'zh-CN': {
+                    pageTitle: 'DMCA 版权政策',
+                    intro: 'cili.xyz 尊重他人的知识产权，并期望其用户也这样做。根据 1998 年《数字千年版权法》（"DMCA"），我们将迅速回应版权侵权投诉。',
+                    whatWeAre: '关于我们',
+                    whatWeAreContent: 'cili.xyz 是一个搜索引擎，索引互联网上各种来源的公开可用的种子元数据。我们不在服务器上托管任何文件、种子或受版权保护的内容。我们只是提供一个搜索界面，帮助用户找到已经公开可用的信息。',
+                    noHosting: '无文件托管',
+                    noHostingContent: '我们想明确说明：',
+                    noHosting1: '我们不托管任何种子文件或受版权保护的材料',
+                    noHosting2: '我们不跟踪或存储任何用户下载记录',
+                    noHosting3: '我们只索引公开可用的元数据（标题、大小、哈希值）',
+                    noHosting4: '磁力链接是基于哈希的引用，不是托管内容',
+                    takedownTitle: '下架请求',
+                    takedownContent: '如果您是版权所有者或授权代理人，并认为我们搜索引擎索引的内容侵犯了您的版权，您可以提交 DMCA 下架通知。请包括：',
+                    takedown1: '声称被侵权的受版权保护作品的标识',
+                    takedown2: '涉嫌侵权材料在 cili.xyz 上出现的确切网址',
+                    takedown3: '您的联系信息（姓名、地址、电话、电子邮件）',
+                    takedown4: '声明您善意相信该使用未经授权',
+                    takedown5: '在伪证处罚下声明信息准确无误',
+                    takedown6: '您的实体或电子签名',
+                    contactTitle: '联系方式',
+                    contactEmail: '电子邮件：dmca@cili.xyz',
+                    contactResponse: '响应时间：我们的目标是在 24-48 小时内回复',
+                    processTitle: '处理流程',
+                    processContent: '收到有效的 DMCA 通知后，我们将：',
+                    process1: '审查请求的完整性和有效性',
+                    process2: '如适当，从我们的索引中删除搜索结果',
+                    process3: '通知您所采取的行动',
+                    counterTitle: '反通知',
+                    counterContent: '如果您认为您的内容被错误删除，您可以按照 DMCA 规定的要求提交反通知。',
+                    lastUpdated: '最后更新：2026年1月'
+                },
+                'zh-TW': {
+                    pageTitle: 'DMCA 版權政策',
+                    intro: 'cili.xyz 尊重他人的智慧財產權，並期望其用戶也這樣做。根據 1998 年《數位千禧年著作權法》（"DMCA"），我們將迅速回應版權侵權投訴。',
+                    whatWeAre: '關於我們',
+                    whatWeAreContent: 'cili.xyz 是一個搜尋引擎，索引網際網路上各種來源的公開可用的種子元資料。我們不在伺服器上託管任何檔案、種子或受版權保護的內容。我們只是提供一個搜尋介面，幫助用戶找到已經公開可用的資訊。',
+                    noHosting: '無檔案託管',
+                    noHostingContent: '我們想明確說明：',
+                    noHosting1: '我們不託管任何種子檔案或受版權保護的材料',
+                    noHosting2: '我們不追蹤或儲存任何用戶下載記錄',
+                    noHosting3: '我們只索引公開可用的元資料（標題、大小、雜湊值）',
+                    noHosting4: '磁力連結是基於雜湊的引用，不是託管內容',
+                    takedownTitle: '下架請求',
+                    takedownContent: '如果您是版權所有者或授權代理人，並認為我們搜尋引擎索引的內容侵犯了您的版權，您可以提交 DMCA 下架通知。請包括：',
+                    takedown1: '聲稱被侵權的受版權保護作品的標識',
+                    takedown2: '涉嫌侵權材料在 cili.xyz 上出現的確切網址',
+                    takedown3: '您的聯繫資訊（姓名、地址、電話、電子郵件）',
+                    takedown4: '聲明您善意相信該使用未經授權',
+                    takedown5: '在偽證處罰下聲明資訊準確無誤',
+                    takedown6: '您的實體或電子簽名',
+                    contactTitle: '聯繫方式',
+                    contactEmail: '電子郵件：dmca@cili.xyz',
+                    contactResponse: '回應時間：我們的目標是在 24-48 小時內回覆',
+                    processTitle: '處理流程',
+                    processContent: '收到有效的 DMCA 通知後，我們將：',
+                    process1: '審查請求的完整性和有效性',
+                    process2: '如適當，從我們的索引中刪除搜尋結果',
+                    process3: '通知您所採取的行動',
+                    counterTitle: '反通知',
+                    counterContent: '如果您認為您的內容被錯誤刪除，您可以按照 DMCA 規定的要求提交反通知。',
+                    lastUpdated: '最後更新：2026年1月'
+                },
+                'ja': {
+                    pageTitle: 'DMCA ポリシー',
+                    intro: 'cili.xyz は他者の知的財産権を尊重し、ユーザーにも同様のことを期待しています。1998年のデジタルミレニアム著作権法（"DMCA"）に従い、著作権侵害の申し立てに迅速に対応します。',
+                    whatWeAre: '私たちについて',
+                    whatWeAreContent: 'cili.xyz は、インターネット上のさまざまなソースから公開されているトレントメタデータをインデックスする検索エンジンです。私たちはサーバー上でファイル、トレント、著作権で保護されたコンテンツをホストしていません。すでに公開されている情報をユーザーが見つけるための検索インターフェースを提供しているだけです。',
+                    noHosting: 'ファイルホスティングなし',
+                    noHostingContent: '明確にしたいこと：',
+                    noHosting1: 'トレントファイルや著作権で保護された素材をホストしていません',
+                    noHosting2: 'ユーザーのダウンロードを追跡または保存していません',
+                    noHosting3: '公開されているメタデータ（タイトル、サイズ、ハッシュ）のみをインデックスしています',
+                    noHosting4: 'マグネットリンクはハッシュベースの参照であり、ホストされたコンテンツではありません',
+                    takedownTitle: '削除リクエスト',
+                    takedownContent: '著作権所有者または代理人として、当社の検索エンジンでインデックスされたコンテンツが著作権を侵害していると思われる場合、DMCA削除通知を提出できます。以下を含めてください：',
+                    takedown1: '侵害されたとされる著作物の特定',
+                    takedown2: '侵害とされる素材が cili.xyz に表示される正確なURL',
+                    takedown3: '連絡先情報（氏名、住所、電話番号、メール）',
+                    takedown4: '使用が許可されていないという誠実な信念の声明',
+                    takedown5: '偽証罪の罰則の下での情報が正確であるという声明',
+                    takedown6: '物理的または電子的な署名',
+                    contactTitle: '連絡先',
+                    contactEmail: 'メール：dmca@cili.xyz',
+                    contactResponse: '応答時間：24〜48時間以内の返信を目指しています',
+                    processTitle: '処理プロセス',
+                    processContent: '有効なDMCA通知を受け取った後、私たちは：',
+                    process1: 'リクエストの完全性と有効性を確認します',
+                    process2: '適切な場合、インデックスから検索結果を削除します',
+                    process3: '取られたアクションについて通知します',
+                    counterTitle: '異議申し立て',
+                    counterContent: 'コンテンツが誤って削除されたと思われる場合、DMCAで指定された必要な情報を含む異議申し立てを提出できます。',
+                    lastUpdated: '最終更新：2026年1月'
+                },
+                'ko': {
+                    pageTitle: 'DMCA 정책',
+                    intro: 'cili.xyz는 타인의 지적 재산권을 존중하며 사용자들도 같은 태도를 가지길 기대합니다. 1998년 디지털 밀레니엄 저작권법("DMCA")에 따라 저작권 침해 주장에 신속하게 대응합니다.',
+                    whatWeAre: '우리에 대해',
+                    whatWeAreContent: 'cili.xyz는 인터넷 전반의 다양한 소스에서 공개적으로 사용 가능한 토렌트 메타데이터를 인덱싱하는 검색 엔진입니다. 우리는 서버에 파일, 토렌트 또는 저작권으로 보호된 콘텐츠를 호스팅하지 않습니다. 이미 공개적으로 사용 가능한 정보를 사용자가 찾을 수 있도록 검색 인터페이스를 제공할 뿐입니다.',
+                    noHosting: '파일 호스팅 없음',
+                    noHostingContent: '명확히 하고 싶은 점:',
+                    noHosting1: '토렌트 파일이나 저작권으로 보호된 자료를 호스팅하지 않습니다',
+                    noHosting2: '사용자 다운로드를 추적하거나 저장하지 않습니다',
+                    noHosting3: '공개적으로 사용 가능한 메타데이터(제목, 크기, 해시)만 인덱싱합니다',
+                    noHosting4: '마그넷 링크는 해시 기반 참조이며 호스팅된 콘텐츠가 아닙니다',
+                    takedownTitle: '삭제 요청',
+                    takedownContent: '저작권 소유자 또는 대리인으로서 검색 엔진에서 인덱싱된 콘텐츠가 저작권을 침해한다고 생각되면 DMCA 삭제 통지를 제출할 수 있습니다. 다음을 포함해 주세요:',
+                    takedown1: '침해되었다고 주장하는 저작물의 식별',
+                    takedown2: '침해로 주장되는 자료가 cili.xyz에 나타나는 정확한 URL',
+                    takedown3: '연락처 정보(이름, 주소, 전화번호, 이메일)',
+                    takedown4: '사용이 승인되지 않았다는 선의의 믿음 진술',
+                    takedown5: '위증 처벌 하에 정보가 정확하다는 진술',
+                    takedown6: '물리적 또는 전자 서명',
+                    contactTitle: '연락처',
+                    contactEmail: '이메일: dmca@cili.xyz',
+                    contactResponse: '응답 시간: 24-48시간 이내 응답을 목표로 합니다',
+                    processTitle: '처리 절차',
+                    processContent: '유효한 DMCA 통지를 받은 후:',
+                    process1: '요청의 완전성과 유효성을 검토합니다',
+                    process2: '적절한 경우 인덱스에서 검색 결과를 제거합니다',
+                    process3: '취해진 조치에 대해 알려드립니다',
+                    counterTitle: '이의 신청',
+                    counterContent: '콘텐츠가 잘못 제거되었다고 생각되면 DMCA에서 지정한 필수 정보를 포함한 이의 신청서를 제출할 수 있습니다.',
+                    lastUpdated: '최종 업데이트: 2026년 1월'
+                }
+            };
+
+            // Apply translations
+            const pageLang = dmcaTranslations[app.lang];
+            if (pageLang) {
+                Object.keys(pageLang).forEach(key => {
+                    const el = document.getElementById(key);
+                    if (el) {
+                        el.textContent = pageLang[key];
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
